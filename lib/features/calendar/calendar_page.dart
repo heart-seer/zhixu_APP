@@ -217,8 +217,8 @@ class _CalendarPageState extends State<CalendarPage> {
               else
                 TextButton(
                   style: TextButton.styleFrom(
-                    minimumSize: Size(0, 32 * scale),
-                    padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+                    minimumSize: Size(0, 22 * scale),
+                    padding: EdgeInsets.symmetric(horizontal: 7 * scale),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     backgroundColor: const Color(0xFF0B50C8),
                     elevation: 2 * scale,
@@ -236,18 +236,18 @@ class _CalendarPageState extends State<CalendarPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 7 * scale,
-                        height: 7 * scale,
+                        width: 6 * scale,
+                        height: 6 * scale,
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 6 * scale),
+                      SizedBox(width: 3 * scale),
                       Text(
                         '回到今天',
                         style: TextStyle(
-                          fontSize: 13 * scale,
+                          fontSize: 12 * scale,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
