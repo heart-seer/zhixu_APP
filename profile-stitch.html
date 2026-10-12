@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>智序 - 我的</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "inverse-on-surface": "#eaf1ff",
+            "on-primary-fixed": "#00174b",
+            "primary-container": "#2563eb",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed-variant": "#5a00c6",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface-tint": "#0053db",
+            "on-primary-container": "#eeefff",
+            "error-container": "#ffdad6",
+            "tertiary-fixed": "#ffddb8",
+            "tertiary-container": "#996100",
+            "on-error": "#ffffff",
+            "on-surface-variant": "#434655",
+            "surface-container-low": "#eff4ff",
+            "on-primary": "#ffffff",
+            "on-secondary-fixed": "#25005a",
+            "tertiary-fixed-dim": "#ffb95f",
+            "inverse-surface": "#213145",
+            "on-background": "#0b1c30",
+            "secondary-fixed": "#eaddff",
+            "on-tertiary-fixed": "#2a1700",
+            "secondary-fixed-dim": "#d2bbff",
+            "on-tertiary": "#ffffff",
+            "primary": "#004ac6",
+            "surface-variant": "#d3e4fe",
+            "error": "#ba1a1a",
+            "on-error-container": "#93000a",
+            "secondary": "#712ae2",
+            "on-secondary-container": "#fffbff",
+            "surface-dim": "#cbdbf5",
+            "on-primary-fixed-variant": "#003ea8",
+            "surface-container": "#e5eeff",
+            "outline-variant": "#c3c6d7",
+            "tertiary": "#784b00",
+            "outline": "#737686",
+            "secondary-container": "#8a4cfc",
+            "on-surface": "#0b1c30",
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "primary-fixed": "#dbe1ff",
+            "surface-container-high": "#dce9ff",
+            "surface-bright": "#f8f9ff",
+            "surface-container-highest": "#d3e4fe",
+            "on-tertiary-container": "#ffeedd",
+            "surface-container-lowest": "#ffffff",
+            "inverse-primary": "#b4c5ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "1rem",
+            "space-xl": "1.5rem",
+            "space-md": "0.75rem",
+            "gutter": "1rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 20px);
+    }
+    .tap-effect:active {
+      transform: scale(0.98);
+      transition: transform 0.12s ease;
+    }
+    /* Hide scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col justify-between selection:bg-surface-variant">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 w-full bg-surface/90 dark:bg-surface/90 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-3">
+<!-- leading_avatar -->
+<div class="w-8 h-8 rounded-full overflow-hidden ring-2 ring-primary/20 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close up portrait photo of an east asian professional with minimalist glasses in high key studio lighting with a calm focused expression, modern subtle tech background with high contrast clarity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS041Z_xi8G7_jM427u1zg-e-uDy0GkJPuXD2dwdsGwGZzzgc142Vlcgm_RPQtWBohV3I1xpfBeANQETXxRNs2Dz--DtIy9jzUK_mJDVs3ilAu6O91CampP5wII9AG3l4w6RpqlzBA4S8NuUTB-f_g9lrwNXkM_O2sqesvHbUmOATPjo-X_qiSXNqlOc_D75Omows_6qP0ydQGGvBIjJgHI5VhTBH0FavZKCwC-GCAFKK3KctP-_LOKQ"/>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">智序</span>
+<span class="text-label-sm font-label-sm bg-secondary-fixed text-on-secondary-fixed px-1.5 py-0.5 rounded-full font-bold">Pro</span>
+</div>
+</div>
+<!-- Trailing Action -->
+<div class="flex items-center gap-1">
+<button class="w-9 h-9 flex items-center justify-center rounded-full text-primary hover:bg-surface-container transition-colors active:scale-95 duration-150" onclick="showToast('AI 智序助理已就绪，保持后台自适应调度')">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+</button>
+<button class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 duration-150" onclick="showToast('已同步最新云端配置')">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+</div>
+</header>
+<!-- Main Scrollable Canvas -->
+<main class="w-full max-w-md mx-auto pt-16 pb-24 px-4 space-y-3.5 flex-1">
+<!-- Section 1: User Profile Header Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-4 shadow-sm relative overflow-hidden">
+<!-- Ambient subtle glow in top corner -->
+<div class="absolute -right-8 -top-8 w-28 h-28 bg-surface-variant rounded-full blur-2xl pointer-events-none opacity-60"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex items-center gap-3.5">
+<div class="relative">
+<div class="w-14 h-14 rounded-full overflow-hidden ring-2 ring-primary shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Refined candid portrait of an east asian male knowledge worker wearing a charcoal turtleneck in a brightly lit architectural workspace, natural daylight and clean sharp aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKNIMxBa15MLULw_DjbRV036DQ6VNQFKQDSB-eY5MEbg57xrT7CPSpOOOY0ALKsSKwbpMUDeqdffBth4JJV0kRx7rmkxviJVvzuoCnKMDyZKTtz5XFsuPoHiLmnOYjAVk_CYnxP6_aJKIvUKOxeRejsFcYJfE8Tq7TizcoptQoancgUr7MN-u2am18nt-SkMWuf4S3B2eKvJcp97onpb40yTEzEpP8CDruE2sX1fVuEslEqtiasOi75g"/>
+</div>
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-primary rounded-full border-2 border-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-primary font-bold" data-icon="check">check</span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">林知序</h1>
+<span class="text-label-md font-label-md text-outline">Alex Lin</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">高级产品设计专家 · 考研备考中</p>
+</div>
+</div>
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors tap-effect" onclick="showToast('个人档案编辑功能可在网页版深度设置')">
+<span class="material-symbols-outlined text-[20px]" data-icon="qr_code_2">qr_code_2</span>
+</button>
+</div>
+<!-- Membership Tier Pill Bar -->
+<div class="mt-3.5 pt-3 border-t border-outline-variant/20 flex items-center justify-between bg-surface-container-low/70 -mx-4 -mb-4 px-4 py-2.5">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-md bg-secondary flex items-center justify-center text-on-secondary shadow-xs">
+<span class="material-symbols-outlined text-[13px]" data-icon="stars" data-weight="fill" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<span class="text-label-md font-label-md text-on-surface font-semibold">智序 AI Pro · 智能协同版</span>
+</div>
+<div class="flex items-center gap-1 text-primary text-label-sm font-label-sm font-bold cursor-pointer tap-effect" onclick="showToast('权益有效期至 2025-10-31')">
+<span>特权管理</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Section 2: Productivity Micro Dashboard Bento -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-3.5 shadow-sm">
+<div class="flex items-center justify-between mb-3 px-0.5">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-3.5 bg-primary rounded-full"></span>
+<span class="text-label-lg font-label-lg text-on-surface">效能周报看板</span>
+<span class="text-label-sm font-label-sm text-outline">第43周</span>
+</div>
+<button class="flex items-center gap-0.5 text-label-sm font-label-sm text-primary hover:underline font-bold tap-effect" onclick="openEfficiencyModal()">
+<span>完整周报</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- 3 Metrics Columns -->
+<div class="grid grid-cols-3 gap-2">
+<div class="bg-surface-container-low/60 rounded-lg p-2.5 flex flex-col items-center justify-center text-center border border-outline-variant/10 tap-effect cursor-pointer" onclick="showToast('本周共完成38个关键交付节点，环比上周 +12%')">
+<span class="text-label-sm font-label-sm text-on-surface-variant">本周交付任务</span>
+<div class="flex items-baseline gap-0.5 my-1">
+<span class="text-headline-md font-headline-md font-bold text-primary">38</span>
+<span class="text-label-sm font-label-sm text-outline">项</span>
+</div>
+<span class="text-[10px] text-[#059669] bg-[#ecfdf5] px-1.5 py-0.2 rounded font-medium">+12.5%</span>
+</div>
+<div class="bg-surface-container-low/60 rounded-lg p-2.5 flex flex-col items-center justify-center text-center border border-outline-variant/10 tap-effect cursor-pointer" onclick="showToast('累计沉浸专注时长42.5小时，达成本周计划指标 106%')">
+<span class="text-label-sm font-label-sm text-on-surface-variant">专注时长</span>
+<div class="flex items-baseline gap-0.5 my-1">
+<span class="text-headline-md font-headline-md font-bold text-secondary">42.5</span>
+<span class="text-label-sm font-label-sm text-outline">h</span>
+</div>
+<span class="text-[10px] text-secondary bg-[#f5f3ff] px-1.5 py-0.2 rounded font-medium">超额达标</span>
+</div>
+<div class="bg-surface-container-low/60 rounded-lg p-2.5 flex flex-col items-center justify-center text-center border border-outline-variant/10 tap-effect cursor-pointer" onclick="showToast('AI智能推荐时段与冲突化解方案采纳率 94%')">
+<span class="text-label-sm font-label-sm text-on-surface-variant">AI 协同采纳</span>
+<div class="flex items-baseline gap-0.5 my-1">
+<span class="text-headline-md font-headline-md font-bold text-on-surface">94</span>
+<span class="text-label-sm font-label-sm text-outline">%</span>
+</div>
+<span class="text-[10px] text-primary bg-[#eff4ff] px-1.5 py-0.2 rounded font-medium">高智效</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Grouped Settings Modules -->
+<!-- Module 1: AI Assistant & Scheduling Engine -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<div class="px-4 py-2.5 bg-surface-container-low/40 flex items-center gap-2 border-b border-outline-variant/20">
+<span class="material-symbols-outlined text-[18px] text-secondary" data-icon="psychology">psychology</span>
+<h2 class="text-label-md font-label-md text-on-surface font-bold tracking-wide">AI 助理与算法配置</h2>
+</div>
+<div class="divide-y divide-outline-variant/20">
+<!-- Item 1.1: Scheduling Preference -->
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="openAIPrefModal()">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+</div>
+<div>
+<div class="text-body-md font-body-md font-medium text-on-surface">AI 自动编排偏好</div>
+<div class="text-label-sm font-label-sm text-outline mt-0.5" id="current-ai-mode">当前偏好：深度专注优先 (90m 块)</div>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="text-label-sm font-label-sm text-primary font-semibold bg-surface-container-low px-2 py-0.5 rounded-full">调整</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Item 1.2: Rest & DND -->
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="showToast('勿扰时段：22:30 - 08:30 已开启智能顺延保护')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]" data-icon="bedtime">bedtime</span>
+</div>
+<div>
+<div class="text-body-md font-body-md font-medium text-on-surface">作息与勿扰时段</div>
+<div class="text-label-sm font-label-sm text-outline mt-0.5">08:30 - 22:30 · 弹性免打扰保护</div>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="text-label-sm font-label-sm text-outline">已生效</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Item 1.3: Smart Reminder Gradient -->
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="toggleReminder(this)">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[18px]" data-icon="notifications_active">notifications_active</span>
+</div>
+<div>
+<div class="text-body-md font-body-md font-medium text-on-surface">智能提醒梯度</div>
+<div class="text-label-sm font-label-sm text-outline mt-0.5">前15分钟自适应声学+手环微震</div>
+</div>
+</div>
+<div class="w-11 h-6 bg-primary rounded-full p-0.5 flex items-center justify-end transition-colors cursor-pointer" id="reminder-toggle">
+<div class="w-5 h-5 bg-surface-container-lowest rounded-full shadow-sm"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Module 2: Connected Collaboration Platforms -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<div class="px-4 py-2.5 bg-surface-container-low/40 flex items-center justify-between border-b border-outline-variant/20">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="hub">hub</span>
+<h2 class="text-label-md font-label-md text-on-surface font-bold tracking-wide">协同平台与数据源连接</h2>
+</div>
+<span class="text-label-sm font-label-sm text-primary font-bold cursor-pointer tap-effect" onclick="openPlatformModal()">4平台在线</span>
+</div>
+<div class="p-3.5 space-y-2.5">
+<div class="grid grid-cols-2 gap-2">
+<!-- DingTalk -->
+<div class="flex items-center justify-between p-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-low/30 tap-effect cursor-pointer" onclick="showPlatformDetail('钉钉', '在线已同步', '日程会议双向拉取')">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-md bg-[#e5eeff] text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="groups">groups</span>
+</div>
+<div class="flex flex-col">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">钉钉</span>
+<span class="text-[10px] text-[#059669]">已连接</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+</div>
+<!-- WeCom -->
+<div class="flex items-center justify-between p-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-low/30 tap-effect cursor-pointer" onclick="showPlatformDetail('企业微信', '在线已同步', '企业待办实时接收')">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-md bg-[#e5eeff] text-[#2563eb] flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="business_center">business_center</span>
+</div>
+<div class="flex flex-col">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">企业微信</span>
+<span class="text-[10px] text-[#059669]">已连接</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+</div>
+<!-- Feishu -->
+<div class="flex items-center justify-between p-2.5 rounded-lg border border-outline-variant/30 bg-surface-container-low/30 tap-effect cursor-pointer" onclick="showPlatformDetail('飞书', '在线已同步', '云文档日历互通')">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-md bg-[#eff4ff] text-[#3b82f6] flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="send">send</span>
+</div>
+<div class="flex flex-col">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">飞书</span>
+<span class="text-[10px] text-[#059669]">已连接</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+</div>
+<!-- XueXiTong -->
+<div class="flex items-center justify-between p-2.5 rounded-lg border border-outline-variant/30 bg-[#fffbeb] tap-effect cursor-pointer" onclick="showPlatformDetail('学习通', '待同步', '高校考研课程待更新')">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-md bg-[#fef3c7] text-[#d97706] flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="school">school</span>
+</div>
+<div class="flex flex-col">
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">学习通</span>
+<span class="text-[10px] text-[#d97706]">待同步</span>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-[#f59e0b] animate-ping"></span>
+</div>
+</div>
+<div class="pt-1 flex items-center justify-between text-label-sm font-label-sm text-outline">
+<span>最近一次全量云端对齐：10分钟前</span>
+<button class="text-primary hover:underline font-semibold" onclick="showToast('正在向各协同端发送增量校验...')">立即对齐</button>
+</div>
+</div>
+</div>
+<!-- Module 3: System & General Preferences -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<div class="px-4 py-2.5 bg-surface-container-low/40 flex items-center gap-2 border-b border-outline-variant/20">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="settings">settings</span>
+<h2 class="text-label-md font-label-md text-on-surface font-bold tracking-wide">系统与偏好</h2>
+</div>
+<div class="divide-y divide-outline-variant/20">
+<!-- Appearance toggle -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="palette">palette</span>
+</div>
+<div class="text-body-md font-body-md font-medium text-on-surface">界面外观</div>
+</div>
+<!-- 3-Segment Switch -->
+<div class="flex bg-surface-container-low p-1 rounded-lg border border-outline-variant/20 text-label-sm font-label-sm">
+<button class="px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-xs tap-effect" id="mode-light" onclick="setThemeMode('light')">浅色</button>
+<button class="px-2.5 py-1 rounded-md text-on-surface-variant font-medium hover:text-on-surface tap-effect" id="mode-dark" onclick="setThemeMode('dark')">深色</button>
+<button class="px-2.5 py-1 rounded-md text-on-surface-variant font-medium hover:text-on-surface tap-effect" id="mode-auto" onclick="setThemeMode('auto')">跟随</button>
+</div>
+</div>
+<!-- Storage & Offline Cache -->
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="clearCachePrompt()">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="storage">storage</span>
+</div>
+<div>
+<div class="text-body-md font-body-md font-medium text-on-surface">存储与离线缓存</div>
+<div class="text-label-sm font-label-sm text-outline mt-0.5" id="cache-indicator">离线日历与知识库 · 142.8 MB</div>
+</div>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="text-label-sm font-label-sm text-outline">清理</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Privacy & Local Security -->
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="showToast('端侧 AES-256 加密与生物密钥校验已锁定')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-[#10b981]">
+<span class="material-symbols-outlined text-[18px]" data-icon="shield">shield</span>
+</div>
+<div>
+<div class="text-body-md font-body-md font-medium text-on-surface">隐私安全与数据加密</div>
+<div class="text-label-sm font-label-sm text-outline mt-0.5">端侧密文计算 · 知识沙箱隔离已开启</div>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<span class="text-[11px] text-[#059669] font-semibold bg-[#ecfdf5] px-2 py-0.5 rounded-full">高安全</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Module 4: About & Account Actions -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+<div class="divide-y divide-outline-variant/20">
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="showToast('打开帮助与反馈中心')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="help_center">help_center</span>
+</div>
+<span class="text-body-md font-body-md font-medium text-on-surface">帮助反馈与 AI 使用指南</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-3.5 flex items-center justify-between hover:bg-surface-container-low/40 transition-colors cursor-pointer tap-effect" onclick="showToast('当前已是最新版 v2.4.0 (Build 20241024)')">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="info">info</span>
+</div>
+<span class="text-body-md font-body-md font-medium text-on-surface">关于智序 (SmartOrder)</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="text-label-sm font-label-sm text-outline">v2.4.0 最新</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sign Out / Switch Account Button -->
+<div class="pt-1 pb-4">
+<button class="w-full py-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-lowest text-error font-headline-sm font-semibold text-body-md flex items-center justify-center gap-1.5 shadow-sm hover:bg-error-container/20 transition-colors tap-effect" onclick="showToast('已安全退出当前会话，正在保护本地沙盒缓存')">
+<span class="material-symbols-outlined text-[18px]" data-icon="logout">logout</span>
+<span>退出登录 / 切换智序账号</span>
+</button>
+<p class="text-center text-[11px] text-outline mt-3">智序 AI · 智能极简知识工场 · 沪ICP备20240092号</p>
+</div>
+</main>
+<!-- BottomNavBar (Shared Component Execution) -->
+<!-- Contextual State: Page represents '我的' (Profile). Active index = 4 (Profile/我的) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-14 pb-safe px-2 bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-md shadow-[0_-4px_16px_rgba(0,0,0,0.05)]">
+<!-- Item 0: 首页 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1" href="#" onclick="navTabClick(this, '首页')">
+<span class="material-symbols-outlined text-[22px]" data-icon="home">home</span>
+<span class="text-label-sm font-label-sm mt-0.5">首页</span>
+</a>
+<!-- Item 1: 任务 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1" href="#" onclick="navTabClick(this, '任务')">
+<span class="material-symbols-outlined text-[22px]" data-icon="check_box">check_box</span>
+<span class="text-label-sm font-label-sm mt-0.5">任务</span>
+</a>
+<!-- Item 2: 日历 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1" href="#" onclick="navTabClick(this, '日历')">
+<span class="material-symbols-outlined text-[22px]" data-icon="calendar_month">calendar_month</span>
+<span class="text-label-sm font-label-sm mt-0.5">日历</span>
+</a>
+<!-- Item 3: 消息 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 relative" href="#" onclick="navTabClick(this, '消息')">
+<span class="relative">
+<span class="material-symbols-outlined text-[22px]" data-icon="chat_bubble">chat_bubble</span>
+<span class="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-error"></span>
+</span>
+<span class="text-label-sm font-label-sm mt-0.5">消息</span>
+</a>
+<!-- Item 4: 我的 (ACTIVE ITEM MANDATED BY JSON & CURRENT CONTEXT) -->
+<a class="flex flex-col items-center justify-center text-primary font-semibold relative after:content-[''] after:absolute after:top-0 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1" href="#" onclick="navTabClick(this, '我的')">
+<span class="material-symbols-outlined text-[22px]" data-icon="person" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-label-sm font-label-sm mt-0.5">我的</span>
+</a>
+</nav>
+<!-- Interactive Modal 1: AI Scheduling Preference Drawer -->
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden flex items-end justify-center transition-opacity duration-200" id="ai-pref-modal">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-t-2xl p-5 shadow-2xl border-t border-outline-variant/30 transform transition-transform duration-200">
+<div class="w-10 h-1 bg-outline-variant rounded-full mx-auto mb-4"></div>
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="text-headline-sm font-headline-sm font-bold text-on-surface">AI 自动编排节奏偏好</h3>
+<p class="text-body-sm font-body-sm text-outline">算法将根据你的专注心流与精力曲线智能排期</p>
+</div>
+<button class="p-1 rounded-full text-on-surface-variant hover:bg-surface-container" onclick="closeAIPrefModal()">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="space-y-2.5 mb-5">
+<div class="p-3.5 rounded-xl border-2 border-primary bg-surface-container-low flex items-center justify-between cursor-pointer tap-effect" onclick="selectAIMode('深度专注优先 (90m 块)', this)">
+<div>
+<div class="font-headline-sm text-body-md font-bold text-primary flex items-center gap-1.5">
+<span>深度专注优先 (推荐)</span>
+<span class="text-label-sm font-label-sm bg-primary text-on-primary px-1.5 py-0.2 rounded-full">高产出</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">大块连续时间段不打断，沉浸式攻坚高难度任务</p>
+</div>
+<span class="material-symbols-outlined text-primary font-bold" data-icon="check_circle">check_circle</span>
+</div>
+<div class="p-3.5 rounded-xl border border-outline-variant/30 hover:border-primary/50 flex items-center justify-between cursor-pointer tap-effect" onclick="selectAIMode('匀速节奏与番茄钟 (45m/10m)', this)">
+<div>
+<div class="font-headline-sm text-body-md font-bold text-on-surface">匀速平衡节奏</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">每专注45分钟自动插入10分钟体态放松与补水</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+<div class="p-3.5 rounded-xl border border-outline-variant/30 hover:border-primary/50 flex items-center justify-between cursor-pointer tap-effect" onclick="selectAIMode('极速交付模式 (碎时间吞吐)', this)">
+<div>
+<div class="font-headline-sm text-body-md font-bold text-on-surface">敏捷极速交付</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">利用会议与通勤间隙的高频微任务自适应吞吐</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+</div>
+<button class="w-full py-3 rounded-xl bg-primary text-on-primary font-bold text-body-md shadow-sm tap-effect" onclick="closeAIPrefModal()">确认配置并重新编排今日日历</button>
+</div>
+</div>
+<!-- Interactive Modal 2: Connected Platform Action Sheet -->
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden flex items-end justify-center transition-opacity duration-200" id="platform-modal">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-t-2xl p-5 shadow-2xl border-t border-outline-variant/30">
+<div class="w-10 h-1 bg-outline-variant rounded-full mx-auto mb-4"></div>
+<div class="flex items-center justify-between mb-3">
+<h3 class="text-headline-sm font-headline-sm font-bold text-on-surface" id="platform-modal-title">平台协同状态</h3>
+<button class="p-1 rounded-full text-on-surface-variant hover:bg-surface-container" onclick="closePlatformModal()">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<p class="text-body-sm font-body-sm text-outline mb-4" id="platform-modal-desc">已连接平台的数据流会通过端到端沙盒进行本地向量化。</p>
+<div class="bg-surface-container-low rounded-xl p-3.5 space-y-2 mb-4 border border-outline-variant/20">
+<div class="flex justify-between text-body-sm">
+<span class="text-outline">授权状态</span>
+<span class="text-[#059669] font-bold" id="platform-modal-status">双向读写正常</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-outline">最近同步事件</span>
+<span class="text-on-surface font-medium">10-24 14:00 (自动对齐)</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-outline">数据保护协议</span>
+<span class="text-primary font-medium">智序隐私安全合规 V3</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface font-semibold text-body-md tap-effect" onclick="showToast('已向平台发送测试脉冲，延迟 24ms')">连接诊断</button>
+<button class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-body-md tap-effect" onclick="showToast('全量数据增量已同步完成'); closePlatformModal()">立刻重新拉取</button>
+</div>
+</div>
+</div>
+<!-- Toast Notification Capsule -->
+<div class="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface/95 text-inverse-on-surface px-4 py-2 rounded-full text-label-md font-label-md shadow-lg flex items-center gap-2 pointer-events-none opacity-0 transition-opacity duration-200" id="toast">
+<span class="material-symbols-outlined text-[16px] text-surface-variant" data-icon="info">info</span>
+<span id="toast-text">通知内容</span>
+</div>
+<!-- Client-side Micro Interactions -->
+<script>
+    let toastTimeout = null;
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      toastText.textContent = text;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    // Tab Bar click handling
+    function navTabClick(el, tabName) {
+      if (tabName !== '我的') {
+        showToast(`切换至「${tabName}」模块...`);
+      }
+    }
+
+    // AI Preference Sheet
+    function openAIPrefModal() {
+      document.getElementById('ai-pref-modal').classList.remove('hidden');
+    }
+    function closeAIPrefModal() {
+      document.getElementById('ai-pref-modal').classList.add('hidden');
+    }
+    function selectAIMode(modeName, element) {
+      document.getElementById('current-ai-mode').textContent = `当前偏好：${modeName}`;
+      showToast(`已切换为：${modeName}`);
+      closeAIPrefModal();
+    }
+
+    // Platform Detail Sheet
+    function showPlatformDetail(platform, status, desc) {
+      document.getElementById('platform-modal-title').textContent = `${platform} · 连接诊断与同步`;
+      document.getElementById('platform-modal-desc').textContent = `${platform}：${desc}`;
+      document.getElementById('platform-modal-status').textContent = status;
+      document.getElementById('platform-modal').classList.remove('hidden');
+    }
+    function openPlatformModal() {
+      showPlatformDetail('协同矩阵中心', '4个系统连通中', '钉钉、企业微信、飞书、学习通多端智能流');
+    }
+    function closePlatformModal() {
+      document.getElementById('platform-modal').classList.add('hidden');
+    }
+
+    // Reminder toggle
+    let reminderActive = true;
+    function toggleReminder(el) {
+      reminderActive = !reminderActive;
+      const toggle = document.getElementById('reminder-toggle');
+      if (reminderActive) {
+        toggle.className = "w-11 h-6 bg-primary rounded-full p-0.5 flex items-center justify-end transition-colors cursor-pointer";
+        showToast("智能提醒梯度已激活 (提前15分声学+振动)");
+      } else {
+        toggle.className = "w-11 h-6 bg-outline-variant/60 rounded-full p-0.5 flex items-center justify-start transition-colors cursor-pointer";
+        showToast("智能提醒梯度已暂停");
+      }
+    }
+
+    // Theme selector
+    function setThemeMode(mode) {
+      const lightBtn = document.getElementById('mode-light');
+      const darkBtn = document.getElementById('mode-dark');
+      const autoBtn = document.getElementById('mode-auto');
+
+      [lightBtn, darkBtn, autoBtn].forEach(btn => {
+        btn.className = "px-2.5 py-1 rounded-md text-on-surface-variant font-medium hover:text-on-surface tap-effect";
+      });
+
+      if (mode === 'light') {
+        lightBtn.className = "px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-xs tap-effect";
+        showToast("已应用清爽浅色主题");
+      } else if (mode === 'dark') {
+        darkBtn.className = "px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-xs tap-effect";
+        showToast("深色模式已预览 (系统夜间将自动切换)");
+      } else {
+        autoBtn.className = "px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-bold shadow-xs tap-effect";
+        showToast("已设置为跟随操作系统外观自动同步");
+      }
+    }
+
+    // Cache Prompt
+    function clearCachePrompt() {
+      const indicator = document.getElementById('cache-indicator');
+      indicator.textContent = "正在清理非活跃离线知识库...";
+      setTimeout(() => {
+        indicator.textContent = "离线日历与知识库 · 3.2 MB (已精简)";
+        showToast("已成功释放 139.6 MB 临时缓存");
+      }, 700);
+    }
+
+    // Efficiency Modal Toast
+    function openEfficiencyModal() {
+      showToast("正在导出本周《智序效能与心流分析报告.pdf》");
+    }
+  </script>
+</body></html>

@@ -1,0 +1,1454 @@
+<!DOCTYPE html><html class="h-full" lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>智序 - 消息中心</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error-container": "#93000a",
+            "surface-container-low": "#eff4ff",
+            "on-primary-fixed-variant": "#003ea8",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed-variant": "#5a00c6",
+            "surface-bright": "#f8f9ff",
+            "primary-container": "#2563eb",
+            "surface-container-highest": "#d3e4fe",
+            "on-error": "#ffffff",
+            "inverse-on-surface": "#eaf1ff",
+            "primary-fixed": "#dbe1ff",
+            "secondary-fixed": "#eaddff",
+            "on-surface-variant": "#434655",
+            "primary-fixed-dim": "#b4c5ff",
+            "surface-tint": "#0053db",
+            "tertiary-fixed": "#ffddb8",
+            "error-container": "#ffdad6",
+            "secondary-fixed-dim": "#d2bbff",
+            "on-secondary-fixed": "#25005a",
+            "on-primary-fixed": "#00174b",
+            "surface-container": "#e5eeff",
+            "on-primary": "#ffffff",
+            "surface-container-high": "#dce9ff",
+            "on-background": "#0b1c30",
+            "background": "#f8f9ff",
+            "tertiary-fixed-dim": "#ffb95f",
+            "on-primary-container": "#eeefff",
+            "primary": "#004ac6",
+            "on-tertiary-container": "#ffeedd",
+            "on-tertiary": "#ffffff",
+            "on-secondary-container": "#fffbff",
+            "on-secondary": "#ffffff",
+            "surface-dim": "#cbdbf5",
+            "tertiary": "#784b00",
+            "secondary-container": "#8a4cfc",
+            "tertiary-container": "#996100",
+            "outline-variant": "#c3c6d7",
+            "outline": "#737686",
+            "inverse-surface": "#213145",
+            "secondary": "#712ae2",
+            "on-tertiary-fixed": "#2a1700",
+            "error": "#ba1a1a",
+            "surface": "#f8f9ff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-surface": "#0b1c30",
+            "surface-variant": "#d3e4fe",
+            "inverse-primary": "#b4c5ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "0.75rem",
+            "space-xl": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1rem"
+          },
+          "fontFamily": {
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-full flex flex-col selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TOP APP BAR -->
+<header class="bg-surface/90 dark:bg-surface/90 backdrop-blur-md fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 w-full shadow-sm dark:shadow-none">
+<div class="flex items-center space-x-3">
+<!-- Leading Avatar -->
+<div class="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-outline-variant/30 flex-shrink-0 bg-surface-container-high cursor-pointer hover:ring-secondary transition-all" id="zx-top-avatar" title="个人信息">
+<img class="w-full h-full object-cover" data-alt="A clean portrait headshot of a young professional in soft studio lighting against a minimal neutral grey gradient background, expressing calm intelligence and subtle focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP7hy_CiLjey9o0UdrTV_A_OJSH7SdNTulBgsYQPYevBfg7uL5uo73RdIL8TCE310VX-u6xBrfH8LUifhjt7ADmexHrikWa_0xorboSXCcVsKuVQ1U-9zZyKxOunacvIcojzI-2_bG1UQGFp6I-HhrVdYn4oYzhs30Go2NU4M1Xmq95VqfL7z8V5AvS74jSVzAS3yjNJUz1PnyCsqpWgBvY3znFI7adSN4CRXwI2EnPqoqBEaYvsDK0A">
+</div>
+<!-- Headline Brand -->
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-inverse-on-surface tracking-tight">智序</span>
+</div>
+<!-- Desktop Global Nav Cluster -->
+<nav class="hidden md:flex items-center space-x-6">
+<a class="text-label-lg font-label-lg text-on-surface-variant hover:text-primary transition-colors" href="#">首页</a>
+<a class="text-label-lg font-label-lg text-on-surface-variant hover:text-primary transition-colors" href="#">任务</a>
+<a class="text-label-lg font-label-lg text-on-surface-variant hover:text-primary transition-colors" href="#">日历</a>
+<a class="text-label-lg font-label-lg text-primary font-bold transition-colors" href="#">消息</a>
+<a class="text-label-lg font-label-lg text-on-surface-variant hover:text-primary transition-colors" href="#">我的</a>
+</nav>
+<!-- Trailing Action -->
+<div class="flex items-center space-x-1">
+<button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container active:scale-95 transition-all text-secondary" id="zx-header-ai-btn" title="智能分析" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+</div>
+</header>
+<!-- SUB-HEADER / CONTEXT HUB BAR -->
+<div class="fixed top-14 left-0 right-0 z-30 bg-surface-bright/95 backdrop-blur-md px-4 pt-3 pb-3 shadow-[0_2px_8px_rgba(15,23,42,0.03)]">
+<div class="max-w-xl mx-auto flex flex-col space-y-3">
+<!-- Title & Actions Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-baseline space-x-2">
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight font-bold">消息中心</h1>
+<span class="text-label-sm font-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full" id="zx-hub-status-tag">5个平台已联通</span>
+</div>
+<div class="flex items-center space-x-1.5">
+<button aria-label="搜索消息" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" id="zx-top-search-btn" title="搜索" type="button">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button aria-label="批量处理" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" id="zx-top-filter-drawer-btn" title="来源筛选" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Quick Filter Tabs -->
+<div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-0.5" id="zx-tab-bar">
+<!-- Tab 1: All -->
+<button class="px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-highest text-on-surface hover:bg-surface-container-high transition-all whitespace-nowrap flex items-center space-x-1 cursor-pointer" data-tab="all" type="button">
+<span>全部消息</span>
+</button>
+<!-- Tab 2: AI Pending Extraction (Active Filter) -->
+<button class="px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-secondary text-on-secondary shadow-sm active:scale-95 transition-all flex items-center space-x-1 whitespace-nowrap cursor-pointer" data-tab="pending" type="button">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span>AI 待提取</span>
+<span class="ml-1 bg-surface-container-lowest text-secondary text-label-sm font-label-sm font-bold px-1.5 py-0.2 rounded-full" id="zx-tab-pending-badge">2</span>
+</button>
+<!-- Tab 3: Synced -->
+<button class="px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant ring-1 ring-outline-variant/30 hover:bg-surface-container transition-all flex items-center space-x-1 whitespace-nowrap cursor-pointer" data-tab="synced" type="button">
+<span>已同步</span>
+<span class="text-outline text-label-sm font-label-sm" id="zx-tab-synced-badge">(12)</span>
+</button>
+<!-- Platform Quick Filter Capsule -->
+<button class="px-3 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant ring-1 ring-outline-variant/30 hover:bg-surface-container transition-all flex items-center space-x-1 whitespace-nowrap ml-auto cursor-pointer" id="zx-open-filter-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>来源筛选</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MAIN SCROLLABLE CONTENT CANVAS -->
+<main class="flex-1 w-full max-w-xl mx-auto px-4 pt-36 pb-28 space-y-4">
+<!-- Active Filter Indicator Banner (Hidden by default) -->
+<div class="hidden items-center justify-between px-3.5 py-2 rounded-xl bg-secondary/10 border border-secondary/20 text-body-sm text-secondary" id="zx-filter-alert-bar">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[16px]">filter_alt</span>
+<span id="zx-filter-alert-text">已应用自定义筛选条件</span>
+</div>
+<button class="text-label-sm font-semibold hover:underline" id="zx-filter-clear-all" type="button">清除筛选</button>
+</div>
+<!-- 1. AI AGENT RECOGNITION BANNER (Purple Soft Card) -->
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-secondary-fixed/40 via-surface-container-lowest to-secondary-fixed/20 p-4 ring-1 ring-secondary/20 shadow-[0_4px_16px_-4px_rgba(113,42,226,0.12)]" id="zx-radar-banner">
+<div class="flex items-start space-x-3">
+<!-- AI Icon Accent -->
+<div class="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-on-secondary flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<!-- Content -->
+<div class="flex-1 min-w-0 pr-1">
+<div class="flex items-center space-x-1.5 mb-1">
+<span class="text-label-md font-label-md text-secondary font-bold tracking-tight">智能排程雷达</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-secondary/10 text-secondary" id="zx-radar-status-badge">自动分析中</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed" id="zx-radar-banner-text">
+已为您自动从 <strong class="text-on-surface font-semibold">5 个平台</strong> 抓取 <strong class="text-secondary font-bold" id="zx-radar-pending-num">2 条</strong> 包含明确截止时间与行动指令的消息。
+</p>
+</div>
+</div>
+<!-- Bottom Interactive Action Row -->
+<div class="mt-3.5 pt-3 border-t border-secondary/15 flex items-center justify-between">
+<div class="flex items-center -space-x-1" id="zx-radar-platforms">
+<!-- Platform mini icons preview -->
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest ring-1 ring-outline-variant/30 flex items-center justify-center text-[11px] font-bold text-orange-600 hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm" data-platform="学习通" title="点击筛选学习通">学</span>
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest ring-1 ring-outline-variant/30 flex items-center justify-center text-[11px] font-bold text-blue-600 hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm" data-platform="企业微信" title="点击筛选企业微信">企</span>
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest ring-1 ring-outline-variant/30 flex items-center justify-center text-[11px] font-bold text-sky-500 hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm" data-platform="腾讯会议" title="点击筛选腾讯会议">腾</span>
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest ring-1 ring-outline-variant/30 flex items-center justify-center text-[11px] font-bold text-blue-500 hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm" data-platform="钉钉" title="点击筛选钉钉">钉</span>
+<span class="w-6 h-6 rounded-full bg-surface-container-lowest ring-1 ring-outline-variant/30 flex items-center justify-center text-[11px] font-bold text-cyan-600 hover:scale-110 active:scale-95 transition-transform cursor-pointer shadow-sm" data-platform="飞书" title="点击筛选飞书">飞</span>
+</div>
+<button class="inline-flex items-center space-x-1 text-label-md font-label-md text-secondary font-semibold hover:text-on-secondary-fixed-variant transition-colors group cursor-pointer active:scale-95" id="zx-radar-batch-trigger" type="button">
+<span>一键快速确认转待办</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- 2. AGGREGATED MESSAGE CARDS LIST -->
+<div class="space-y-3" id="zx-message-cards-list">
+<!-- CARD 1: 学习通 (待提取 - P1 Urgency / High Confidence) -->
+<article class="zx-card relative bg-surface-container-lowest rounded-xl ring-1 ring-outline-variant/40 shadow-[0_1px_3px_0_rgba(15,23,42,0.04)] overflow-hidden transition-all hover:shadow-[0_4px_6px_-1px_rgba(15,23,42,0.07)] cursor-pointer" data-id="card-1" data-pending="true" data-platform="学习通" data-priority="P1" data-time="today">
+<!-- Left Urgency Indicator Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-error"></div>
+<div class="p-4 pl-5">
+<!-- Card Header Info -->
+<div class="flex items-center justify-between mb-2.5">
+<div class="flex items-center space-x-2">
+<!-- Platform Badge -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/60 text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">school</span>
+<span>学习通</span>
+</span>
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">高数课代表通知</span>
+</div>
+<time class="text-label-sm font-label-sm text-outline">10分钟前</time>
+</div>
+<!-- Message Body with Extracted Clues Highlight -->
+<p class="text-body-md font-body-md text-on-surface leading-relaxed mb-3">
+各位同学，第五章课后习题请于<span class="bg-error-container/70 text-on-error-container font-semibold px-1.5 py-0.5 rounded mx-0.5">本周五晚 22:00 前</span>提交到系统，逾期无法补交！
+</p>
+<!-- Collapsible Full Context (Toggle on Card Click) -->
+<div class="hidden mb-3 p-3 rounded-lg bg-surface-container-low text-body-sm text-on-surface-variant border border-outline-variant/30 space-y-1 zx-context-box">
+<div class="font-semibold text-[12px] text-outline flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]">chat</span>
+<span>群聊上下文记录 (班级高等数学课程群)</span>
+</div>
+<p class="text-[12px] leading-relaxed">
+[助教 14:10]：本次习题难度适中，包含双重积分的5道大题。<br>
+[课代表 14:15]：老师已开通互评功能，请大家务必准时提交电子版至平台通道！
+</p>
+</div>
+<!-- AI Parsed Metadata Preview Capsule -->
+<div class="flex flex-wrap items-center gap-1.5 mb-3.5 bg-surface-container-low/70 p-2.5 rounded-lg border border-outline-variant/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[14px] text-secondary mr-1">schedule</span>
+截止时间: 周五 22:00
+</span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="text-label-sm font-label-sm text-error font-medium flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-0.5">flag</span>
+优先级: P1 紧急
+</span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">
+分类: 学业作业
+</span>
+</div>
+<!-- Card Bottom Action Row -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center space-x-1.5 text-label-sm font-label-sm text-secondary font-medium">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span>提取置信度 98%</span>
+</div>
+<!-- Purple High-Action Button -->
+<button class="zx-action-btn-1 inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-secondary text-on-secondary hover:bg-on-secondary-fixed-variant rounded-xl text-label-md font-label-md font-semibold shadow-sm active:scale-95 transition-all cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span>AI 转为任务</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 2: 企业微信 (待提取 - P2 Urgency) -->
+<article class="zx-card relative bg-surface-container-lowest rounded-xl ring-1 ring-outline-variant/40 shadow-[0_1px_3px_0_rgba(15,23,42,0.04)] overflow-hidden transition-all hover:shadow-[0_4px_6px_-1px_rgba(15,23,42,0.07)] cursor-pointer" data-id="card-2" data-pending="true" data-platform="企业微信" data-priority="P2" data-time="today">
+<!-- Left Urgency Indicator Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-tertiary-container"></div>
+<div class="p-4 pl-5">
+<!-- Card Header Info -->
+<div class="flex items-center justify-between mb-2.5">
+<div class="flex items-center space-x-2">
+<!-- Platform Badge -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-200/60 text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">domain</span>
+<span>企业微信</span>
+</span>
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">李总监 (产品规划组)</span>
+</div>
+<time class="text-label-sm font-label-sm text-outline">35分钟前</time>
+</div>
+<!-- Message Body -->
+<p class="text-body-md font-body-md text-on-surface leading-relaxed mb-3">
+<span class="text-primary font-medium">@全员</span> 请在<span class="bg-amber-100 text-amber-900 font-semibold px-1.5 py-0.5 rounded mx-0.5">今天下午 16:00 前</span>将 Q4 智能硬件需求文档初稿同步给测试组。
+</p>
+<!-- Collapsible Full Context (Toggle on Card Click) -->
+<div class="hidden mb-3 p-3 rounded-lg bg-surface-container-low text-body-sm text-on-surface-variant border border-outline-variant/30 space-y-1 zx-context-box">
+<div class="font-semibold text-[12px] text-outline flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]">forum</span>
+<span>群聊上下文记录 (硬件战略协同中心)</span>
+</div>
+<p class="text-[12px] leading-relaxed">
+[李总监 11:20]：下午需要跟测试负责人进行跨部门评审，大家注意按照最新规范整理验收准则与接口文档初稿。
+</p>
+</div>
+<!-- Extracted Meta Tags -->
+<div class="flex flex-wrap items-center gap-1.5 mb-3.5 bg-surface-container-low/70 p-2.5 rounded-lg border border-outline-variant/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[14px] text-tertiary-container mr-1">alarm</span>
+截止时间: 今日 16:00
+</span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">
+指派人: 李总监
+</span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">
+涉及交付物: Q4 需求文档初稿
+</span>
+</div>
+<!-- Bottom Action Row -->
+<div class="flex items-center justify-between pt-1">
+<span class="text-label-sm font-label-sm text-outline">来源群聊：硬件战略协同中心</span>
+<!-- AI Action Button -->
+<button class="zx-action-btn-2 inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-secondary text-on-secondary hover:bg-on-secondary-fixed-variant rounded-xl text-label-md font-label-md font-semibold shadow-sm active:scale-95 transition-all cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
+<span>AI 提取任务</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 3: 腾讯会议 (已转任务 - Green Status Synced) -->
+<article class="zx-card relative bg-surface-container-lowest/80 rounded-xl ring-1 ring-outline-variant/30 shadow-[0_1px_2px_0_rgba(15,23,42,0.03)] overflow-hidden cursor-pointer" data-id="card-3" data-pending="false" data-platform="腾讯会议" data-priority="P2" data-time="week">
+<!-- Neutral Routine Strip -->
+<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-primary"></div>
+<div class="p-4 pl-5">
+<!-- Card Header Info -->
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center space-x-2">
+<!-- Platform Badge -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-800 ring-1 ring-cyan-200/60 text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">videocam</span>
+<span>腾讯会议</span>
+</span>
+<span class="text-body-sm font-body-sm font-semibold text-on-surface-variant">系统通知</span>
+</div>
+<!-- Green Synced Badge -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300/50 text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>已排入日历并设提醒</span>
+</span>
+</div>
+<!-- Message Body -->
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed mb-3">
+您已成功预约并受邀参会：<strong class="text-on-surface font-semibold">“10月24日 19:30 产品迭代对齐会”</strong>，会议号: 839-204-112。
+</p>
+<!-- Collapsible Full Context -->
+<div class="hidden mb-3 p-3 rounded-lg bg-surface-container-low text-body-sm text-on-surface-variant border border-outline-variant/30 space-y-1 zx-context-box">
+<div class="font-semibold text-[12px] text-outline flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<span>会议详情</span>
+</div>
+<p class="text-[12px] leading-relaxed">
+主持人：产品架构组·张敏<br>
+参会人员：前端、后端研发、UX设计中心、测试负责人（共14人）<br>
+密码：无密码（已配置等候室）
+</p>
+</div>
+<!-- Synced Task Mini Row -->
+<div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-container-low text-on-surface-variant text-label-sm font-label-sm">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-[16px]">event_available</span>
+<span>日历项：10月24日 19:30 - 20:30 (会议前15分钟提醒)</span>
+</div>
+<button class="zx-action-btn-3 text-primary hover:underline font-semibold cursor-pointer py-1 px-2" type="button">查看日程</button>
+</div>
+</div>
+</article>
+<!-- CARD 4: 钉钉 (常规同步通知) -->
+<article class="zx-card relative bg-surface-container-lowest rounded-xl ring-1 ring-outline-variant/40 shadow-[0_1px_3px_0_rgba(15,23,42,0.04)] overflow-hidden transition-all hover:shadow-[0_4px_6px_-1px_rgba(15,23,42,0.07)] cursor-pointer" data-id="card-4" data-pending="false" data-platform="钉钉" data-priority="P3" data-time="week">
+<!-- Routine P3 Indicator Strip (Blue) -->
+<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-outline-variant"></div>
+<div class="p-4 pl-5">
+<!-- Card Header Info -->
+<div class="flex items-center justify-between mb-2.5">
+<div class="flex items-center space-x-2">
+<!-- Platform Badge -->
+<span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 ring-1 ring-sky-200/60 text-label-sm font-label-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">bolt</span>
+<span>钉钉</span>
+</span>
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">架构研发项目组</span>
+</div>
+<time class="text-label-sm font-label-sm text-outline">2小时前</time>
+</div>
+<!-- Message Body -->
+<p class="text-body-md font-body-md text-on-surface leading-relaxed mb-3">
+关于下周二技术架构评审会的议程与参考材料已共享至云盘《Q4-Service-Mesh-Refactor.pdf》，请参会导师及核心开发人员提前查阅。
+</p>
+<!-- Collapsible Full Context -->
+<div class="hidden mb-3 p-3 rounded-lg bg-surface-container-low text-body-sm text-on-surface-variant border border-outline-variant/30 space-y-1 zx-context-box">
+<div class="font-semibold text-[12px] text-outline flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px]">share</span>
+<span>钉钉协作盘推送记录</span>
+</div>
+<p class="text-[12px] leading-relaxed">
+上传人：王工（高级架构师） · 版本：v1.2-Release-Candidate<br>
+已同步至智序离线知识索引缓存中，可免流量离线预览。
+</p>
+</div>
+<!-- Card Bottom Action Row -->
+<div class="flex items-center justify-between pt-1 border-t border-outline-variant/15">
+<div class="flex items-center space-x-1 text-label-sm font-label-sm text-outline">
+<span class="material-symbols-outlined text-[14px]">attachment</span>
+<span>含 1 个云盘附件</span>
+</div>
+<!-- Secondary Button -->
+<button class="zx-action-btn-4 inline-flex items-center space-x-1 px-3 py-1 bg-surface-container hover:bg-surface-container-high text-on-surface-variant rounded-xl text-label-md font-label-md font-medium transition-colors cursor-pointer active:scale-95" type="button">
+<span class="material-symbols-outlined text-[15px]">download</span>
+<span>查看文件</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Empty Filter State (Hidden by default) -->
+<div class="hidden py-12 text-center" id="zx-empty-view">
+<span class="material-symbols-outlined text-[48px] text-outline-variant mb-2">inbox</span>
+<h3 class="text-body-lg font-bold text-on-surface">没有找到匹配的消息</h3>
+<p class="text-body-sm text-outline mt-1">请尝试修改筛选条件或清除搜索关键字</p>
+<button class="mt-4 px-4 py-1.5 rounded-full bg-surface-container-highest text-on-surface text-label-md font-semibold hover:bg-surface-container-high" id="zx-reset-empty-btn" type="button">重置所有筛选</button>
+</div>
+<!-- Privacy Footer Summary -->
+<div class="text-center py-6">
+<p class="text-label-sm font-label-sm text-outline flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-[14px]">shield_person</span>
+<span>端侧加密隐私保护中，消息实时本地识别解析</span>
+</p>
+</div>
+</main>
+<!-- FLOATING ACTION BUTTON (AI Natural Language Capsule) -->
+<aside class="fixed bottom-20 right-4 z-40">
+<button class="flex items-center space-x-2 pl-3.5 pr-4 py-2.5 rounded-full bg-gradient-to-r from-secondary to-primary text-on-primary shadow-[0_10px_20px_-3px_rgba(113,42,226,0.35)] hover:shadow-lg active:scale-95 transition-all cursor-pointer" id="zx-chat-fab" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<span class="text-label-md font-label-md font-semibold tracking-wide">对话导入</span>
+</button>
+</aside>
+<!-- BOTTOM NAVIGATION BAR -->
+<nav class="bg-surface-container-lowest/90 dark:bg-inverse-surface/90 backdrop-blur-md fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-14 pb-safe px-2 shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-none" id="zx-bottom-nav">
+<!-- 1: 首页 -->
+<a class="zx-nav-link flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 cursor-pointer" data-nav="首页" href="#">
+<span class="material-symbols-outlined text-[22px]">home</span>
+<span class="text-label-sm font-label-sm mt-0.5">首页</span>
+</a>
+<!-- 2: 任务 -->
+<a class="zx-nav-link flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 cursor-pointer" data-nav="任务" href="#">
+<span class="material-symbols-outlined text-[22px]">check_box</span>
+<span class="text-label-sm font-label-sm mt-0.5">任务</span>
+</a>
+<!-- 3: 日历 -->
+<a class="zx-nav-link flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 cursor-pointer" data-nav="日历" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_month</span>
+<span class="text-label-sm font-label-sm mt-0.5">日历</span>
+</a>
+<!-- 4: 消息 (ACTIVE) -->
+<a class="zx-nav-link flex flex-col items-center justify-center text-primary font-semibold relative after:content-[''] after:absolute after:top-0 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary active:scale-90 duration-150 py-1 flex-1 cursor-pointer" data-nav="消息" href="#">
+<div class="relative">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="absolute -top-1.5 -right-2 bg-error text-on-error text-[10px] font-bold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center shadow-sm" id="zx-nav-badge">
+3
+</span>
+</div>
+<span class="text-label-sm font-label-sm mt-0.5">消息</span>
+</a>
+<!-- 5: 我的 -->
+<a class="zx-nav-link flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 cursor-pointer" data-nav="我的" href="#">
+<span class="material-symbols-outlined text-[22px]">person</span>
+<span class="text-label-sm font-label-sm mt-0.5">我的</span>
+</a>
+</nav>
+<!-- ========================================== -->
+<!-- MODALS & SHEETS CONTAINER (Complete Interactive Hub) -->
+<!-- ========================================== -->
+<div class="relative z-50" id="zx-modals-root">
+<!-- Toast Notification Float -->
+<div class="fixed top-5 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-full bg-on-surface/90 text-surface-container-lowest text-label-md font-label-md shadow-lg flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none -translate-y-4" id="zx-toast">
+<span class="material-symbols-outlined text-[18px] text-secondary-fixed" id="zx-toast-icon">info</span>
+<span id="zx-toast-msg">通知提示</span>
+</div>
+<!-- Search Fullscreen / Top Overlay -->
+<div class="fixed inset-0 z-50 bg-surface/98 backdrop-blur-md transition-all duration-200 opacity-0 pointer-events-none flex flex-col p-4" id="zx-search-overlay">
+<div class="flex items-center space-x-2 pb-3 border-b border-outline-variant/20">
+<div class="flex-1 flex items-center bg-surface-container px-3.5 py-2.5 rounded-xl text-body-md ring-1 ring-secondary/20 focus-within:ring-secondary transition-all">
+<span class="material-symbols-outlined text-outline text-[20px] mr-2">search</span>
+<input class="bg-transparent border-none outline-none flex-1 text-on-surface text-body-md placeholder:text-outline" id="zx-search-input" placeholder="输入关键字搜索：习题、李总监、会议、文档..." type="text">
+<button class="text-outline hover:text-on-surface hidden p-0.5" id="zx-clear-search" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<button class="text-primary font-semibold text-label-lg px-2 py-1.5 active:scale-95" id="zx-close-search" type="button">取消</button>
+</div>
+<div class="flex-1 overflow-y-auto pt-4 space-y-3" id="zx-search-results">
+<div class="text-label-sm text-outline">热门快捷搜索：</div>
+<div class="flex flex-wrap gap-2">
+<button class="zx-search-tag px-3 py-1 rounded-full bg-surface-container text-body-sm text-on-surface hover:bg-surface-container-high transition-colors">高数课后习题</button>
+<button class="zx-search-tag px-3 py-1 rounded-full bg-surface-container text-body-sm text-on-surface hover:bg-surface-container-high transition-colors">Q4需求文档</button>
+<button class="zx-search-tag px-3 py-1 rounded-full bg-surface-container text-body-sm text-on-surface hover:bg-surface-container-high transition-colors">腾讯会议</button>
+<button class="zx-search-tag px-3 py-1 rounded-full bg-surface-container text-body-sm text-on-surface hover:bg-surface-container-high transition-colors">架构评审</button>
+</div>
+<div class="mt-8 text-center text-body-sm text-outline-variant flex flex-col items-center justify-center space-y-2">
+<span class="material-symbols-outlined text-[36px] text-outline/40">pageview</span>
+<span>支持按内容、发送人、平台或截止时间模糊检索</span>
+</div>
+</div>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none" id="zx-sheet-backdrop"></div>
+<!-- 1. FILTER DRAWER (Multi-dimensions: Platform, Priority, Date Range) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full max-h-[85vh] overflow-y-auto" id="zx-filter-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">tune</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">消息与待办智能筛选</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-4 space-y-4">
+<!-- Section A: 来源平台多选 -->
+<div>
+<div class="text-label-md font-semibold text-on-surface mb-2 flex items-center justify-between">
+<span>来源平台 (多选)</span>
+<span class="text-label-sm text-outline">已选 <span id="zx-platform-checked-count">5</span> 个</span>
+</div>
+<div class="grid grid-cols-2 gap-2" id="zx-filter-platforms-grid">
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-amber-900">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+<span>学习通</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="学习通">
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-blue-900">
+<span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+<span>企业微信</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="企业微信">
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-cyan-900">
+<span class="w-2.5 h-2.5 rounded-full bg-cyan-600"></span>
+<span>腾讯会议</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="腾讯会议">
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-sky-900">
+<span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+<span>钉钉</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="钉钉">
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-teal-900">
+<span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+<span>飞书</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="飞书">
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 cursor-pointer bg-surface hover:bg-surface-container-low transition-colors">
+<span class="flex items-center space-x-2 text-body-sm font-medium text-purple-900">
+<span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+<span>邮件通知</span>
+</span>
+<input checked="" class="zx-platform-filter-cb rounded text-secondary focus:ring-secondary" type="checkbox" value="邮件">
+</label>
+</div>
+</div>
+<!-- Section B: 紧急程度划分 (P0/P1/P2/P3) -->
+<div>
+<div class="text-label-md font-semibold text-on-surface mb-2">消息优先级</div>
+<div class="grid grid-cols-4 gap-2">
+<button class="zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-secondary/10 text-secondary font-bold" data-pri="all" type="button">全部</button>
+<button class="zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium" data-pri="P1" type="button">P1 紧急</button>
+<button class="zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium" data-pri="P2" type="button">P2 重要</button>
+<button class="zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium" data-pri="P3" type="button">P3 常规</button>
+</div>
+</div>
+<!-- Section C: 时间范围 -->
+<div>
+<div class="text-label-md font-semibold text-on-surface mb-2">时间跨度</div>
+<div class="grid grid-cols-3 gap-2">
+<button class="zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-secondary/10 text-secondary font-bold" data-time="all" type="button">不限时间</button>
+<button class="zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium" data-time="today" type="button">今日内</button>
+<button class="zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium" data-time="week" type="button">本周截止</button>
+</div>
+</div>
+</div>
+<div class="flex space-x-3 pt-2 border-t border-outline-variant/20">
+<button class="flex-1 py-2.5 rounded-xl border border-outline-variant/40 text-on-surface font-semibold hover:bg-surface-container transition-colors cursor-pointer" id="zx-reset-filter-btn" type="button">重置</button>
+<button class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold shadow hover:bg-on-primary-fixed-variant transition-colors cursor-pointer" id="zx-apply-filter-btn" type="button">应用筛选</button>
+</div>
+</div>
+<!-- 2. BATCH IMPORT MODAL (一键批量转待办) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full" id="zx-batch-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">auto_awesome</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">AI 待办批量提取确认</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-3 space-y-2.5 max-h-[55vh] overflow-y-auto">
+<div class="p-3 rounded-xl bg-surface-container-low flex items-start space-x-3">
+<input checked="" class="zx-batch-item mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 text-body-sm">
+<div class="font-semibold text-on-surface flex items-center justify-between">
+<span>第五章高数课后习题提交</span>
+<span class="text-[11px] text-error font-medium">P1 紧急</span>
+</div>
+<div class="text-outline text-label-sm mt-0.5">截止：周五 22:00 · 学习通</div>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low flex items-start space-x-3">
+<input checked="" class="zx-batch-item mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 text-body-sm">
+<div class="font-semibold text-on-surface flex items-center justify-between">
+<span>Q4 智能硬件需求文档初稿同步测试组</span>
+<span class="text-[11px] text-amber-700 font-medium">P2 重要</span>
+</div>
+<div class="text-outline text-label-sm mt-0.5">截止：今日 16:00 · 企业微信</div>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low flex items-start space-x-3">
+<input checked="" class="zx-batch-item mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 text-body-sm">
+<div class="font-semibold text-on-surface flex items-center justify-between">
+<span>查阅技术评审材料《Q4-Service-Mesh-Refactor.pdf》</span>
+<span class="text-[11px] text-primary font-medium">P3 常规</span>
+</div>
+<div class="text-outline text-label-sm mt-0.5">截止：下周二评审会前 · 钉钉</div>
+</div>
+</div>
+</div>
+<div class="pt-3 flex items-center space-x-3">
+<button class="flex-1 py-3 rounded-xl bg-gradient-to-r from-secondary to-primary text-on-primary font-semibold shadow-md flex items-center justify-center space-x-2 active:scale-95 transition-transform cursor-pointer" id="zx-do-batch-import" type="button">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span>一键全部导入日历与待办</span>
+</button>
+</div>
+</div>
+<!-- 3. SINGLE TASK EXTRACTION SHEET (卡片 1 & 卡片 2 共用高保真提取器) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full" id="zx-task-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">task_alt</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface" id="zx-task-sheet-title">AI 任务确认与日历排程</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-4 space-y-3.5 text-body-md">
+<div class="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/25">
+<label class="block text-label-sm text-outline mb-1" for="zx-task-input-title">待办任务名称</label>
+<input class="w-full font-semibold text-on-surface bg-surface-container-lowest px-3 py-2 rounded-lg border border-outline-variant/30 text-body-md focus:border-secondary outline-none" id="zx-task-input-title" value="高数第五章课后习题提交">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/25">
+<label class="block text-label-sm text-outline mb-1" for="zx-task-deadline-input">截止与提醒时间</label>
+<input class="w-full font-semibold text-error bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/30 text-body-sm outline-none" id="zx-task-deadline-input" value="周五 22:00">
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/25">
+<label class="block text-label-sm text-outline mb-1" for="zx-task-priority-select">任务优先级</label>
+<select class="w-full font-semibold text-secondary bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/30 text-body-sm outline-none" id="zx-task-priority-select">
+<option selected="" value="P1 紧急">P1 紧急</option>
+<option value="P2 重要">P2 重要</option>
+<option value="P3 常规">P3 常规</option>
+</select>
+</div>
+</div>
+<!-- Assignee / Meta -->
+<div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/25" id="zx-task-assignee-box">
+<label class="block text-label-sm text-outline mb-1" for="zx-task-assignee-input">相关指派人 / 来源群</label>
+<input class="w-full text-on-surface bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/30 text-body-sm outline-none" id="zx-task-assignee-input" value="高数助教群 (学习通系统)">
+</div>
+<div class="p-3 rounded-xl bg-surface-container border border-secondary/20 flex items-center space-x-3">
+<span class="material-symbols-outlined text-secondary text-[22px]">auto_awesome</span>
+<div class="text-body-sm">
+<div class="font-semibold text-on-surface">智能专注空档建议</div>
+<div class="text-outline text-[12px]">检测到该时间前有 90 分钟自由专注时段，将自动预留日历块</div>
+</div>
+</div>
+</div>
+<div class="pt-2 flex space-x-3">
+<button class="w-full py-3 rounded-xl bg-secondary text-on-secondary font-semibold shadow-md flex items-center justify-center space-x-1 active:scale-95 transition-all cursor-pointer" id="zx-confirm-single-task" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>确认生成任务并加入日程</span>
+</button>
+</div>
+</div>
+<!-- 4. CALENDAR DETAIL MODAL (卡片 3 - 腾讯会议联动) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full" id="zx-calendar-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-[22px]">calendar_today</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">日程安排详情</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-4 space-y-3">
+<div class="font-headline-sm font-bold text-on-surface">产品迭代对齐会 (Q4规划)</div>
+<div class="flex items-center space-x-2 text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px]">schedule</span>
+<span>10月24日 19:30 - 20:30 (会议前15分钟提醒)</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-outline text-[18px]">pin</span>
+<span class="text-body-sm font-medium text-on-surface" id="zx-meeting-num-text">会议号：839-204-112</span>
+</div>
+<button class="px-2.5 py-1 text-label-sm bg-primary/10 text-primary font-semibold rounded-md hover:bg-primary/20 transition-colors cursor-pointer active:scale-95" id="zx-copy-meeting-num" type="button">复制</button>
+</div>
+<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200/50 flex items-center space-x-2 text-emerald-800 text-body-sm">
+<span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
+<span>已双向同步至 iOS 系统日历与智序待办时间轴</span>
+</div>
+</div>
+<div class="flex space-x-3 pt-2">
+<button class="flex-1 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface font-semibold hover:bg-surface-container transition-colors cursor-pointer" id="zx-open-cal-tab" type="button">进入智序日历</button>
+<button class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold hover:bg-on-primary-fixed-variant transition-colors cursor-pointer" id="zx-enter-meeting" type="button">启动腾讯会议 App</button>
+</div>
+</div>
+<!-- 5. DOCUMENT PREVIEW / DOWNLOAD MODAL (卡片 4 - 钉钉云盘附件) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full" id="zx-doc-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-sky-600 text-[22px]">description</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">文档材料详情</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-4 space-y-3">
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/20 flex items-center space-x-3">
+<span class="material-symbols-outlined text-[36px] text-error">picture_as_pdf</span>
+<div class="flex-1 min-w-0">
+<div class="font-semibold text-on-surface truncate">Q4-Service-Mesh-Refactor.pdf</div>
+<div class="text-label-sm text-outline mt-0.5">3.8 MB · 钉钉-架构研发项目组共享</div>
+</div>
+</div>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+包含下周二技术架构评审会核心议程、服务网格压测指标及排期规划，已通过端侧安全脱敏检验。
+</p>
+</div>
+<div class="flex space-x-3 pt-2">
+<button class="flex-1 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface font-semibold hover:bg-surface-container transition-colors cursor-pointer" id="zx-preview-doc-btn" type="button">在线快速预览</button>
+<button class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold flex items-center justify-center space-x-1 cursor-pointer" id="zx-mock-download" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>转存至知识库</span>
+</button>
+</div>
+</div>
+<!-- 6. AI CONVERSATION IMPORT SHEET (右下角 FAB) -->
+<div class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl p-5 transition-transform duration-300 translate-y-full" id="zx-chat-sheet">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">auto_awesome</span>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">智序 AI 消息速记与导入</h3>
+</div>
+<button class="zx-close-sheet text-outline hover:text-on-surface p-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="py-3 space-y-3">
+<div class="text-label-sm text-outline">快捷指令模板（点击填入）：</div>
+<div class="flex flex-wrap gap-2">
+<button class="zx-quick-prompt text-label-sm px-3 py-1.5 rounded-full bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors cursor-pointer" type="button">帮我把企微里总监提到的任务排进日历</button>
+<button class="zx-quick-prompt text-label-sm px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" type="button">明天下午3点提醒我提交高数第四章作业</button>
+</div>
+<div class="relative">
+<textarea class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-3 text-body-md text-on-surface outline-none focus:border-secondary transition-colors" id="zx-chat-input" placeholder="直接粘贴微信、飞书聊天记录或输入日程口令..." rows="3"></textarea>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="text-[11px] text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-0.5">lock</span> 端侧离线大模型保护隐私
+</span>
+<button class="px-4 py-2 rounded-xl bg-gradient-to-r from-secondary to-primary text-on-primary font-semibold text-label-md flex items-center space-x-1 active:scale-95 shadow-md cursor-pointer" id="zx-do-ai-parse" type="button">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span>开始智能解析</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- HIGH-FIDELITY JAVASCRIPT RUNTIME ENGINE -->
+<script>
+(function() {
+  // 1. Core Toast System
+  const toast = document.getElementById('zx-toast');
+  const toastMsg = document.getElementById('zx-toast-msg');
+  const toastIcon = document.getElementById('zx-toast-icon');
+  let toastTimer = null;
+
+  function showToast(msg, icon = 'check_circle') {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastMsg.textContent = msg;
+    toastIcon.textContent = icon;
+    toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+    toast.classList.add('opacity-100', 'translate-y-0');
+    toastTimer = setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+      toast.classList.remove('opacity-100', 'translate-y-0');
+    }, 2200);
+  }
+
+  // 2. Bottom Sheet & Modal Management
+  const backdrop = document.getElementById('zx-sheet-backdrop');
+  let activeSheet = null;
+
+  function openSheet(sheetEl) {
+    closeAllSheets(false);
+    activeSheet = sheetEl;
+    backdrop.classList.remove('opacity-0', 'pointer-events-none');
+    backdrop.classList.add('opacity-100');
+    sheetEl.classList.remove('translate-y-full');
+    sheetEl.classList.add('translate-y-0');
+  }
+
+  function closeAllSheets(fadeBackdrop = true) {
+    if (activeSheet) {
+      activeSheet.classList.remove('translate-y-0');
+      activeSheet.classList.add('translate-y-full');
+      activeSheet = null;
+    }
+    if (fadeBackdrop) {
+      backdrop.classList.remove('opacity-100');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+    }
+  }
+
+  backdrop.addEventListener('click', () => closeAllSheets(true));
+  document.querySelectorAll('.zx-close-sheet').forEach(btn => {
+    btn.addEventListener('click', () => closeAllSheets(true));
+  });
+
+  // 3. State Engine: Filter & Counts
+  let pendingCount = 2;
+  let activeTab = 'all'; // 'all' | 'pending' | 'synced'
+  let selectedPlatforms = ['学习通', '企业微信', '腾讯会议', '钉钉', '飞书', '邮件'];
+  let selectedPriority = 'all';
+  let selectedTime = 'all';
+  let searchQuery = '';
+
+  const cards = document.querySelectorAll('#zx-message-cards-list article.zx-card');
+  const emptyView = document.getElementById('zx-empty-view');
+  const filterAlertBar = document.getElementById('zx-filter-alert-bar');
+  const filterAlertText = document.getElementById('zx-filter-alert-text');
+  const pendingBadge = document.getElementById('zx-tab-pending-badge');
+  const navBadge = document.getElementById('zx-nav-badge');
+  const radarPendingNum = document.getElementById('zx-radar-pending-num');
+
+  function updateBadgeCounts() {
+    if (pendingBadge) pendingBadge.textContent = pendingCount;
+    if (radarPendingNum) radarPendingNum.textContent = pendingCount + ' 条';
+    if (navBadge) {
+      if (pendingCount <= 0) {
+        navBadge.classList.add('hidden');
+      } else {
+        navBadge.classList.remove('hidden');
+        navBadge.textContent = pendingCount;
+      }
+    }
+  }
+
+  function reFilterCards() {
+    let visibleCount = 0;
+    const isCustomFilter = selectedPlatforms.length < 6 || selectedPriority !== 'all' || selectedTime !== 'all' || searchQuery.length > 0;
+
+    if (isCustomFilter) {
+      filterAlertBar.classList.remove('hidden');
+      filterAlertBar.classList.add('flex');
+      let details = [];
+      if (searchQuery) details.push(`关键词 "${searchQuery}"`);
+      if (selectedPlatforms.length < 6) details.push(`${selectedPlatforms.length}个来源平台`);
+      if (selectedPriority !== 'all') details.push(selectedPriority);
+      filterAlertText.textContent = `已应用筛选：${details.join(' · ')}`;
+    } else {
+      filterAlertBar.classList.add('hidden');
+      filterAlertBar.classList.remove('flex');
+    }
+
+    cards.forEach(card => {
+      const isPending = card.getAttribute('data-pending') === 'true';
+      const plat = card.getAttribute('data-platform');
+      const pri = card.getAttribute('data-priority');
+      const time = card.getAttribute('data-time');
+      const text = card.textContent.toLowerCase();
+
+      // 1. Tab check
+      let matchTab = true;
+      if (activeTab === 'pending') matchTab = isPending;
+      if (activeTab === 'synced') matchTab = !isPending;
+
+      // 2. Platform check
+      const matchPlat = selectedPlatforms.includes(plat);
+
+      // 3. Priority check
+      const matchPri = (selectedPriority === 'all' || selectedPriority === pri);
+
+      // 4. Time check
+      const matchTime = (selectedTime === 'all' || selectedTime === time);
+
+      // 5. Search check
+      const matchSearch = (!searchQuery || text.includes(searchQuery));
+
+      if (matchTab && matchPlat && matchPri && matchTime && matchSearch) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (visibleCount === 0) {
+      emptyView.classList.remove('hidden');
+    } else {
+      emptyView.classList.add('hidden');
+    }
+  }
+
+  // 4. Search Functionality
+  const searchBtn = document.getElementById('zx-top-search-btn');
+  const searchOverlay = document.getElementById('zx-search-overlay');
+  const searchInput = document.getElementById('zx-search-input');
+  const searchClose = document.getElementById('zx-close-search');
+  const searchClear = document.getElementById('zx-clear-search');
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+      searchOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      searchInput.focus();
+    });
+  }
+
+  function closeSearch() {
+    searchOverlay.classList.add('opacity-0', 'pointer-events-none');
+  }
+
+  if (searchClose) searchClose.addEventListener('click', closeSearch);
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      if (searchQuery) {
+        searchClear.classList.remove('hidden');
+      } else {
+        searchClear.classList.add('hidden');
+      }
+      reFilterCards();
+    });
+  }
+
+  if (searchClear) {
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      searchClear.classList.add('hidden');
+      reFilterCards();
+      searchInput.focus();
+    });
+  }
+
+  document.querySelectorAll('.zx-search-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const q = tag.textContent.trim();
+      searchInput.value = q;
+      searchQuery = q.toLowerCase();
+      searchClear.classList.remove('hidden');
+      reFilterCards();
+      closeSearch();
+      showToast(`已搜索：「${q}」`, 'search');
+    });
+  });
+
+  // 5. Header Filter Button & Drawer
+  const filterSheet = document.getElementById('zx-filter-sheet');
+  const openFilterBtn = document.getElementById('zx-open-filter-btn');
+  const topFilterDrawerBtn = document.getElementById('zx-top-filter-drawer-btn');
+  const applyFilterBtn = document.getElementById('zx-apply-filter-btn');
+  const resetFilterBtn = document.getElementById('zx-reset-filter-btn');
+  const checkedCountLabel = document.getElementById('zx-platform-checked-count');
+
+  function openFilterDrawer() {
+    openSheet(filterSheet);
+  }
+
+  if (openFilterBtn) openFilterBtn.addEventListener('click', openFilterDrawer);
+  if (topFilterDrawerBtn) topFilterDrawerBtn.addEventListener('click', openFilterDrawer);
+
+  const platformCbs = document.querySelectorAll('.zx-platform-filter-cb');
+  platformCbs.forEach(cb => {
+    cb.addEventListener('change', () => {
+      const c = document.querySelectorAll('.zx-platform-filter-cb:checked').length;
+      if (checkedCountLabel) checkedCountLabel.textContent = c;
+    });
+  });
+
+  // Priority Chips
+  const priChips = document.querySelectorAll('.zx-priority-chip');
+  priChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      priChips.forEach(c => {
+        c.className = 'zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium cursor-pointer';
+      });
+      chip.className = 'zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-secondary bg-secondary/10 text-secondary font-bold cursor-pointer';
+      selectedPriority = chip.getAttribute('data-pri');
+    });
+  });
+
+  // Time Chips
+  const timeChips = document.querySelectorAll('.zx-time-chip');
+  timeChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      timeChips.forEach(c => {
+        c.className = 'zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium cursor-pointer';
+      });
+      chip.className = 'zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-secondary bg-secondary/10 text-secondary font-bold cursor-pointer';
+      selectedTime = chip.getAttribute('data-time');
+    });
+  });
+
+  if (applyFilterBtn) {
+    applyFilterBtn.addEventListener('click', () => {
+      selectedPlatforms = Array.from(document.querySelectorAll('.zx-platform-filter-cb:checked')).map(cb => cb.value);
+      reFilterCards();
+      closeAllSheets();
+      showToast('筛选已生效', 'filter_alt');
+    });
+  }
+
+  function resetFilters() {
+    platformCbs.forEach(cb => cb.checked = true);
+    if (checkedCountLabel) checkedCountLabel.textContent = '6';
+    selectedPlatforms = ['学习通', '企业微信', '腾讯会议', '钉钉', '飞书', '邮件'];
+    selectedPriority = 'all';
+    selectedTime = 'all';
+    searchQuery = '';
+    if (searchInput) {
+      searchInput.value = '';
+      searchClear.classList.add('hidden');
+    }
+    priChips.forEach((c, idx) => {
+      c.className = idx === 0 
+        ? 'zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-secondary/10 text-secondary font-bold'
+        : 'zx-priority-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium';
+    });
+    timeChips.forEach((c, idx) => {
+      c.className = idx === 0 
+        ? 'zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-secondary/10 text-secondary font-bold'
+        : 'zx-time-chip py-1.5 px-2 rounded-xl text-center text-label-sm border border-outline-variant/40 bg-surface text-on-surface font-medium';
+    });
+    reFilterCards();
+  }
+
+  if (resetFilterBtn) {
+    resetFilterBtn.addEventListener('click', () => {
+      resetFilters();
+      showToast('筛选条件已重置');
+    });
+  }
+
+  const filterClearAllBtn = document.getElementById('zx-filter-clear-all');
+  if (filterClearAllBtn) {
+    filterClearAllBtn.addEventListener('click', () => {
+      resetFilters();
+      showToast('已还原为全部聚合视图');
+    });
+  }
+
+  const resetEmptyBtn = document.getElementById('zx-reset-empty-btn');
+  if (resetEmptyBtn) {
+    resetEmptyBtn.addEventListener('click', () => {
+      activeTab = 'all';
+      renderTabActive('all');
+      resetFilters();
+      showToast('已重置所有条件');
+    });
+  }
+
+  // 6. Top Tabs Switching
+  const tabButtons = document.querySelectorAll('#zx-tab-bar button[data-tab]');
+  function renderTabActive(tabName) {
+    activeTab = tabName;
+    tabButtons.forEach(btn => {
+      const t = btn.getAttribute('data-tab');
+      if (t === tabName) {
+        btn.className = 'px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-secondary text-on-secondary shadow-sm active:scale-95 transition-all flex items-center space-x-1 whitespace-nowrap cursor-pointer';
+      } else {
+        btn.className = 'px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-highest text-on-surface hover:bg-surface-container-high transition-all whitespace-nowrap flex items-center space-x-1 cursor-pointer';
+      }
+    });
+    reFilterCards();
+  }
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      renderTabActive(tab);
+      const names = { all: '全部消息', pending: 'AI 待提取待办', synced: '已同步日历项' };
+      showToast(`已切换至「${names[tab]}」`, 'view_list');
+    });
+  });
+
+  // 7. Radar Banner Interactions
+  // A. Quick platform mini icon filter
+  const radarPlatformIcons = document.querySelectorAll('#zx-radar-platforms span[data-platform]');
+  radarPlatformIcons.forEach(icon => {
+    icon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const plat = icon.getAttribute('data-platform');
+      selectedPlatforms = [plat];
+      platformCbs.forEach(cb => {
+        cb.checked = (cb.value === plat);
+      });
+      if (checkedCountLabel) checkedCountLabel.textContent = '1';
+      reFilterCards();
+      showToast(`聚焦筛选：${plat} 来源消息`, 'tune');
+    });
+  });
+
+  // B. Batch Trigger Modal
+  const radarBatchTrigger = document.getElementById('zx-radar-batch-trigger');
+  const batchSheet = document.getElementById('zx-batch-sheet');
+  const doBatchImportBtn = document.getElementById('zx-do-batch-import');
+
+  if (radarBatchTrigger) {
+    radarBatchTrigger.addEventListener('click', () => {
+      openSheet(batchSheet);
+    });
+  }
+
+  if (doBatchImportBtn) {
+    doBatchImportBtn.addEventListener('click', () => {
+      doBatchImportBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">sync</span><span>正在一键排期中...</span>';
+      setTimeout(() => {
+        pendingCount = 0;
+        updateBadgeCounts();
+        
+        // Update Card 1 & Card 2 to Done status
+        const btn1 = document.querySelector('.zx-action-btn-1');
+        const btn2 = document.querySelector('.zx-action-btn-2');
+        if (btn1) {
+          btn1.className = 'inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 font-semibold rounded-xl text-label-md is-done';
+          btn1.innerHTML = '<span class="material-symbols-outlined text-[16px]">check_circle</span><span>已排入日程</span>';
+        }
+        if (btn2) {
+          btn2.className = 'inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 font-semibold rounded-xl text-label-md is-done';
+          btn2.innerHTML = '<span class="material-symbols-outlined text-[16px]">check_circle</span><span>已排入日程</span>';
+        }
+
+        const card1 = document.querySelector('article[data-id="card-1"]');
+        const card2 = document.querySelector('article[data-id="card-2"]');
+        if (card1) card1.setAttribute('data-pending', 'false');
+        if (card2) card2.setAttribute('data-pending', 'false');
+
+        const radarBannerText = document.getElementById('zx-radar-banner-text');
+        if (radarBannerText) {
+          radarBannerText.innerHTML = '🎉 <strong>所有高优先级消息已成功安排就绪</strong>，今日待办规划完毕！';
+        }
+        const radarBadge = document.getElementById('zx-radar-status-badge');
+        if (radarBadge) {
+          radarBadge.textContent = '已全部排程';
+          radarBadge.className = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800';
+        }
+
+        closeAllSheets();
+        reFilterCards();
+        showToast('批量提取成功！3 项待办均已同步至日历', 'done_all');
+        doBatchImportBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">bolt</span><span>一键全部导入日历与待办</span>';
+      }, 700);
+    });
+  }
+
+  // 8. Individual Card Context Expand / Collapse
+  cards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't toggle if user clicked on button or inputs
+      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) return;
+      const contextBox = card.querySelector('.zx-context-box');
+      if (contextBox) {
+        const isHidden = contextBox.classList.contains('hidden');
+        if (isHidden) {
+          contextBox.classList.remove('hidden');
+          showToast('已展开群聊上下文记录', 'unfold_more');
+        } else {
+          contextBox.classList.add('hidden');
+        }
+      }
+    });
+  });
+
+  // 9. Card 1 (学习通) & Card 2 (企业微信) Extraction Flow
+  const taskSheet = document.getElementById('zx-task-sheet');
+  const taskSheetTitle = document.getElementById('zx-task-sheet-title');
+  const taskInputTitle = document.getElementById('zx-task-input-title');
+  const taskDeadlineInput = document.getElementById('zx-task-deadline-input');
+  const taskPrioritySelect = document.getElementById('zx-task-priority-select');
+  const taskAssigneeInput = document.getElementById('zx-task-assignee-input');
+  const confirmSingleTaskBtn = document.getElementById('zx-confirm-single-task');
+  let currentOperatingCard = null;
+
+  const btn1 = document.querySelector('.zx-action-btn-1');
+  if (btn1) {
+    btn1.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn1.classList.contains('is-done')) {
+        showToast('该作业任务已在您的待办列表中');
+        return;
+      }
+      currentOperatingCard = {
+        card: document.querySelector('article[data-id="card-1"]'),
+        btn: btn1
+      };
+      taskSheetTitle.textContent = '学习通作业 · 确认生成任务';
+      taskInputTitle.value = '第五章高数课后习题提交 (双重积分)';
+      taskDeadlineInput.value = '本周五 22:00';
+      taskPrioritySelect.value = 'P1 紧急';
+      taskAssigneeInput.value = '高数课代表通知 / 课程平台';
+      openSheet(taskSheet);
+    });
+  }
+
+  const btn2 = document.querySelector('.zx-action-btn-2');
+  if (btn2) {
+    btn2.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn2.classList.contains('is-done')) {
+        showToast('该工作任务已安排');
+        return;
+      }
+      currentOperatingCard = {
+        card: document.querySelector('article[data-id="card-2"]'),
+        btn: btn2
+      };
+      taskSheetTitle.textContent = '企业微信 · 确认生成工作待办';
+      taskInputTitle.value = '将 Q4 智能硬件需求文档初稿同步给测试组';
+      taskDeadlineInput.value = '今日 16:00';
+      taskPrioritySelect.value = 'P2 重要';
+      taskAssigneeInput.value = '李总监 (硬件战略协同中心)';
+      openSheet(taskSheet);
+    });
+  }
+
+  if (confirmSingleTaskBtn) {
+    confirmSingleTaskBtn.addEventListener('click', () => {
+      if (currentOperatingCard) {
+        const { card, btn } = currentOperatingCard;
+        btn.className = 'inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 font-semibold rounded-xl text-label-md is-done';
+        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">check_circle</span><span>已排入日程</span>';
+        card.setAttribute('data-pending', 'false');
+        if (pendingCount > 0) pendingCount--;
+        updateBadgeCounts();
+        reFilterCards();
+      }
+      closeAllSheets();
+      showToast('任务已成功提取并排入日历！', 'check_circle');
+    });
+  }
+
+  // 10. Card 3 (腾讯会议) 查看日程
+  const btn3 = document.querySelector('.zx-action-btn-3');
+  const calSheet = document.getElementById('zx-calendar-sheet');
+  const copyMeetingBtn = document.getElementById('zx-copy-meeting-num');
+  const enterMeetingBtn = document.getElementById('zx-enter-meeting');
+  const openCalTabBtn = document.getElementById('zx-open-cal-tab');
+
+  if (btn3) {
+    btn3.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSheet(calSheet);
+    });
+  }
+
+  if (copyMeetingBtn) {
+    copyMeetingBtn.addEventListener('click', () => {
+      showToast('会议号 839-204-112 已复制到剪贴板', 'content_copy');
+    });
+  }
+
+  if (enterMeetingBtn) {
+    enterMeetingBtn.addEventListener('click', () => {
+      showToast('正在为您拉起腾讯会议客户端...', 'videocam');
+      closeAllSheets();
+    });
+  }
+
+  if (openCalTabBtn) {
+    openCalTabBtn.addEventListener('click', () => {
+      closeAllSheets();
+      showToast('正在前往「日历」视图查看产品迭代对齐会', 'calendar_today');
+    });
+  }
+
+  // 11. Card 4 (钉钉附件) 查看文件
+  const btn4 = document.querySelector('.zx-action-btn-4');
+  const docSheet = document.getElementById('zx-doc-sheet');
+  const previewDocBtn = document.getElementById('zx-preview-doc-btn');
+  const mockDownloadBtn = document.getElementById('zx-mock-download');
+
+  if (btn4) {
+    btn4.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSheet(docSheet);
+    });
+  }
+
+  if (previewDocBtn) {
+    previewDocBtn.addEventListener('click', () => {
+      showToast('正在生成安全离线预览水印...', 'visibility');
+      setTimeout(() => {
+        closeAllSheets();
+        showToast('文档预览加载就绪');
+      }, 500);
+    });
+  }
+
+  if (mockDownloadBtn) {
+    mockDownloadBtn.addEventListener('click', () => {
+      mockDownloadBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span><span>正在同步转存...</span>';
+      setTimeout(() => {
+        closeAllSheets();
+        showToast('已转存至智序个人知识库', 'cloud_download');
+        mockDownloadBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">download</span><span>转存至知识库</span>';
+      }, 600);
+    });
+  }
+
+  // 12. Floating Action Button: AI 对话导入
+  const chatFab = document.getElementById('zx-chat-fab');
+  const chatSheet = document.getElementById('zx-chat-sheet');
+  const chatInput = document.getElementById('zx-chat-input');
+  const doAiParseBtn = document.getElementById('zx-do-ai-parse');
+
+  if (chatFab) {
+    chatFab.addEventListener('click', () => {
+      openSheet(chatSheet);
+    });
+  }
+
+  document.querySelectorAll('.zx-quick-prompt').forEach(qp => {
+    qp.addEventListener('click', () => {
+      if (chatInput) chatInput.value = qp.textContent.trim();
+    });
+  });
+
+  if (doAiParseBtn) {
+    doAiParseBtn.addEventListener('click', () => {
+      const val = chatInput.value.trim();
+      if (!val) {
+        showToast('请输入或选择指令文本', 'warning');
+        return;
+      }
+      doAiParseBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[16px]">sync</span><span>端侧大模型提取中...</span>';
+      setTimeout(() => {
+        closeAllSheets();
+        chatInput.value = '';
+        doAiParseBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">send</span><span>开始智能解析</span>';
+        showToast('AI 解析完毕！已生成 1 条新待办并加入日程', 'auto_awesome');
+      }, 650);
+    });
+  }
+
+  // 13. Bottom Navigation Bar Interactivity
+  const navLinks = document.querySelectorAll('.zx-nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const navName = link.getAttribute('data-nav');
+      navLinks.forEach(item => {
+        item.className = 'zx-nav-link flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 duration-150 py-1 flex-1 cursor-pointer';
+      });
+      link.className = 'zx-nav-link flex flex-col items-center justify-center text-primary font-semibold relative after:content-[""] after:absolute after:top-0 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary active:scale-90 duration-150 py-1 flex-1 cursor-pointer';
+      
+      if (navName === '消息') {
+        showToast('当前已在「消息中心」', 'chat_bubble');
+      } else {
+        showToast(`正在无缝切换至「${navName}」模块`, 'navigation');
+      }
+    });
+  });
+
+  // 14. Top Header Accents
+  const topAvatar = document.getElementById('zx-top-avatar');
+  if (topAvatar) {
+    topAvatar.addEventListener('click', () => {
+      showToast('已登录：智序专业版 (端侧协同引擎运行中)', 'account_circle');
+    });
+  }
+
+  const headerAiBtn = document.getElementById('zx-header-ai-btn');
+  if (headerAiBtn) {
+    headerAiBtn.addEventListener('click', () => {
+      showToast('端侧多模态分析雷达运行正常，延迟 <12ms', 'speed');
+    });
+  }
+
+  // Initialize
+  updateBadgeCounts();
+  reFilterCards();
+})();
+</script>
+</body></html>

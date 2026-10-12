@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年9月批新生 C语言 周考成绩公布</title>
+<style>
+  :root {
+    --banner: #B9DFA0;   /* 取自原图上下通栏浅绿 */
+    --accent: #5E8750;   /* 可读的莫兰迪绿（标题强调/分数） */
+    --marker: #D7EDC8;   /* 行首浅绿圆角块（取自原图） */
+    --ink: #1A1A1A;      /* 主标题/姓名 */
+    --ink-soft: #5A6353; /* 副标题 */
+    --ink-faint: #7A7A7B;/* 备注灰 */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: #E9EFE4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .poster {
+    width: 1108px;
+    height: 1480px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 18px 60px rgba(90, 120, 85, 0.20);
+    overflow: hidden;
+  }
+
+  /* 顶部绿色通栏（真实素材） */
+  .header { flex: 0 0 137px; }
+  .header img { width: 100%; height: 137px; display: block; }
+
+  /* 内容区 */
+  .content {
+    flex: 1;
+    padding: 46px 64px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .title { text-align: center; line-height: 1.25; }
+  .title .t-line1 {
+    font-size: 46px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: 2px;
+  }
+  .title .t-line2 { margin-top: 14px; }
+  .title .t-c {
+    font-size: 54px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 3px;
+  }
+  .title .t-g {
+    font-size: 54px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    text-align: center;
+    margin-top: 26px;
+    font-size: 20px;
+    color: var(--ink-soft);
+    letter-spacing: 1px;
+  }
+  .subtitle b { color: var(--accent); font-weight: 700; }
+
+  /* 成绩列表 */
+  .list {
+    flex: 1;
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 8px 12px;
+  }
+  .row { display: flex; align-items: center; }
+  .marker {
+    width: 56px;
+    height: 56px;
+    border-radius: 15px;
+    background: var(--marker);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    flex: 0 0 auto;
+  }
+  .name {
+    margin-left: 28px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 2px;
+  }
+  .spacer { flex: 1; }
+  .score {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .score small { font-size: 19px; font-weight: 700; }
+
+  /* 备注 */
+  .notes {
+    margin: 26px 0 30px;
+    padding-top: 20px;
+    border-top: 1px dashed #D9E4CE;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .notes p {
+    font-size: 15.5px;
+    color: var(--ink-faint);
+    line-height: 1.7;
+    letter-spacing: 0.2px;
+  }
+
+  /* 底部绿色通栏 */
+  .footer {
+    flex: 0 0 84px;
+    background: var(--banner);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .footer .f-cn { color: #fff; font-size: 23px; font-weight: 800; letter-spacing: 3px; }
+  .footer .f-cn .tp { font-weight: 900; }
+  .footer .f-en { color: rgba(255,255,255,0.94); font-size: 12.5px; letter-spacing: 0.6px; }
+</style>
+</head>
+<body>
+  <div class="poster">
+
+    <!-- 顶部绿色通栏（真实：TP标识 + 小幽灵） -->
+    <div class="header">
+      <img src="poster_header.png" alt="TP 技术研发与产品设计">
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+      <div class="title">
+        <div class="t-line1">2026年9月批新生</div>
+        <div class="t-line2">
+          <span class="t-c">C语言</span>
+          <span class="t-g">周考成绩公布</span>
+        </div>
+      </div>
+      <div class="subtitle">考试日期：<b>2026.10.4</b>　第一周</div>
+
+      <div class="list">
+        <div class="row"><div class="marker">-</div><div class="name">王上月</div><div class="spacer"></div><div class="score">49<small>分</small></div></div>
+        <div class="row"><div class="marker">-</div><div class="name">邓圆梦</div><div class="spacer"></div><div class="score">49<small>分</small></div></div>
+        <div class="row"><div class="marker">-</div><div class="name">唐杜源</div><div class="spacer"></div><div class="score">45<small>分</small></div></div>
+        <div class="row"><div class="marker">-</div><div class="name">刘奥</div><div class="spacer"></div><div class="score">29<small>分</small></div></div>
+        <div class="row"><div class="marker">-</div><div class="name">黎萌</div><div class="spacer"></div><div class="score">19<small>分</small></div></div>
+        <div class="row"><div class="marker">-</div><div class="name">闫斌</div><div class="spacer"></div><div class="score">16<small>分</small></div></div>
+      </div>
+
+      <div class="notes">
+        <p>1. 主卷（不含附加题）高于80分才有排名，低于80分均为不合格；‘-’代表无排名；</p>
+        <p>2. 分数连续两次低于40则予以劝退处理</p>
+      </div>
+    </div>
+
+    <!-- 底部绿色通栏 -->
+    <div class="footer">
+      <div class="f-cn"><span class="tp">TP</span> 技术研发与产品设计中心</div>
+      <div class="f-en">Technology Research&Development and Product Design Center</div>
+    </div>
+
+  </div>
+</body>
+</html>

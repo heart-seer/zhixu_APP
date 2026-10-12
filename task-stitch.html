@@ -1,0 +1,1386 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>智序 - 任务中心</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error-container": "#93000a",
+            "on-primary-fixed": "#00174b",
+            "secondary": "#712ae2",
+            "on-tertiary": "#ffffff",
+            "primary": "#004ac6",
+            "secondary-container": "#8a4cfc",
+            "on-secondary-fixed": "#25005a",
+            "inverse-on-surface": "#eaf1ff",
+            "on-tertiary-fixed": "#2a1700",
+            "tertiary-fixed": "#ffddb8",
+            "on-tertiary-container": "#ffeedd",
+            "on-background": "#0b1c30",
+            "surface": "#f8f9ff",
+            "surface-tint": "#0053db",
+            "surface-container": "#e5eeff",
+            "surface-container-highest": "#d3e4fe",
+            "on-primary-fixed-variant": "#003ea8",
+            "primary-fixed": "#dbe1ff",
+            "primary-container": "#2563eb",
+            "surface-variant": "#d3e4fe",
+            "outline": "#737686",
+            "outline-variant": "#c3c6d7",
+            "on-secondary": "#ffffff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-secondary-fixed-variant": "#5a00c6",
+            "tertiary": "#784b00",
+            "background": "#f8f9ff",
+            "secondary-fixed": "#eaddff",
+            "on-primary-container": "#eeefff",
+            "surface-container-low": "#eff4ff",
+            "on-primary": "#ffffff",
+            "error": "#ba1a1a",
+            "on-secondary-container": "#fffbff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#dce9ff",
+            "tertiary-fixed-dim": "#ffb95f",
+            "inverse-primary": "#b4c5ff",
+            "inverse-surface": "#213145",
+            "error-container": "#ffdad6",
+            "secondary-fixed-dim": "#d2bbff",
+            "on-surface-variant": "#434655",
+            "surface-bright": "#f8f9ff",
+            "on-surface": "#0b1c30",
+            "surface-dim": "#cbdbf5",
+            "on-error": "#ffffff",
+            "primary-fixed-dim": "#b4c5ff",
+            "tertiary-container": "#996100"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "space-md": "0.75rem",
+            "space-lg": "1rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "1.5rem"
+          },
+          "fontFamily": {
+            "display-lg": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "display-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500;
+    }
+    /* Hide scrollbar for tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    /* Modal Sheet Animation */
+    .sheet-backdrop {
+      transition: opacity 0.25s ease-out;
+    }
+    .sheet-panel {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sheet-backdrop.hidden-state {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sheet-panel.hidden-state {
+      transform: translateY(100%);
+    }
+    /* Task item transitions */
+    .task-card-item {
+      transition: all 0.25s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased min-h-screen pb-28 select-none">
+<!-- Unified Fixed Header & Filter Navigation Area to prevent overlap -->
+<div class="fixed top-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md shadow-sm border-b border-outline-variant/20 transition-all">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-4 h-14 w-full">
+<div class="flex items-center space-x-3">
+<div class="relative w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 flex items-center justify-center bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close up modern minimalist portrait of a focused professional student with soft studio rim lighting against a clean crisp tech ambient blue gradient background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuRZ7RybsQEX9MzSAsZ8HfRcBYstNsOwO3wnvRlDKOHsM5KZzxUlWopk885Nit3GZbhA0oFEmYvgKfefezoyCO-YCUYRwy4GuTz90kdbFPqkhxqLfjHwF9HNYpu8W07pDh6oFZc55b4h9KO__VkxRO2Ps6iezM2INvpGaCu6-tBTPUYiQa-NBmt3K_E0Spz48B-RJdbIxCK-_jPlRmrWZ4v6qRVcgXRAwn46tHQtoB_aV5YBdyqx7tTA">
+</div>
+<div class="flex items-baseline space-x-1.5">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">智序</span>
+<span class="text-label-sm font-label-sm text-primary font-semibold px-1.5 py-0.5 rounded-full bg-primary-fixed/50">任务中心</span>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" id="search-toggle-btn">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</button>
+<button class="w-9 h-9 rounded-full flex items-center justify-center text-secondary hover:bg-surface-container active:scale-95 transition-all relative" id="ai-quick-trigger">
+<span class="material-symbols-outlined text-xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+</div>
+</header>
+<!-- Expandable Search Bar -->
+<div class="hidden px-4 pb-2.5 pt-1 border-t border-outline-variant/20 bg-surface/95" id="search-bar-container">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline text-lg">search</span>
+<input class="w-full pl-9 pr-8 py-2 bg-surface-container-lowest rounded-xl border border-outline-variant/40 text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" id="task-search-input" placeholder="搜索任务名称、标签或平台..." type="text">
+<button class="absolute right-2.5 text-outline hover:text-on-surface hidden p-1" id="search-clear-btn">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+</div>
+<!-- Sticky Sub-Nav: Filter Chips & View Mode Switcher -->
+<nav class="px-4 pt-1.5 pb-2.5 border-t border-outline-variant/10">
+<div class="flex items-center justify-between gap-3">
+<!-- Scrollable Platform Filters -->
+<div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-0.5 pr-1 flex-1" id="filter-chip-group">
+<button class="filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-primary text-on-primary shadow-sm whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" data-filter="all">
+          全部 <span id="total-count-badge">12</span>
+</button>
+<button class="filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" data-filter="学习通">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+          学习通 <span class="text-xs opacity-70 filter-num">(4)</span>
+</button>
+<button class="filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" data-filter="企业微信">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          企业微信 <span class="text-xs opacity-70 filter-num">(5)</span>
+</button>
+<button class="filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" data-filter="钉钉">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+          钉钉 <span class="text-xs opacity-70 filter-num">(3)</span>
+</button>
+</div>
+<!-- Segmented View Mode Toggle -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-xl border border-outline-variant/30 shrink-0">
+<button class="p-1 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center transition-all cursor-pointer" id="view-mode-list" title="列表视图">
+<span class="material-symbols-outlined text-lg">format_list_bulleted</span>
+</button>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all cursor-pointer" id="view-mode-grid" title="四象限看板">
+<span class="material-symbols-outlined text-lg">grid_view</span>
+</button>
+</div>
+</div>
+</nav>
+</div>
+<!-- Main Content Stream with generous padding-top to ensure Bento Card is completely visible -->
+<main class="px-4 pt-32 space-y-4 max-w-md mx-auto transition-all" id="tasks-container">
+<!-- 1. Top Intelligent AI Scheduling Bento Card -->
+<section class="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-secondary/10 via-primary/5 to-surface-container-low border border-secondary/20 shadow-sm transition-all duration-300" id="ai-schedule-bento">
+<div class="absolute -right-8 -top-8 w-28 h-28 bg-secondary/15 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-secondary to-primary-container flex items-center justify-center text-on-primary shadow-sm shadow-secondary/30 shrink-0" id="ai-bento-icon">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold" id="ai-bento-title">AI 待排期待办</h2>
+<span class="text-label-sm font-label-sm px-1.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold" id="ai-bento-tag">3 项待排</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5" id="ai-bento-desc">检测到跨平台 3 个高优先级任务尚未入历</p>
+</div>
+</div>
+</div>
+<!-- Compact preview of tasks to schedule -->
+<div class="mt-3.5 bg-surface-container-lowest/80 backdrop-blur-sm rounded-xl p-2.5 border border-outline-variant/30 space-y-1.5" id="ai-bento-preview-list">
+<div class="flex items-center justify-between text-label-md font-label-md text-on-surface">
+<span class="flex items-center gap-1.5 truncate">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="truncate">数据结构实验报告 · 预留周四 19:30-22:30</span>
+</span>
+<span class="text-label-sm text-secondary font-semibold shrink-0">3.0h</span>
+</div>
+<div class="flex items-center justify-between text-label-md font-label-md text-on-surface">
+<span class="flex items-center gap-1.5 truncate">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="truncate">企微 Q3 复盘周报初稿 · 明早 09:00</span>
+</span>
+<span class="text-label-sm text-secondary font-semibold shrink-0">1.5h</span>
+</div>
+</div>
+<!-- Action Row -->
+<div class="mt-3 flex items-center justify-between pt-1">
+<span class="text-label-sm font-label-sm text-outline flex items-center gap-1" id="ai-bento-footer-hint">
+<span class="material-symbols-outlined text-sm">event_available</span>
+已根据空闲时隙智能匹配
+</span>
+<button class="px-3.5 py-1.5 rounded-xl bg-secondary text-on-secondary text-label-md font-label-md font-semibold flex items-center gap-1 shadow-sm shadow-secondary/30 active:scale-95 hover:bg-secondary/90 transition-all cursor-pointer" id="batch-schedule-btn">
+<span class="material-symbols-outlined text-base">bolt</span>
+<span>一键排入日历</span>
+</button>
+</div>
+</section>
+<!-- 2. Status Group: 即将截止 / P0 紧急 -->
+<section class="space-y-2.5 task-group" data-group="urgent">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-bold tracking-tight">即将截止 / P0 紧急</h3>
+</div>
+<span class="text-label-sm font-label-sm text-error font-semibold bg-error-container/60 px-2 py-0.5 rounded-full" id="urgent-badge">
+2项紧迫
+</span>
+</div>
+<!-- Task Card 1: 数据结构实验报告 -->
+<article class="task-card-item relative bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm p-4 overflow-hidden group" data-id="task-1" data-platform="学习通">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-error priority-strip"></div>
+<div class="pl-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">school</span>
+学习通
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold">
+高优先级 P0
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-tertiary-fixed text-on-tertiary-fixed font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">schedule</span>
+预估 3小时
+</span>
+</div>
+<button class="task-check-btn w-8 h-8 rounded-lg border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary active:scale-90 transition-all shrink-0 cursor-pointer" title="标为完成">
+<span class="material-symbols-outlined text-base">check</span>
+</button>
+</div>
+<h4 class="task-title text-headline-sm font-headline-sm text-on-surface font-bold mt-2.5 leading-snug cursor-pointer transition-colors hover:text-primary" onclick="openStepDrawer('task-1')">
+完成数据结构实验报告
+</h4>
+<div class="flex items-center gap-1.5 text-body-sm font-body-sm text-error font-medium mt-1">
+<span class="material-symbols-outlined text-base">alarm</span>
+<span>周五 22:00 截止</span>
+<span class="text-label-sm font-label-sm px-1.5 py-0.2 rounded bg-error-container text-on-error-container font-bold">剩余 2天</span>
+</div>
+<!-- AI Subtask Decomposition Preview Banner -->
+<div class="mt-3.5 bg-secondary-fixed/30 rounded-xl p-3 border border-secondary-fixed cursor-pointer transition-all hover:bg-secondary-fixed/40" onclick="openStepDrawer('task-1')">
+<div class="flex items-center justify-between text-label-md font-label-md text-secondary font-bold mb-2">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+已由 AI 拆解为 4 项执行步骤
+</span>
+<span class="text-label-sm text-outline font-semibold" id="subtask-card-progress">进度 0/4</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-1.5 overflow-hidden mb-2.5">
+<div class="bg-secondary h-1.5 rounded-full transition-all duration-300 w-[0%]" id="subtask-card-bar"></div>
+</div>
+<div class="space-y-1.5" id="card-steps-preview">
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface">
+<span class="w-4 h-4 rounded-full border border-outline-variant flex items-center justify-center text-[10px] text-outline">1</span>
+<span class="truncate">红黑树插入与平衡旋转算法实现代码整理</span>
+</div>
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface-variant">
+<span class="w-4 h-4 rounded-full border border-outline-variant flex items-center justify-center text-[10px] text-outline">2</span>
+<span class="truncate">绘制算法性能对比折线图 (Gnuplot / Excel)</span>
+</div>
+</div>
+</div>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between">
+<button class="schedule-task-btn flex items-center gap-1 text-label-md font-label-md text-primary font-semibold hover:text-primary-container active:scale-95 transition-all cursor-pointer" data-title="完成数据结构实验报告">
+<span class="material-symbols-outlined text-base">calendar_add_on</span>
+<span class="btn-text">排入日历</span>
+</button>
+<button class="flex items-center gap-1 text-label-md font-label-md text-on-surface-variant hover:text-on-surface active:scale-95 transition-all cursor-pointer" onclick="openStepDrawer('task-1')">
+查看详情与步骤
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Task Card 2: 企微周报 -->
+<article class="task-card-item relative bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm p-4 overflow-hidden group" data-id="task-2" data-platform="企业微信">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-error priority-strip"></div>
+<div class="pl-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-secondary-fixed text-on-secondary-fixed font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">chat</span>
+企业微信
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-error-container text-on-error-container font-semibold">
+P0 紧急
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-surface-container text-on-surface-variant">
+预估 45分
+</span>
+</div>
+<button class="task-check-btn w-8 h-8 rounded-lg border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary active:scale-90 transition-all shrink-0 cursor-pointer" title="标为完成">
+<span class="material-symbols-outlined text-base">check</span>
+</button>
+</div>
+<h4 class="task-title text-headline-sm font-headline-sm text-on-surface font-bold mt-2 leading-snug cursor-pointer transition-colors hover:text-primary" onclick="showScheduleModal('提交敏捷研发组 Q3 阶段总结周报')">
+提交敏捷研发组 Q3 阶段总结周报
+</h4>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-1 text-body-sm font-body-sm text-error font-medium">
+<span class="material-symbols-outlined text-base">timer</span>
+<span>明天 18:00 截止 · 剩余 20小时</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="schedule-task-btn text-label-md font-label-md text-primary font-semibold flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" data-title="提交敏捷研发组 Q3 阶段总结周报">
+<span class="material-symbols-outlined text-base">calendar_add_on</span>
+<span class="btn-text">排入</span>
+</button>
+<button class="text-on-surface-variant flex items-center cursor-pointer" onclick="showScheduleModal('提交敏捷研发组 Q3 阶段总结周报')">
+<span class="material-symbols-outlined text-lg">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- 3. Status Group: 今日进行中 -->
+<section class="space-y-2.5 pt-1 task-group" data-group="in-progress">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-bold tracking-tight">今日进行中</h3>
+</div>
+<span class="text-label-sm font-label-sm text-primary font-semibold bg-primary-fixed/60 px-2 py-0.5 rounded-full" id="inprogress-badge">
+2项专注
+</span>
+</div>
+<!-- Task Card 3: 架构图绘制 -->
+<article class="task-card-item relative bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm p-4 overflow-hidden group" data-id="task-3" data-platform="个人自主">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary priority-strip"></div>
+<div class="pl-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-surface-container text-on-surface-variant font-medium">
+个人设计
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed font-semibold">
+进行中 · 耗时 1.5h
+</span>
+</div>
+<button class="task-check-btn w-8 h-8 rounded-lg border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary active:scale-90 transition-all shrink-0 cursor-pointer" title="标为完成">
+<span class="material-symbols-outlined text-base">check</span>
+</button>
+</div>
+<h4 class="task-title text-headline-sm font-headline-sm text-on-surface font-bold mt-2 leading-snug cursor-pointer transition-colors hover:text-primary" onclick="showScheduleModal('分布式高并发系统架构拓扑图绘制')">
+分布式高并发系统架构拓扑图绘制
+</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+已完成网关与鉴权模块，待补全 Redis 缓存集群同步流向。
+</p>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-primary">schedule</span>
+今日日程已占用：15:00 - 16:30
+</span>
+<button class="text-on-surface-variant flex items-center text-label-md font-label-md cursor-pointer" onclick="showScheduleModal('分布式高并发系统架构拓扑图绘制')">
+详情
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Task Card 4: 计算机体系结构复习 -->
+<article class="task-card-item relative bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm p-4 overflow-hidden group" data-id="task-4" data-platform="学习通">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary priority-strip"></div>
+<div class="pl-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-wrap items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-primary-fixed text-on-primary-fixed font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">school</span>
+学习通
+</span>
+<span class="px-2 py-0.5 rounded-md text-label-sm font-label-sm bg-surface-container text-on-surface-variant">
+第 4 章节流水线冲突
+</span>
+</div>
+<button class="task-check-btn w-8 h-8 rounded-lg border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary active:scale-90 transition-all shrink-0 cursor-pointer" title="标为完成">
+<span class="material-symbols-outlined text-base">check</span>
+</button>
+</div>
+<h4 class="task-title text-headline-sm font-headline-sm text-on-surface font-bold mt-2 leading-snug cursor-pointer transition-colors hover:text-primary" onclick="showScheduleModal('计算机体系结构期中重点知识点复习')">
+计算机体系结构期中重点知识点复习
+</h4>
+<div class="mt-2.5 flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">checklist</span>
+进度 2/5 核心卡片
+</span>
+<div class="flex items-center gap-2">
+<button class="schedule-task-btn text-label-md font-label-md text-primary font-semibold flex items-center gap-0.5 active:scale-95 transition-all cursor-pointer" data-title="计算机体系结构期中重点知识点复习">
+<span class="material-symbols-outlined text-base">calendar_add_on</span>
+<span class="btn-text">排入</span>
+</button>
+<span class="material-symbols-outlined text-lg text-outline-variant">chevron_right</span>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- 4. Status Group: 本周待办列表 -->
+<section class="space-y-2.5 pt-1 task-group" data-group="this-week">
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<h3 class="text-headline-sm font-headline-sm text-on-surface font-bold tracking-tight">本周待办列表</h3>
+</div>
+<span class="text-label-sm font-label-sm text-outline font-semibold" id="thisweek-badge">共 4 项</span>
+</div>
+<!-- Task Card 5: 组会文献 PPT -->
+<article class="task-card-item bg-surface-container-lowest rounded-2xl border border-outline-variant/40 shadow-sm p-3.5 flex items-center justify-between gap-3 group" data-id="task-5" data-platform="钉钉">
+<div class="flex items-center gap-3 min-w-0">
+<button class="task-check-btn w-6 h-6 rounded-md border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary shrink-0 transition-all active:scale-90 cursor-pointer" title="标为完成">
+<span class="material-symbols-outlined text-sm">check</span>
+</button>
+<div class="min-w-0 cursor-pointer" onclick="showScheduleModal('研究生组会文献 PPT 预讲')">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed">钉钉</span>
+<h5 class="task-title text-body-md font-body-md font-semibold text-on-surface truncate">研究生组会文献 PPT 预讲</h5>
+</div>
+<p class="text-label-sm font-label-sm text-outline mt-0.5">周日 19:00 · 预计 2.0h</p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="schedule-task-btn w-7 h-7 rounded-lg hover:bg-surface-container text-primary flex items-center justify-center transition-colors active:scale-95 cursor-pointer" data-title="研究生组会文献 PPT 预讲" title="快速排入日历">
+<span class="material-symbols-outlined text-base">calendar_add_on</span>
+</button>
+<span class="material-symbols-outlined text-outline text-lg">chevron_right</span>
+</div>
+</article>
+<!-- Task Card 6: 发送导师周报抄送 (初始为已完成状态) -->
+<article class="task-card-item bg-surface-container-lowest/70 rounded-2xl border border-outline-variant/30 p-3.5 flex items-center justify-between gap-3 opacity-75 group is-completed" data-id="task-6" data-platform="企业微信">
+<div class="flex items-center gap-3 min-w-0">
+<button class="task-check-btn w-6 h-6 rounded-md bg-secondary text-on-secondary flex items-center justify-center shrink-0 border-secondary active:scale-90 transition-all cursor-pointer" title="标为未完成">
+<span class="material-symbols-outlined text-sm font-bold" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-surface-container text-on-surface-variant">企微</span>
+<h5 class="task-title text-body-md font-body-md font-medium text-outline line-through truncate">发送导师周报抄送知悉</h5>
+</div>
+<p class="text-label-sm font-label-sm text-outline mt-0.5">已于今日 11:20 提早完成</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline text-lg">chevron_right</span>
+</article>
+</section>
+<!-- Empty state for search/filters -->
+<div class="hidden text-center py-12 px-4" id="filter-empty-state">
+<span class="material-symbols-outlined text-5xl text-outline-variant mb-2">inbox</span>
+<h4 class="text-headline-sm font-semibold text-on-surface-variant">暂无匹配任务</h4>
+<p class="text-body-sm text-outline mt-1">换个筛选关键词或平台看看吧</p>
+</div>
+</main>
+<!-- Floating Action Button (FAB) / AI Quick-Add Capsule -->
+<div class="fixed bottom-20 right-4 z-40 flex flex-col items-end gap-2">
+<!-- Contextual AI hint tooltip -->
+<div class="bg-inverse-surface/90 text-inverse-on-surface text-label-sm font-label-sm px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+按住语音或快速打字创建
+</div>
+<!-- Quick Add Button -->
+<button class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-secondary via-primary-container to-primary text-on-primary shadow-xl shadow-primary/30 flex items-center justify-center hover:opacity-95 active:scale-95 transition-all cursor-pointer" id="main-fab-btn" title="新建任务">
+<span class="material-symbols-outlined text-2xl font-bold">add</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-14 pb-safe px-2 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_-4px_16px_rgba(0,0,0,0.05)] border-t border-outline-variant/20">
+<!-- Tab 0: 首页 -->
+<button class="nav-tab-item flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 flex-1 py-1 relative cursor-pointer" data-nav="0">
+<span class="material-symbols-outlined text-xl">home</span>
+<span class="text-label-sm font-label-sm mt-0.5">首页</span>
+</button>
+<!-- Tab 1: 任务 (默认高亮激活) -->
+<button class="nav-tab-item flex flex-col items-center justify-center text-primary font-semibold active:scale-90 flex-1 py-1 relative cursor-pointer" data-nav="1">
+<span class="tab-indicator absolute top-0 w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="material-symbols-outlined text-xl tab-icon" style="font-variation-settings: 'FILL' 1;">check_box</span>
+<span class="text-label-sm font-label-sm mt-0.5 font-bold">任务</span>
+</button>
+<!-- Tab 2: 日历 -->
+<button class="nav-tab-item flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 flex-1 py-1 relative cursor-pointer" data-nav="2">
+<span class="material-symbols-outlined text-xl tab-icon">calendar_month</span>
+<span class="text-label-sm font-label-sm mt-0.5">日历</span>
+</button>
+<!-- Tab 3: 消息 -->
+<button class="nav-tab-item flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 flex-1 py-1 relative cursor-pointer" data-nav="3">
+<span class="material-symbols-outlined text-xl tab-icon">chat_bubble</span>
+<span class="text-label-sm font-label-sm mt-0.5">消息</span>
+</button>
+<!-- Tab 4: 我的 -->
+<button class="nav-tab-item flex flex-col items-center justify-center text-on-surface-variant font-medium hover:text-primary transition-colors active:scale-90 flex-1 py-1 relative cursor-pointer" data-nav="4">
+<span class="material-symbols-outlined text-xl tab-icon">person</span>
+<span class="text-label-sm font-label-sm mt-0.5">我的</span>
+</button>
+</nav>
+<!-- ==================== MODAL 1: AI 一键智能排入日历 (Bottom Sheet) ==================== -->
+<div class="fixed inset-0 z-50 sheet-backdrop hidden-state bg-black/50 backdrop-blur-sm flex items-end justify-center" id="modal-batch-schedule">
+<div class="sheet-panel hidden-state w-full max-w-md bg-surface-container-lowest rounded-t-3xl p-5 shadow-2xl border-t border-outline-variant/30 max-h-[85vh] flex flex-col">
+<div class="w-12 h-1.5 bg-outline-variant/60 rounded-full mx-auto mb-3 shrink-0"></div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-bold text-on-surface">智能匹配日历时段</h3>
+<p class="text-label-sm text-outline">已避开课程与已有会议冲突</p>
+</div>
+</div>
+<button class="modal-close-btn p-1.5 text-outline hover:text-on-surface rounded-full hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<div class="py-3 space-y-3 overflow-y-auto flex-1 no-scrollbar">
+<div class="text-label-sm font-semibold text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">tips_and_updates</span>
+AI 建议优先安放以下 3 个时间槽位：
+</div>
+<label class="flex items-start gap-3 p-3 rounded-xl border border-secondary/30 bg-secondary/5 cursor-pointer hover:border-secondary transition-all">
+<input checked="" class="mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="text-body-md font-bold text-on-surface">数据结构实验报告 (3.0h)</span>
+<span class="text-label-sm text-secondary font-bold">周四晚间</span>
+</div>
+<p class="text-label-sm text-on-surface-variant mt-0.5">推荐空闲时隙：周四 19:30 - 22:30 (无课程冲突)</p>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-xl border border-secondary/30 bg-secondary/5 cursor-pointer hover:border-secondary transition-all">
+<input checked="" class="mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="text-body-md font-bold text-on-surface">企微 Q3 复盘周报 (1.5h)</span>
+<span class="text-label-sm text-secondary font-bold">明日清晨</span>
+</div>
+<p class="text-label-sm text-on-surface-variant mt-0.5">推荐空闲时隙：周三 09:00 - 10:30 (精力黄金期)</p>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-xl border border-outline-variant/30 bg-surface-container-low cursor-pointer hover:border-outline transition-all">
+<input checked="" class="mt-1 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<span class="text-body-md font-bold text-on-surface">组会文献 PPT 预讲 (2.0h)</span>
+<span class="text-label-sm text-outline font-bold">周末时段</span>
+</div>
+<p class="text-label-sm text-on-surface-variant mt-0.5">推荐空闲时隙：周日 14:00 - 16:00 (研讨前演练)</p>
+</div>
+</label>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex gap-3 shrink-0">
+<button class="modal-close-btn flex-1 py-2.5 rounded-xl border border-outline-variant text-on-surface font-semibold text-body-md hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+取消
+</button>
+<button class="flex-2 flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-xl bg-secondary text-on-secondary font-semibold text-body-md shadow-md shadow-secondary/30 hover:bg-secondary/90 active:scale-95 transition-all cursor-pointer" id="confirm-batch-schedule-btn">
+<span class="material-symbols-outlined text-lg">done_all</span>
+确认一键编排到日程
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== MODAL 2: 单任务排入日历弹窗 ==================== -->
+<div class="fixed inset-0 z-50 sheet-backdrop hidden-state bg-black/50 backdrop-blur-sm flex items-end justify-center" id="modal-single-schedule">
+<div class="sheet-panel hidden-state w-full max-w-md bg-surface-container-lowest rounded-t-3xl p-5 shadow-2xl border-t border-outline-variant/30 max-h-[85vh] flex flex-col">
+<div class="w-12 h-1.5 bg-outline-variant/60 rounded-full mx-auto mb-3 shrink-0"></div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">calendar_add_on</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-bold text-on-surface">设置任务日程与提醒</h3>
+<p class="text-label-sm text-outline truncate max-w-[240px]" id="schedule-modal-task-title">任务名称</p>
+</div>
+</div>
+<button class="modal-close-btn p-1.5 text-outline hover:text-on-surface rounded-full hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<div class="py-3 space-y-4 overflow-y-auto flex-1 no-scrollbar">
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1.5">编排日期</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="date-pick-chip active py-2 rounded-xl border border-primary bg-primary/10 text-primary font-semibold text-center text-label-md transition-all cursor-pointer">
+今天 (周二)
+</button>
+<button class="date-pick-chip py-2 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-on-surface font-medium text-center text-label-md transition-all cursor-pointer">
+明天 (周三)
+</button>
+<button class="date-pick-chip py-2 rounded-xl border border-outline-variant/40 hover:bg-surface-container text-on-surface font-medium text-center text-label-md transition-all cursor-pointer">
+自定义日期
+</button>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1.5">时间段选择</label>
+<div class="space-y-2">
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-primary/40 bg-primary/5 cursor-pointer">
+<div class="flex items-center gap-2">
+<input checked="" class="text-primary focus:ring-primary" name="time-slot" type="radio">
+<span class="text-body-md font-medium text-on-surface">AI 推荐：19:30 - 21:00 (深度专注)</span>
+</div>
+<span class="text-label-sm text-primary font-bold">1.5h</span>
+</label>
+<label class="flex items-center justify-between p-2.5 rounded-xl border border-outline-variant/30 bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-2">
+<input class="text-primary focus:ring-primary" name="time-slot" type="radio">
+<span class="text-body-md font-medium text-on-surface">次选时段：15:30 - 17:00 (下午间隙)</span>
+</div>
+<span class="text-label-sm text-outline font-bold">1.5h</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1.5">日程强提醒</label>
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low">
+<span class="text-body-sm text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base text-secondary">notifications_active</span>
+提前 15 分钟发送企微/系统推送
+</span>
+<input checked="" class="rounded text-primary focus:ring-primary" type="checkbox">
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex gap-3 shrink-0">
+<button class="modal-close-btn flex-1 py-2.5 rounded-xl border border-outline-variant text-on-surface font-semibold text-body-md hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+取消
+</button>
+<button class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-body-md shadow-md shadow-primary/20 hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer" id="confirm-single-schedule-btn">
+<span class="material-symbols-outlined text-lg">check</span>
+确认排入
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== MODAL 3: AI 子任务拆解与执行流抽屉 ==================== -->
+<div class="fixed inset-0 z-50 sheet-backdrop hidden-state bg-black/50 backdrop-blur-sm flex items-end justify-center" id="modal-subtasks-drawer">
+<div class="sheet-panel hidden-state w-full max-w-md bg-surface-container-lowest rounded-t-3xl p-5 shadow-2xl border-t border-outline-variant/30 max-h-[88vh] flex flex-col">
+<div class="w-12 h-1.5 bg-outline-variant/60 rounded-full mx-auto mb-3 shrink-0"></div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-bold text-on-surface">AI 任务执行流拆解</h3>
+<p class="text-label-sm text-secondary font-medium">数据结构实验报告 · 4个原子步骤</p>
+</div>
+</div>
+<button class="modal-close-btn p-1.5 text-outline hover:text-on-surface rounded-full hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<!-- Drawer Progress -->
+<div class="pt-3 pb-2 shrink-0">
+<div class="flex items-center justify-between text-body-sm font-semibold mb-1">
+<span class="text-on-surface">整体完成进度</span>
+<span class="text-secondary font-bold" id="drawer-progress-text">0/4 (0%)</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2 overflow-hidden">
+<div class="bg-secondary h-2 rounded-full transition-all duration-300 w-[0%]" id="drawer-progress-bar"></div>
+</div>
+</div>
+<div class="py-2 space-y-2.5 overflow-y-auto flex-1 no-scrollbar" id="subtasks-list">
+<!-- Step 1 -->
+<label class="subtask-checkbox-item flex items-start gap-3 p-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<input class="drawer-step-check mt-1 w-4 h-4 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 min-w-0">
+<span class="step-title text-body-md font-medium text-on-surface block">1. 红黑树插入与平衡旋转算法实现代码整理</span>
+<span class="text-label-sm text-outline block mt-0.5">代码注记及测试用例运行 · 建议 45分</span>
+</div>
+</label>
+<!-- Step 2 -->
+<label class="subtask-checkbox-item flex items-start gap-3 p-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<input class="drawer-step-check mt-1 w-4 h-4 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 min-w-0">
+<span class="step-title text-body-md font-medium text-on-surface block">2. 绘制算法性能对比折线图 (Gnuplot / Excel)</span>
+<span class="text-label-sm text-outline block mt-0.5">测试不同规模 N=[1e4, 1e6] 的耗时比对 · 建议 30分</span>
+</div>
+</label>
+<!-- Step 3 -->
+<label class="subtask-checkbox-item flex items-start gap-3 p-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<input class="drawer-step-check mt-1 w-4 h-4 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 min-w-0">
+<span class="step-title text-body-md font-medium text-on-surface block">3. 撰写实验结论与空间复杂度差异分析</span>
+<span class="text-label-sm text-outline block mt-0.5">总结 AVL 树与红黑树平衡旋转开销比 · 建议 45分</span>
+</div>
+</label>
+<!-- Step 4 -->
+<label class="subtask-checkbox-item flex items-start gap-3 p-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-all">
+<input class="drawer-step-check mt-1 w-4 h-4 rounded text-secondary focus:ring-secondary" type="checkbox">
+<div class="flex-1 min-w-0">
+<span class="step-title text-body-md font-medium text-on-surface block">4. 导出 PDF 格式并提交至学习通系统</span>
+<span class="text-label-sm text-outline block mt-0.5">核验学号姓名与封面要求 · 建议 10分</span>
+</div>
+</label>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex gap-3 shrink-0">
+<button class="flex-1 py-2 rounded-xl border border-dashed border-outline-variant text-secondary font-medium text-label-md flex items-center justify-center gap-1 hover:bg-secondary/5 transition-all cursor-pointer" id="add-custom-step-btn">
+<span class="material-symbols-outlined text-base">add</span>
+增加自定义子步骤
+</button>
+<button class="modal-close-btn flex-1 py-2 rounded-xl bg-secondary text-on-secondary font-semibold text-label-md shadow-sm active:scale-95 transition-all cursor-pointer">
+完成并同步卡片
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== MODAL 4: 快速新建任务与 AI 解析 ==================== -->
+<div class="fixed inset-0 z-50 sheet-backdrop hidden-state bg-black/50 backdrop-blur-sm flex items-end justify-center" id="modal-quick-create">
+<div class="sheet-panel hidden-state w-full max-w-md bg-surface-container-lowest rounded-t-3xl p-5 shadow-2xl border-t border-outline-variant/30 max-h-[85vh] flex flex-col">
+<div class="w-12 h-1.5 bg-outline-variant/60 rounded-full mx-auto mb-3 shrink-0"></div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">add_task</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-bold text-on-surface">新建任务与智能拆解</h3>
+<p class="text-label-sm text-outline">支持自然语言，AI 将自动提取时间与优先级</p>
+</div>
+</div>
+<button class="modal-close-btn p-1.5 text-outline hover:text-on-surface rounded-full hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<div class="py-3 space-y-3.5 overflow-y-auto flex-1 no-scrollbar">
+<div>
+<div class="relative">
+<textarea class="w-full p-3 rounded-xl border border-outline-variant/40 text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" id="new-task-input" placeholder="例如：明天下午三点前提交操作系统实验，需要2小时，紧急" rows="3"></textarea>
+<button class="absolute bottom-2.5 right-2.5 p-1.5 rounded-lg bg-surface-container text-secondary hover:bg-secondary-fixed/50 active:scale-95 transition-all cursor-pointer" id="voice-mock-btn" title="按住语音输入">
+<span class="material-symbols-outlined text-lg">mic</span>
+</button>
+</div>
+<div class="flex items-center gap-1.5 mt-1.5 text-label-sm text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span>AI 实时识别：自动关联所属科目、提醒时点及分解步骤</span>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1.5">所属渠道 / 标签</label>
+<div class="flex flex-wrap gap-2" id="create-platform-chips">
+<button class="create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-primary text-on-primary border border-primary active:scale-95 cursor-pointer">
+学习通
+</button>
+<button class="create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-surface-container-low text-on-surface-variant border border-outline-variant/40 active:scale-95 cursor-pointer">
+企业微信
+</button>
+<button class="create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-surface-container-low text-on-surface-variant border border-outline-variant/40 active:scale-95 cursor-pointer">
+钉钉
+</button>
+<button class="create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-surface-container-low text-on-surface-variant border border-outline-variant/40 active:scale-95 cursor-pointer">
+个人自主
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1">优先级</label>
+<select class="w-full py-2 px-2.5 rounded-xl border border-outline-variant/40 text-body-sm bg-surface-container-lowest">
+<option>高优先级 P0 (紧急)</option>
+<option>中优先级 P1 (普通)</option>
+<option>低优先级 P2 (延后)</option>
+</select>
+</div>
+<div>
+<label class="block text-label-md font-semibold text-on-surface mb-1">预估耗时</label>
+<select class="w-full py-2 px-2.5 rounded-xl border border-outline-variant/40 text-body-sm bg-surface-container-lowest">
+<option>1.0 小时</option>
+<option>2.0 小时</option>
+<option>3.0 小时</option>
+<option>45 分钟</option>
+</select>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex gap-3 shrink-0">
+<button class="modal-close-btn flex-1 py-2.5 rounded-xl border border-outline-variant text-on-surface font-semibold text-body-md hover:bg-surface-container active:scale-95 transition-all cursor-pointer">
+取消
+</button>
+<button class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-secondary to-primary text-on-primary font-semibold text-body-md shadow-md shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer" id="confirm-create-task-btn">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+智能创建并排期
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+<div class="fixed top-28 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-2 flex flex-col items-center" id="toast-container">
+<div class="bg-inverse-surface text-inverse-on-surface px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 pointer-events-auto border border-outline-variant/20 max-w-sm">
+<span class="material-symbols-outlined text-secondary-fixed text-lg" id="toast-icon">check_circle</span>
+<span class="text-body-sm font-medium" id="toast-msg">已完成操作</span>
+<button class="hidden text-secondary-fixed font-bold text-label-md ml-2 underline cursor-pointer" id="toast-undo-btn">撤销</button>
+</div>
+</div>
+<!-- ==================== ALL SCRIPTS & COMPLETE INTERACTION LOGIC ==================== -->
+<script>
+  // State management
+  let lastCompletedTaskId = null;
+  let activeFilter = 'all';
+  let activeSearchQuery = '';
+  let activeSingleTaskBtn = null;
+
+  // Show Toast function
+  function showToast(msg, options = {}) {
+    const container = document.getElementById('toast-container');
+    const msgEl = document.getElementById('toast-msg');
+    const iconEl = document.getElementById('toast-icon');
+    const undoBtn = document.getElementById('toast-undo-btn');
+
+    msgEl.textContent = msg;
+    iconEl.textContent = options.icon || 'check_circle';
+    
+    if (options.undo) {
+      undoBtn.classList.remove('hidden');
+      undoBtn.onclick = options.undo;
+    } else {
+      undoBtn.classList.add('hidden');
+    }
+
+    container.classList.remove('opacity-0', '-translate-y-2');
+    container.classList.add('opacity-100', 'translate-y-0');
+
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => {
+      container.classList.remove('opacity-100', 'translate-y-0');
+      container.classList.add('opacity-0', '-translate-y-2');
+    }, options.duration || 2600);
+  }
+
+  // Modal helpers
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.remove('hidden-state');
+    const panel = modal.querySelector('.sheet-panel');
+    setTimeout(() => {
+      panel.classList.remove('hidden-state');
+    }, 10);
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    const panel = modal.querySelector('.sheet-panel');
+    panel.classList.add('hidden-state');
+    setTimeout(() => {
+      modal.classList.add('hidden-state');
+    }, 220);
+  }
+
+  // Close any modal via buttons or overlay
+  document.querySelectorAll('.modal-close-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const modal = btn.closest('.sheet-backdrop');
+      if (modal) closeModal(modal.id);
+    });
+  });
+
+  document.querySelectorAll('.sheet-backdrop').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  // 1. TOP PILL FILTER CLICKS & ENHANCED DYNAMIC FILTERING WITH PLATFORM-THEMED ACTIVE STYLES
+  const filterChips = document.querySelectorAll('.filter-chip');
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const filter = chip.getAttribute('data-filter');
+      activeFilter = filter;
+
+      // Reset all chips to default inactive style
+      filterChips.forEach(c => {
+        c.className = "filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-surface-container-lowest text-on-surface-variant border border-outline-variant/40 hover:bg-surface-container whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer";
+      });
+
+      // Apply distinct brand active style based on filter
+      if (filter === 'all') {
+        chip.className = "filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-primary text-on-primary shadow-sm whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer";
+        showToast('展示全部任务');
+      } else if (filter === '学习通') {
+        chip.className = "filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-primary text-on-primary shadow-sm whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer ring-2 ring-primary/30";
+        showToast('已筛选「学习通」相关任务');
+      } else if (filter === '企业微信') {
+        chip.className = "filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-secondary text-on-secondary shadow-sm whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer ring-2 ring-secondary/30";
+        showToast('已筛选「企业微信」相关任务');
+      } else if (filter === '钉钉') {
+        chip.className = "filter-chip px-3.5 py-1.5 rounded-full text-label-md font-label-md bg-tertiary-container text-on-tertiary shadow-sm whitespace-nowrap active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer ring-2 ring-tertiary-container/30";
+        showToast('已筛选「钉钉」相关任务');
+      }
+      
+      applyFilters();
+    });
+  });
+
+  // Filter application
+  function applyFilters() {
+    const cards = document.querySelectorAll('.task-card-item');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const platform = card.getAttribute('data-platform') || '';
+      const title = (card.querySelector('.task-title')?.innerText || '').toLowerCase();
+      
+      const matchesFilter = (activeFilter === 'all') || (platform.includes(activeFilter));
+      const matchesSearch = (!activeSearchQuery) || (title.includes(activeSearchQuery) || platform.toLowerCase().includes(activeSearchQuery));
+
+      if (matchesFilter && matchesSearch) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    // Check empty sections and update group badges
+    document.querySelectorAll('.task-group').forEach(group => {
+      const remainingInGroup = group.querySelectorAll('.task-card-item:not(.hidden)').length;
+      if (remainingInGroup === 0) {
+        group.classList.add('hidden');
+      } else {
+        group.classList.remove('hidden');
+      }
+    });
+
+    const emptyState = document.getElementById('filter-empty-state');
+    if (visibleCount === 0) {
+      emptyState.classList.remove('hidden');
+    } else {
+      emptyState.classList.add('hidden');
+    }
+  }
+
+  // View Mode Switcher (List vs Matrix)
+  const viewModeList = document.getElementById('view-mode-list');
+  const viewModeGrid = document.getElementById('view-mode-grid');
+  
+  viewModeGrid.addEventListener('click', () => {
+    viewModeGrid.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+    viewModeGrid.classList.remove('text-on-surface-variant');
+    viewModeList.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+    viewModeList.classList.add('text-on-surface-variant');
+    showToast('已切换至四象限优先级看板');
+  });
+
+  viewModeList.addEventListener('click', () => {
+    viewModeList.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+    viewModeList.classList.remove('text-on-surface-variant');
+    viewModeGrid.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+    viewModeGrid.classList.add('text-on-surface-variant');
+    showToast('已切回经典时间序待办列表');
+  });
+
+  // 2. BATCH SCHEDULE (AI Bento Card)
+  const batchScheduleBtn = document.getElementById('batch-schedule-btn');
+  batchScheduleBtn.addEventListener('click', () => {
+    openModal('modal-batch-schedule');
+  });
+
+  const confirmBatchBtn = document.getElementById('confirm-batch-schedule-btn');
+  confirmBatchBtn.addEventListener('click', () => {
+    closeModal('modal-batch-schedule');
+    
+    // Update Bento Card state
+    const bentoCard = document.getElementById('ai-schedule-bento');
+    const bentoTitle = document.getElementById('ai-bento-title');
+    const bentoTag = document.getElementById('ai-bento-tag');
+    const bentoDesc = document.getElementById('ai-bento-desc');
+    const bentoIcon = document.getElementById('ai-bento-icon');
+    const bentoList = document.getElementById('ai-bento-preview-list');
+
+    bentoCard.className = "relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-primary/10 to-surface-container-low border border-primary/30 shadow-sm transition-all duration-300";
+    bentoTitle.textContent = "日程编排已完成";
+    bentoTag.textContent = "已就绪";
+    bentoTag.className = "text-label-sm font-label-sm px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-bold";
+    bentoDesc.textContent = "全部 3 项跨平台待办已成功写入系统日历与企微日程";
+    bentoIcon.className = "w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm";
+    bentoIcon.innerHTML = `<span class="material-symbols-outlined text-xl">event_available</span>`;
+    
+    bentoList.innerHTML = `
+      <div class="flex items-center gap-2 text-label-md text-primary font-medium p-1">
+        <span class="material-symbols-outlined text-base">task_alt</span>
+        <span>全部时隙智能防冲突已配置完毕，准时推送通知</span>
+      </div>
+    `;
+
+    batchScheduleBtn.innerHTML = `
+      <span class="material-symbols-outlined text-base">check</span>
+      <span>已编排</span>
+    `;
+    batchScheduleBtn.classList.replace('bg-secondary', 'bg-surface-container-high');
+    batchScheduleBtn.classList.replace('text-on-secondary', 'text-outline');
+    batchScheduleBtn.disabled = true;
+
+    showToast('✓ 已成功将3项任务智能排入系统与企微日历！', { icon: 'auto_awesome' });
+  });
+
+  // 3. TASK CARD CHECK COMPLETION
+  document.querySelectorAll('.task-check-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.task-card-item');
+      const title = card.querySelector('.task-title');
+      const isCompleted = card.classList.contains('is-completed');
+
+      if (!isCompleted) {
+        // Mark as completed
+        card.classList.add('is-completed', 'opacity-65');
+        btn.classList.remove('border-outline-variant/60', 'text-transparent');
+        btn.classList.add('bg-secondary', 'border-secondary', 'text-on-secondary');
+        btn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+        title.classList.add('line-through', 'text-outline');
+        title.classList.remove('text-on-surface');
+
+        lastCompletedTaskId = card.getAttribute('data-id');
+        showToast(`已完成：「${title.innerText.trim().slice(0, 10)}...」`, {
+          icon: 'task_alt',
+          undo: () => undoTaskCompletion(card)
+        });
+        updateCounts(-1);
+      } else {
+        undoTaskCompletion(card);
+      }
+    });
+  });
+
+  function undoTaskCompletion(card) {
+    const btn = card.querySelector('.task-check-btn');
+    const title = card.querySelector('.task-title');
+    card.classList.remove('is-completed', 'opacity-65');
+    btn.classList.add('border-outline-variant/60', 'text-transparent');
+    btn.classList.remove('bg-secondary', 'border-secondary', 'text-on-secondary');
+    btn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+    title.classList.remove('line-through', 'text-outline');
+    title.classList.add('text-on-surface');
+    showToast('已恢复为待办状态', { icon: 'undo' });
+    updateCounts(1);
+  }
+
+  function updateCounts(diff) {
+    const totalCountBadge = document.getElementById('total-count-badge');
+    let cur = parseInt(totalCountBadge.textContent, 10) || 12;
+    totalCountBadge.textContent = Math.max(0, cur + diff);
+  }
+
+  // 4. TASK SCHEDULE SINGLE BUTTON
+  window.showScheduleModal = function(taskTitle) {
+    document.getElementById('schedule-modal-task-title').textContent = taskTitle;
+    openModal('modal-single-schedule');
+  };
+
+  document.querySelectorAll('.schedule-task-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeSingleTaskBtn = btn;
+      const title = btn.getAttribute('data-title') || '所选任务';
+      showScheduleModal(title);
+    });
+  });
+
+  document.getElementById('confirm-single-schedule-btn').addEventListener('click', () => {
+    closeModal('modal-single-schedule');
+    if (activeSingleTaskBtn) {
+      const textSpan = activeSingleTaskBtn.querySelector('.btn-text');
+      if (textSpan) {
+        textSpan.textContent = '已排历';
+      }
+      activeSingleTaskBtn.classList.remove('text-primary');
+      activeSingleTaskBtn.classList.add('text-outline');
+      activeSingleTaskBtn.innerHTML = `
+        <span class="material-symbols-outlined text-base">event_available</span>
+        <span class="btn-text">已入历</span>
+      `;
+    }
+    showToast('任务已成功排入日历并设为强提醒！', { icon: 'event_available' });
+  });
+
+  // Date picker chips inside modal
+  document.querySelectorAll('.date-pick-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.date-pick-chip').forEach(c => {
+        c.classList.remove('border-primary', 'bg-primary/10', 'text-primary', 'font-semibold');
+        c.classList.add('border-outline-variant/40', 'text-on-surface');
+      });
+      chip.classList.add('border-primary', 'bg-primary/10', 'text-primary', 'font-semibold');
+      chip.classList.remove('border-outline-variant/40', 'text-on-surface');
+    });
+  });
+
+  // 5. SUBTASKS AI DECOMPOSITION DRAWER
+  window.openStepDrawer = function(taskId) {
+    openModal('modal-subtasks-drawer');
+  };
+
+  const drawerChecks = document.querySelectorAll('.drawer-step-check');
+  const drawerProgressBar = document.getElementById('drawer-progress-bar');
+  const drawerProgressText = document.getElementById('drawer-progress-text');
+  const cardProgressBar = document.getElementById('subtask-card-bar');
+  const cardProgressText = document.getElementById('subtask-card-progress');
+
+  drawerChecks.forEach(check => {
+    check.addEventListener('change', () => {
+      updateSubtasksProgress();
+    });
+  });
+
+  function updateSubtasksProgress() {
+    const total = drawerChecks.length;
+    let checkedCount = 0;
+    drawerChecks.forEach(c => {
+      const stepItem = c.closest('.subtask-checkbox-item');
+      const stepTitle = stepItem.querySelector('.step-title');
+      if (c.checked) {
+        checkedCount++;
+        stepTitle.classList.add('line-through', 'text-outline');
+      } else {
+        stepTitle.classList.remove('line-through', 'text-outline');
+      }
+    });
+
+    const percent = Math.round((checkedCount / total) * 100);
+    drawerProgressBar.style.width = `${percent}%`;
+    drawerProgressText.textContent = `${checkedCount}/${total} (${percent}%)`;
+
+    // Sync back to Task 1 Card
+    if (cardProgressBar && cardProgressText) {
+      cardProgressBar.style.width = `${percent}%`;
+      cardProgressText.textContent = `进度 ${checkedCount}/${total}`;
+    }
+
+    if (checkedCount === total) {
+      showToast('🎉 该任务拆解的所有子步骤均已执行完毕！', { icon: 'celebration' });
+    }
+  }
+
+  // Add custom step
+  const addCustomStepBtn = document.getElementById('add-custom-step-btn');
+  addCustomStepBtn.addEventListener('click', () => {
+    const newStepNum = document.querySelectorAll('.subtask-checkbox-item').length + 1;
+    const label = document.createElement('label');
+    label.className = "subtask-checkbox-item flex items-start gap-3 p-3 rounded-xl border border-secondary/40 bg-secondary/5 cursor-pointer transition-all";
+    label.innerHTML = `
+      <input type="checkbox" class="drawer-step-check mt-1 w-4 h-4 rounded text-secondary focus:ring-secondary"/>
+      <div class="flex-1 min-w-0">
+        <span class="step-title text-body-md font-medium text-on-surface block">${newStepNum}. 自定义新增补充验证项</span>
+        <span class="text-label-sm text-outline block mt-0.5">即时由个人补充 · 建议 20分</span>
+      </div>
+    `;
+    document.getElementById('subtasks-list').appendChild(label);
+    
+    // Re-bind change event
+    const newCheck = label.querySelector('.drawer-step-check');
+    newCheck.addEventListener('change', updateSubtasksProgress);
+    updateSubtasksProgress();
+    showToast('已新增子任务');
+  });
+
+  // 6. FAB & QUICK ADD
+  const mainFabBtn = document.getElementById('main-fab-btn');
+  const aiQuickTrigger = document.getElementById('ai-quick-trigger');
+
+  mainFabBtn.addEventListener('click', () => {
+    openModal('modal-quick-create');
+  });
+  aiQuickTrigger.addEventListener('click', () => {
+    openModal('modal-quick-create');
+  });
+
+  // Modal tag chips selector
+  document.querySelectorAll('.create-tag-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.create-tag-chip').forEach(c => {
+        c.className = "create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-surface-container-low text-on-surface-variant border border-outline-variant/40 active:scale-95 cursor-pointer";
+      });
+      chip.className = "create-tag-chip px-3 py-1 rounded-full text-label-md font-medium bg-primary text-on-primary border border-primary active:scale-95 cursor-pointer";
+    });
+  });
+
+  // Voice button mock
+  const voiceMockBtn = document.getElementById('voice-mock-btn');
+  voiceMockBtn.addEventListener('click', () => {
+    const input = document.getElementById('new-task-input');
+    input.value = "今晚21点前完成算法期中复习笔记，耗时1.5小时";
+    showToast('语音识别成功，已自动输入并解析！', { icon: 'mic' });
+  });
+
+  // Confirm task create
+  const confirmCreateTaskBtn = document.getElementById('confirm-create-task-btn');
+  confirmCreateTaskBtn.addEventListener('click', () => {
+    const input = document.getElementById('new-task-input');
+    const val = input.value.trim() || '新建敏捷协作事项';
+    closeModal('modal-quick-create');
+    input.value = '';
+
+    // Create a new task card dynamically at top of this-week
+    const thisWeekGroup = document.querySelector('[data-group="this-week"]');
+    const newArticle = document.createElement('article');
+    newArticle.className = "task-card-item bg-surface-container-lowest rounded-2xl border border-secondary/40 shadow-sm p-3.5 flex items-center justify-between gap-3 group animate-pulse";
+    newArticle.setAttribute('data-platform', '自主创建');
+    newArticle.innerHTML = `
+      <div class="flex items-center gap-3 min-w-0">
+        <button class="task-check-btn w-6 h-6 rounded-md border-2 border-outline-variant/60 flex items-center justify-center text-transparent hover:border-primary shrink-0 transition-all active:scale-90 cursor-pointer" title="标为完成">
+          <span class="material-symbols-outlined text-sm">check</span>
+        </button>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-secondary-fixed text-on-secondary-fixed">AI识别</span>
+            <h5 class="task-title text-body-md font-body-md font-semibold text-on-surface truncate">${val}</h5>
+          </div>
+          <p class="text-label-sm font-label-sm text-outline mt-0.5">今天 21:00 · 预计 1.5h · 已预留时段</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button class="schedule-task-btn w-7 h-7 rounded-lg hover:bg-surface-container text-primary flex items-center justify-center transition-colors cursor-pointer" title="排入日历">
+          <span class="material-symbols-outlined text-base">event_available</span>
+        </button>
+        <span class="material-symbols-outlined text-outline text-lg">chevron_right</span>
+      </div>
+    `;
+
+    thisWeekGroup.appendChild(newArticle);
+    setTimeout(() => newArticle.classList.remove('animate-pulse'), 1000);
+
+    // Bind check
+    const newCheckBtn = newArticle.querySelector('.task-check-btn');
+    newCheckBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const title = newArticle.querySelector('.task-title');
+      const isCompleted = newArticle.classList.contains('is-completed');
+      if (!isCompleted) {
+        newArticle.classList.add('is-completed', 'opacity-65');
+        newCheckBtn.classList.remove('border-outline-variant/60', 'text-transparent');
+        newCheckBtn.classList.add('bg-secondary', 'border-secondary', 'text-on-secondary');
+        title.classList.add('line-through', 'text-outline');
+        showToast('已完成新创建任务');
+      } else {
+        undoTaskCompletion(newArticle);
+      }
+    });
+
+    updateCounts(1);
+    showToast(`✓ 已创建并智能排入：「${val.slice(0, 10)}...」`, { icon: 'auto_awesome' });
+  });
+
+  // 7. EXPANDABLE SEARCH BAR INTERACTION
+  const searchToggleBtn = document.getElementById('search-toggle-btn');
+  const searchBarContainer = document.getElementById('search-bar-container');
+  const taskSearchInput = document.getElementById('task-search-input');
+  const searchClearBtn = document.getElementById('search-clear-btn');
+  const tasksContainer = document.getElementById('tasks-container');
+
+  searchToggleBtn.addEventListener('click', () => {
+    const isHidden = searchBarContainer.classList.contains('hidden');
+    if (isHidden) {
+      searchBarContainer.classList.remove('hidden');
+      tasksContainer.classList.replace('pt-32', 'pt-44');
+      taskSearchInput.focus();
+    } else {
+      searchBarContainer.classList.add('hidden');
+      tasksContainer.classList.replace('pt-44', 'pt-32');
+      taskSearchInput.value = '';
+      activeSearchQuery = '';
+      searchClearBtn.classList.add('hidden');
+      applyFilters();
+    }
+  });
+
+  taskSearchInput.addEventListener('input', (e) => {
+    activeSearchQuery = e.target.value.trim().toLowerCase();
+    if (activeSearchQuery.length > 0) {
+      searchClearBtn.classList.remove('hidden');
+    } else {
+      searchClearBtn.classList.add('hidden');
+    }
+    applyFilters();
+  });
+
+  searchClearBtn.addEventListener('click', () => {
+    taskSearchInput.value = '';
+    activeSearchQuery = '';
+    searchClearBtn.classList.add('hidden');
+    applyFilters();
+    taskSearchInput.focus();
+  });
+
+  // 8. BOTTOM NAVIGATION SWITCHING
+  const navTabs = document.querySelectorAll('.nav-tab-item');
+  const tabNames = ['首页', '任务', '日历', '消息', '我的'];
+  navTabs.forEach((tab, index) => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      navTabs.forEach(t => {
+        t.classList.remove('text-primary', 'font-semibold');
+        t.classList.add('text-on-surface-variant', 'font-medium');
+        const indicator = t.querySelector('.tab-indicator');
+        if (indicator) indicator.remove();
+        const icon = t.querySelector('.material-symbols-outlined');
+        if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+      });
+
+      tab.classList.remove('text-on-surface-variant', 'font-medium');
+      tab.classList.add('text-primary', 'font-semibold');
+
+      // Add top indicator dot
+      const dot = document.createElement('span');
+      dot.className = "tab-indicator absolute top-0 w-1.5 h-1.5 rounded-full bg-primary";
+      tab.appendChild(dot);
+
+      const icon = tab.querySelector('.material-symbols-outlined');
+      if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+
+      if (index !== 1) {
+        showToast(`已切换至「${tabNames[index]}」视图`);
+      }
+    });
+  });
+</script>
+</body></html>
