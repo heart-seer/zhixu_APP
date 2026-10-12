@@ -325,7 +325,7 @@ class _CalendarPageState extends State<CalendarPage> {
               borderRadius: BorderRadius.circular(20),
               onTap: () => setState(() => _selected = day),
               child: SizedBox(
-                height: 92 * scale,
+                height: 106 * scale,
                 child: Stack(
                   alignment: Alignment.topCenter,
                   clipBehavior: Clip.none,
@@ -335,7 +335,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         top: 0,
                         child: Container(
                           width: 64 * scale,
-                          height: 92 * scale,
+                          height: 106 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(18 * scale),
@@ -362,7 +362,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     Positioned(
-                      top: 40 * scale,
+                      top: 38 * scale,
                       child: selected || today
                           ? Container(
                               width: 36 * scale,
@@ -408,7 +408,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                     ),
                     Positioned(
-                      top: 91 * scale,
+                      top: 84 * scale,
                       child: _dayDots(index, selected, scale),
                     ),
                   ],
