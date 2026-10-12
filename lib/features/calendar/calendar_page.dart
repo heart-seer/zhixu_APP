@@ -16,6 +16,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _selected = DateTime.now();
   int _monthOffset = 0;
   bool _monthOpen = false;
+  DateTime? _hoveredDay;
   bool _focusRunning = false;
   final Set<int> _completedTasks = {0, 1};
   final TextEditingController _quickInputController = TextEditingController();
@@ -314,92 +315,104 @@ class _CalendarPageState extends State<CalendarPage> {
       children: List.generate(days.length, (index) {
         final day = days[index];
         final selected = _sameDay(day, _selected);
+        final today = _sameDay(day, DateTime.now());
+        final hovered = _hoveredDay != null && _sameDay(day, _hoveredDay!);
         return Expanded(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () => setState(() => _selected = day),
-            child: SizedBox(
-              height: 112 * scale,
-              child: Stack(
-                alignment: Alignment.topCenter,
-                clipBehavior: Clip.none,
-                children: [
-                  if (selected)
-                    Positioned(
-                      top: 0,
-                      child: Container(
-                        width: 58 * scale,
-                        height: 106 * scale,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEAF1FF),
-                          borderRadius: BorderRadius.circular(18 * scale),
-                          border: Border.all(
-                            color: const Color(0xFFC1D5FF),
-                            width: 1.2 * scale,
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _hoveredDay = day),
+            onExit: (_) => setState(() => _hoveredDay = null),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => setState(() => _selected = day),
+              child: SizedBox(
+                height: 112 * scale,
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  clipBehavior: Clip.none,
+                  children: [
+                    if (selected || hovered)
+                      Positioned(
+                        top: 0,
+                        child: Container(
+                          width: 58 * scale,
+                          height: 106 * scale,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF1FF),
+                            borderRadius: BorderRadius.circular(18 * scale),
+                            border: Border.all(
+                              color: const Color(0xFFC1D5FF),
+                              width: 1.2 * scale,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  Positioned(
-                    top: 9 * scale,
-                    child: Text(
-                      _weekdays[index],
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: selected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                        color: selected
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
+                    Positioned(
+                      top: 9 * scale,
+                      child: Text(
+                        _weekdays[index],
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    top: 39 * scale,
-                    child: selected
-                        ? Container(
-                            width: 42 * scale,
-                            height: 42 * scale,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFFCFDFFF),
-                                width: 3 * scale,
-                              ),
-                            ),
-                            child: Text(
-                              '${day.day}',
-                              style: TextStyle(
-                                fontSize: 16 * scale,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        : SizedBox(
-                            width: 42 * scale,
-                            height: 42 * scale,
-                            child: Align(
+                    Positioned(
+                      top: 39 * scale,
+                      child: selected || today
+                          ? Container(
+                              width: 42 * scale,
+                              height: 42 * scale,
                               alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: selected
+                                    ? AppColors.primary
+                                    : const Color(0xFFDCE6FF),
+                                shape: BoxShape.circle,
+                                border: selected
+                                    ? Border.all(
+                                        color: const Color(0xFFCFDFFF),
+                                        width: 3 * scale,
+                                      )
+                                    : null,
+                              ),
                               child: Text(
                                 '${day.day}',
                                 style: TextStyle(
-                                  fontSize: 14 * scale,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary,
+                                  fontSize: 16 * scale,
+                                  fontWeight: FontWeight.w800,
+                                  color: selected
+                                      ? Colors.white
+                                      : AppColors.primary,
+                                ),
+                              ),
+                            )
+                          : SizedBox(
+                              width: 42 * scale,
+                              height: 42 * scale,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${day.day}',
+                                  style: TextStyle(
+                                    fontSize: 14 * scale,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textPrimary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                  ),
-                  Positioned(
-                    top: 84 * scale,
-                    child: _dayDots(index, selected, scale),
-                  ),
-                ],
+                    ),
+                    Positioned(
+                      top: 84 * scale,
+                      child: _dayDots(index, selected, scale),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
