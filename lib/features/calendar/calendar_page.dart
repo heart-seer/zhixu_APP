@@ -488,7 +488,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 child: Center(
                   child: Container(
                     width: 30 * scale,
-                    height: 24 * scale,
+                    height: 30 * scale,
                     decoration: BoxDecoration(
                       color: selected
                           ? AppColors.primary
@@ -503,7 +503,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: 21 * scale,
+                          height: 15 * scale,
                           child: Center(
                             child: Text(
                               '${day.day}',
@@ -524,7 +524,14 @@ class _CalendarPageState extends State<CalendarPage> {
                           ),
                         ),
                         if (eventColors.isNotEmpty)
-                          _monthEventDots(day, scale, selected: selected),
+                          Transform.translate(
+                            offset: Offset(0, -2 * scale),
+                            child: _monthEventDots(
+                              day,
+                              scale,
+                              selected: selected,
+                            ),
+                          ),
                       ],
                     ),
                   ),
