@@ -145,7 +145,7 @@ class _CalendarPageState extends State<CalendarPage> {
               Expanded(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8),
-                  onTap: () => setState(() => _monthOpen = !_monthOpen),
+                  onTap: _toggleCalendarView,
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Row(
@@ -1114,6 +1114,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   String _weekday(DateTime date) =>
       ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.weekday % 7];
+
+  void _toggleCalendarView() => setState(() => _monthOpen = !_monthOpen);
 
   void _showAiSuggestion() => _message('已为你整理本周空闲时段与排程建议');
 
