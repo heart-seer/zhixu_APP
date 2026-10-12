@@ -18,6 +18,9 @@ class _CalendarPageState extends State<CalendarPage> {
   bool _monthOpen = false;
   DateTime? _hoveredDay;
   bool _focusRunning = false;
+  bool _monthPickerOpen = false;
+  int _pickerYear = DateTime.now().year;
+  int _pickerMonth = DateTime.now().month;
   final Set<int> _completedTasks = {0, 1};
   final TextEditingController _quickInputController = TextEditingController();
 
@@ -151,12 +154,18 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '${_month.year}年${_month.month}月',
-                          style: TextStyle(
-                            fontSize: 20 * scale,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(6 * scale),
+                          onTap: _openMonthPicker,
+                          child: Text(
+                            '${_month.year}年${_month.month}月',
+                            style: TextStyle(
+                              fontSize: 20 * scale,
+                              fontWeight: FontWeight.w800,
+                              color: _monthPickerOpen
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
+                            ),
                           ),
                         ),
                         SizedBox(width: 7 * scale),
@@ -1116,6 +1125,120 @@ class _CalendarPageState extends State<CalendarPage> {
       ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.weekday % 7];
 
   void _toggleCalendarView() => setState(() => _monthOpen = !_monthOpen);
+
+  Future<void> _openMonthPicker() async {
+    setState(() {
+      _monthPickerOpen = true;
+      _pickerYear = _month.year;
+      _pickerMonth = _month.month;
+    });
+
+    final result = await showDialog<DateTime>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('选择年月'),
+          content: SizedBox(
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: () => setDialogState(() => _pickerYear--),
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Text(
+                      '$_pickerYear年',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => setDialogState(() => _pickerYear++),
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 12,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisExtent: 48,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemBuilder: (context, index) {
+                    final month = index + 1;
+                    final selected = month == _pickerMonth;
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => setDialogState(() => _pickerMonth = month),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppColors.primary
+                              : const Color(0xFFF3F6FC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '$month月',
+                          style: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(
+                dialogContext,
+                DateTime(_pickerYear, _pickerMonth),
+              ),
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _monthPickerOpen = false;
+      if (result != null) {
+        final selectedDay = _selected.day;
+        final lastDay = DateUtils.getDaysInMonth(result.year, result.month);
+        _selected = DateTime(
+          result.year,
+          result.month,
+          selectedDay > lastDay ? lastDay : selectedDay,
+        );
+        _monthOffset = 0;
+      }
+    });
+  }
 
   void _showAiSuggestion() => _message('已为你整理本周空闲时段与排程建议');
 
