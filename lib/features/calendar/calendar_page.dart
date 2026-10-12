@@ -334,7 +334,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       Positioned(
                         top: 0,
                         child: Container(
-                          width: 58 * scale,
+                          width: 52 * scale,
                           height: 106 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
