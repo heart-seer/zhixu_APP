@@ -335,7 +335,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         top: 0,
                         child: Container(
                           width: 44 * scale,
-                          height: 108 * scale,
+                          height: 112 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(18 * scale),
@@ -503,7 +503,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: 24 * scale,
+                          height: 21 * scale,
                           child: Center(
                             child: Text(
                               '${day.day}',
