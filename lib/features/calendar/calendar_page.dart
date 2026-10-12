@@ -219,9 +219,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     minimumSize: Size(0, 32 * scale),
                     padding: EdgeInsets.symmetric(horizontal: 12 * scale),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: const Color(0xFFDCE9FF),
+                    backgroundColor: const Color(0xFF0B50C8),
+                    elevation: 2 * scale,
+                    shadowColor: const Color(0x330B50C8),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18 * scale),
+                      borderRadius: BorderRadius.circular(22 * scale),
                     ),
                   ),
                   onPressed: () => setState(() {
@@ -236,7 +238,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         width: 7 * scale,
                         height: 7 * scale,
                         decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                          color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -246,7 +248,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         style: TextStyle(
                           fontSize: 13 * scale,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                          color: Colors.white,
                         ),
                       ),
                     ],
