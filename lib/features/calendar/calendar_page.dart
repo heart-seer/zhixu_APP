@@ -334,8 +334,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       Positioned(
                         top: 0,
                         child: Container(
-                          width: 56 * scale,
-                          height: 108 * scale,
+                          width: 50 * scale,
+                          height: 100 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(18 * scale),
@@ -365,29 +365,34 @@ class _CalendarPageState extends State<CalendarPage> {
                       top: 39 * scale,
                       child: selected || today
                           ? Container(
-                              width: 40 * scale,
-                              height: 40 * scale,
+                              width: 41 * scale,
+                              height: 41 * scale,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? AppColors.primary
-                                    : const Color(0xFFDCE6FF),
+                                    ? const Color(0xFFCFDFFF)
+                                    : Colors.transparent,
                                 shape: BoxShape.circle,
-                                border: selected
-                                    ? Border.all(
-                                        color: const Color(0xFFCFDFFF),
-                                        width: 3 * scale,
-                                      )
-                                    : null,
                               ),
-                              child: Text(
-                                '${day.day}',
-                                style: TextStyle(
-                                  fontSize: 16 * scale,
-                                  fontWeight: FontWeight.w800,
+                              child: Container(
+                                width: 35 * scale,
+                                height: 35 * scale,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
                                   color: selected
-                                      ? Colors.white
-                                      : AppColors.primary,
+                                      ? AppColors.primary
+                                      : const Color(0xFFDCE6FF),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  '${day.day}',
+                                  style: TextStyle(
+                                    fontSize: 16 * scale,
+                                    fontWeight: FontWeight.w800,
+                                    color: selected
+                                        ? Colors.white
+                                        : AppColors.primary,
+                                  ),
                                 ),
                               ),
                             )
