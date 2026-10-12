@@ -362,11 +362,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     Positioned(
-                      top: 42 * scale,
+                      top: 34 * scale,
                       child: selected || today
                           ? Container(
-                              width: 32 * scale,
-                              height: 32 * scale,
+                              width: 28 * scale,
+                              height: 28 * scale,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
