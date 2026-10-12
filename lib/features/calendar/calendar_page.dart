@@ -325,7 +325,7 @@ class _CalendarPageState extends State<CalendarPage> {
               borderRadius: BorderRadius.circular(20),
               onTap: () => setState(() => _selected = day),
               child: SizedBox(
-                height: 132 * scale,
+                height: 92 * scale,
                 child: Stack(
                   alignment: Alignment.topCenter,
                   clipBehavior: Clip.none,
@@ -335,7 +335,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         top: 0,
                         child: Container(
                           width: 64 * scale,
-                          height: 126 * scale,
+                          height: 92 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(18 * scale),
@@ -347,7 +347,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                       ),
                     Positioned(
-                      top: 17 * scale,
+                      top: 16 * scale,
                       child: Text(
                         _weekdays[index],
                         style: TextStyle(
@@ -362,11 +362,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     Positioned(
-                      top: 52 * scale,
+                      top: 40 * scale,
                       child: selected || today
                           ? Container(
-                              width: 42 * scale,
-                              height: 42 * scale,
+                              width: 36 * scale,
+                              height: 36 * scale,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
@@ -408,7 +408,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                     ),
                     Positioned(
-                      top: 116 * scale,
+                      top: 91 * scale,
                       child: _dayDots(index, selected, scale),
                     ),
                   ],
