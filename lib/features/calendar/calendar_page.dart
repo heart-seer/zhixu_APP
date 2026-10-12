@@ -473,43 +473,55 @@ class _CalendarPageState extends State<CalendarPage> {
           itemBuilder: (context, index) {
             final day = days[index];
             final selected = _sameDay(day, _selected);
+            final today = _sameDay(day, DateTime.now());
+            final hovered = _hoveredDay != null && _sameDay(day, _hoveredDay!);
             final inMonth = day.month == _month.month;
-            return InkWell(
-              onTap: () => setState(() {
-                _selected = day;
-                _monthOpen = false;
-              }),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 28 * scale,
-                    height: 28 * scale,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: selected ? AppColors.primary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(7 * scale),
-                    ),
-                    child: Text(
-                      '${day.day}',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
+            return MouseRegion(
+              onEnter: (_) => setState(() => _hoveredDay = day),
+              onExit: (_) => setState(() => _hoveredDay = null),
+              child: InkWell(
+                onTap: () => setState(() {
+                  _selected = day;
+                  _monthOpen = false;
+                }),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 28 * scale,
+                      height: 28 * scale,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
                         color: selected
-                            ? Colors.white
-                            : inMonth
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary,
-                        fontWeight: selected
-                            ? FontWeight.w700
-                            : FontWeight.normal,
+                            ? AppColors.primary
+                            : today
+                            ? const Color(0xFFDCE6FF)
+                            : hovered
+                            ? const Color(0xFFEAF1FF)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(7 * scale),
+                      ),
+                      child: Text(
+                        '${day.day}',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          color: selected || today
+                              ? AppColors.primary
+                              : inMonth
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
+                          fontWeight: selected || today || hovered
+                              ? FontWeight.w700
+                              : FontWeight.normal,
+                        ),
                       ),
                     ),
-                  ),
-                  if (_hasCalendarEvent(day)) ...[
-                    SizedBox(height: 0 * scale),
-                    _monthEventDots(day, scale),
+                    if (_hasCalendarEvent(day)) ...[
+                      SizedBox(height: 0 * scale),
+                      _monthEventDots(day, scale),
+                    ],
                   ],
-                ],
+                ),
               ),
             );
           },
