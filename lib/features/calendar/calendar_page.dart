@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
@@ -1133,93 +1134,20 @@ class _CalendarPageState extends State<CalendarPage> {
       _pickerMonth = _month.month;
     });
 
-    final result = await showDialog<DateTime>(
+    final result = await showModalBottomSheet<DateTime>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text('选择年月'),
-          content: SizedBox(
-            width: 300,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () => setDialogState(() => _pickerYear--),
-                      icon: const Icon(Icons.chevron_left),
-                    ),
-                    Text(
-                      '$_pickerYear年',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => setDialogState(() => _pickerYear++),
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 12,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisExtent: 48,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemBuilder: (context, index) {
-                    final month = index + 1;
-                    final selected = month == _pickerMonth;
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => setDialogState(() => _pickerMonth = month),
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppColors.primary
-                              : const Color(0xFFF3F6FC),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '$month月',
-                          style: TextStyle(
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(
-                dialogContext,
-                DateTime(_pickerYear, _pickerMonth),
-              ),
-              child: const Text('确定'),
-            ),
-          ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black54,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => _YearMonthWheelSheet(
+          year: _pickerYear,
+          month: _pickerMonth,
+          onYearChanged: (year) => setSheetState(() => _pickerYear = year),
+          onMonthChanged: (month) => setSheetState(() => _pickerMonth = month),
+          onCancel: () => Navigator.pop(sheetContext),
+          onConfirm: () =>
+              Navigator.pop(sheetContext, DateTime(_pickerYear, _pickerMonth)),
         ),
       ),
     );
@@ -1274,6 +1202,167 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _message(String text) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+}
+
+class _YearMonthWheelSheet extends StatefulWidget {
+  const _YearMonthWheelSheet({
+    required this.year,
+    required this.month,
+    required this.onYearChanged,
+    required this.onMonthChanged,
+    required this.onCancel,
+    required this.onConfirm,
+  });
+
+  final int year;
+  final int month;
+  final ValueChanged<int> onYearChanged;
+  final ValueChanged<int> onMonthChanged;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+
+  @override
+  State<_YearMonthWheelSheet> createState() => _YearMonthWheelSheetState();
+}
+
+class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
+  late final FixedExtentScrollController _yearController;
+  late final FixedExtentScrollController _monthController;
+  static const _firstYear = 1900;
+  static const _lastYear = 2100;
+
+  @override
+  void initState() {
+    super.initState();
+    _yearController = FixedExtentScrollController(
+      initialItem: widget.year - _firstYear,
+    );
+    _monthController = FixedExtentScrollController(
+      initialItem: widget.month - 1,
+    );
+  }
+
+  @override
+  void dispose() {
+    _yearController.dispose();
+    _monthController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Container(
+        height: 340,
+        decoration: const BoxDecoration(
+          color: Color(0xFFF7F7F9),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 58,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFE5E5EA))),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: widget.onCancel,
+                    child: const Text('取消'),
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        '选择年月',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1C1C1E),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: widget.onConfirm,
+                    child: const Text('完成'),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            SizedBox(
+              height: 120,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5EEFF),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoPicker.builder(
+                          scrollController: _yearController,
+                          itemExtent: 48,
+                          childCount: _lastYear - _firstYear + 1,
+                          onSelectedItemChanged: (index) =>
+                              widget.onYearChanged(_firstYear + index),
+                          itemBuilder: (context, index) => Center(
+                            child: Text(
+                              '${_firstYear + index}年',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF182234),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: CupertinoPicker(
+                          scrollController: _monthController,
+                          itemExtent: 48,
+                          onSelectedItemChanged: (index) =>
+                              widget.onMonthChanged(index + 1),
+                          children: [
+                            for (var month = 1; month <= 12; month++)
+                              Center(
+                                child: Text(
+                                  '$month月',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF182234),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _AiPill extends StatelessWidget {
