@@ -468,7 +468,7 @@ class _CalendarPageState extends State<CalendarPage> {
           itemCount: days.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            mainAxisExtent: 34 * scale,
+            mainAxisExtent: 48 * scale,
           ),
           itemBuilder: (context, index) {
             final day = days[index];
@@ -487,8 +487,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 }),
                 child: Center(
                   child: Container(
-                    width: 30 * scale,
-                    height: 30 * scale,
+                    width: 48 * scale,
+                    height: 50 * scale,
                     decoration: BoxDecoration(
                       color: selected
                           ? AppColors.primary
@@ -503,7 +503,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: 15 * scale,
+                          height: 29 * scale,
                           child: Center(
                             child: Text(
                               '${day.day}',
@@ -524,14 +524,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           ),
                         ),
                         if (eventColors.isNotEmpty)
-                          Transform.translate(
-                            offset: Offset(0, -2 * scale),
-                            child: _monthEventDots(
-                              day,
-                              scale,
-                              selected: selected,
-                            ),
-                          ),
+                          _monthEventDots(day, scale, selected: selected),
                       ],
                     ),
                   ),
