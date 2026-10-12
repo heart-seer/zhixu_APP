@@ -476,6 +476,7 @@ class _CalendarPageState extends State<CalendarPage> {
             final today = _sameDay(day, DateTime.now());
             final hovered = _hoveredDay != null && _sameDay(day, _hoveredDay!);
             final inMonth = day.month == _month.month;
+            final eventColors = _eventColors(day);
             return MouseRegion(
               onEnter: (_) => setState(() => _hoveredDay = day),
               onExit: (_) => setState(() => _hoveredDay = null),
@@ -484,43 +485,49 @@ class _CalendarPageState extends State<CalendarPage> {
                   _selected = day;
                   _monthOpen = false;
                 }),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 28 * scale,
-                      height: 28 * scale,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? AppColors.primary
-                            : today
-                            ? const Color(0xFFDCE6FF)
-                            : hovered
-                            ? const Color(0xFFEAF1FF)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(7 * scale),
-                      ),
-                      child: Text(
-                        '${day.day}',
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          color: selected || today
-                              ? AppColors.primary
-                              : inMonth
-                              ? AppColors.textPrimary
-                              : AppColors.textSecondary,
-                          fontWeight: selected || today || hovered
-                              ? FontWeight.w700
-                              : FontWeight.normal,
-                        ),
-                      ),
+                child: Center(
+                  child: Container(
+                    width: 30 * scale,
+                    height: 34 * scale,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.primary
+                          : today
+                          ? const Color(0xFFDCE6FF)
+                          : hovered
+                          ? const Color(0xFFEAF1FF)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(7 * scale),
                     ),
-                    if (_hasCalendarEvent(day)) ...[
-                      SizedBox(height: 0 * scale),
-                      _monthEventDots(day, scale),
-                    ],
-                  ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 27 * scale,
+                          child: Center(
+                            child: Text(
+                              '${day.day}',
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                color: selected
+                                    ? Colors.white
+                                    : today
+                                    ? AppColors.primary
+                                    : inMonth
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
+                                fontWeight: selected || today || hovered
+                                    ? FontWeight.w700
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (eventColors.isNotEmpty)
+                          _monthEventDots(day, scale, selected: selected),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             );
@@ -530,7 +537,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _monthEventDots(DateTime day, double scale) {
+  Widget _monthEventDots(DateTime day, double scale, {bool selected = false}) {
     final colors = _eventColors(day);
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -539,7 +546,10 @@ class _CalendarPageState extends State<CalendarPage> {
           Container(
             width: 3 * scale,
             height: 3 * scale,
-            decoration: BoxDecoration(color: colors[i], shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: selected ? Colors.white : colors[i],
+              shape: BoxShape.circle,
+            ),
           ),
       ],
     );
@@ -1095,11 +1105,6 @@ class _CalendarPageState extends State<CalendarPage> {
     if (day.day % 4 == 0) return [const Color(0xFF2F6FED)];
     if (day.day % 6 == 0) return [const Color(0xFF7429D9)];
     return const [];
-  }
-
-  bool _hasCalendarEvent(DateTime day) {
-    if (day.month != _month.month) return false;
-    return _eventColors(day).isNotEmpty;
   }
 
   String _weekday(DateTime date) =>
