@@ -335,7 +335,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         top: 0,
                         child: Container(
                           width: 44 * scale,
-                          height: 100 * scale,
+                          height: 108 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(18 * scale),
@@ -408,7 +408,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                     ),
                     Positioned(
-                      top: 84 * scale,
+                      top: 92 * scale,
                       child: _dayDots(index, selected, scale),
                     ),
                   ],
