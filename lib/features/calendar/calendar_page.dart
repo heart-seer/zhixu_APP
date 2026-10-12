@@ -347,7 +347,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                       ),
                     Positioned(
-                      top: 6 * scale,
+                      top: 9 * scale,
                       child: Text(
                         _weekdays[index],
                         style: TextStyle(
@@ -362,7 +362,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     Positioned(
-                      top: 35 * scale,
+                      top: 41 * scale,
                       child: selected || today
                           ? Container(
                               width: 34 * scale,
@@ -408,7 +408,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                     ),
                     Positioned(
-                      top: 80 * scale,
+                      top: 92 * scale,
                       child: _dayDots(index, selected, scale),
                     ),
                   ],
