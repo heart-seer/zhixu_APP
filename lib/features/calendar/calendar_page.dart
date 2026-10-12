@@ -365,8 +365,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       top: 39 * scale,
                       child: selected || today
                           ? Container(
-                              width: 42 * scale,
-                              height: 42 * scale,
+                              width: 38 * scale,
+                              height: 38 * scale,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
@@ -392,8 +392,8 @@ class _CalendarPageState extends State<CalendarPage> {
                               ),
                             )
                           : SizedBox(
-                              width: 42 * scale,
-                              height: 42 * scale,
+                              width: 38 * scale,
+                              height: 38 * scale,
                               child: Align(
                                 alignment: Alignment.center,
                                 child: Text(
