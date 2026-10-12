@@ -181,15 +181,36 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
               if (_sameDay(_selected, DateTime.now()))
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12 * scale),
-                  child: Text(
-                    '• 今天',
-                    style: TextStyle(
-                      fontSize: 13 * scale,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 9 * scale,
+                    vertical: 5 * scale,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDCE9FF),
+                    borderRadius: BorderRadius.circular(18 * scale),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7 * scale,
+                        height: 7 * scale,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 4 * scale),
+                      Text(
+                        '今天',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
