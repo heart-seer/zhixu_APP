@@ -1134,20 +1134,18 @@ class _CalendarPageState extends State<CalendarPage> {
       _pickerMonth = _month.month;
     });
 
-    final result = await showModalBottomSheet<DateTime>(
+    final result = await showDialog<DateTime>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       barrierColor: Colors.black54,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (context, setSheetState) => _YearMonthWheelSheet(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => _YearMonthWheelSheet(
           year: _pickerYear,
           month: _pickerMonth,
-          onYearChanged: (year) => setSheetState(() => _pickerYear = year),
-          onMonthChanged: (month) => setSheetState(() => _pickerMonth = month),
-          onCancel: () => Navigator.pop(sheetContext),
+          onYearChanged: (year) => setDialogState(() => _pickerYear = year),
+          onMonthChanged: (month) => setDialogState(() => _pickerMonth = month),
+          onCancel: () => Navigator.pop(dialogContext),
           onConfirm: () =>
-              Navigator.pop(sheetContext, DateTime(_pickerYear, _pickerMonth)),
+              Navigator.pop(dialogContext, DateTime(_pickerYear, _pickerMonth)),
         ),
       ),
     );
@@ -1251,28 +1249,40 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 28),
       child: Container(
-        height: 340,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF7F7F9),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        height: 350,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F8FC),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x260B2C5F),
+              blurRadius: 28,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
             Container(
-              height: 58,
+              height: 64,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(bottom: BorderSide(color: Color(0xFFE5E5EA))),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border(bottom: BorderSide(color: Color(0xFFE8EDF5))),
               ),
               child: Row(
                 children: [
                   TextButton(
                     onPressed: widget.onCancel,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     child: const Text('取消'),
                   ),
                   const Expanded(
@@ -1280,15 +1290,19 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
                       child: Text(
                         '选择年月',
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1C1C1E),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: widget.onConfirm,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     child: const Text('完成'),
                   ),
                 ],
@@ -1296,17 +1310,18 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
             ),
             const Spacer(),
             SizedBox(
-              height: 120,
+              height: 128,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
                     child: Container(
-                      height: 54,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE5EEFF),
-                        borderRadius: BorderRadius.circular(14),
+                        color: const Color(0xFFE8F0FF),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFD7E5FF)),
                       ),
                     ),
                   ),
@@ -1316,6 +1331,7 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
                         child: CupertinoPicker.builder(
                           scrollController: _yearController,
                           itemExtent: 48,
+                          selectionOverlay: const SizedBox.shrink(),
                           childCount: _lastYear - _firstYear + 1,
                           onSelectedItemChanged: (index) =>
                               widget.onYearChanged(_firstYear + index),
@@ -1323,9 +1339,9 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
                             child: Text(
                               '${_firstYear + index}年',
                               style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF182234),
+                                fontSize: 21,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ),
@@ -1335,6 +1351,7 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
                         child: CupertinoPicker(
                           scrollController: _monthController,
                           itemExtent: 48,
+                          selectionOverlay: const SizedBox.shrink(),
                           onSelectedItemChanged: (index) =>
                               widget.onMonthChanged(index + 1),
                           children: [
@@ -1343,9 +1360,9 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
                                 child: Text(
                                   '$month月',
                                   style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF182234),
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                               ),
