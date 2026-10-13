@@ -611,13 +611,25 @@ class _HomePageState extends State<HomePage> {
                                         ],
                                       ),
                                       SizedBox(height: 5),
-                                      Text(
-                                        '早上好，晨曦',
-                                        style: TextStyle(
-                                          fontSize: 27,
-                                          fontWeight: FontWeight.w800,
-                                          height: 1.15,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              '早上好，晨曦',
+                                              style: TextStyle(
+                                                fontSize: 23,
+                                                fontWeight: FontWeight.w800,
+                                                height: 1.15,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 6),
+                                          Icon(
+                                            Icons.wb_sunny_rounded,
+                                            size: 17,
+                                            color: Color(0xFFF7B640),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -744,20 +756,52 @@ class _HomePageState extends State<HomePage> {
                             )
                           : const SizedBox.shrink(),
                     ),
-                    FilledButton.icon(
-                      onPressed: () => setState(() => _fabOpen = !_fabOpen),
-                      icon: Icon(_fabOpen ? Icons.close : Icons.auto_awesome),
-                      label: Text(_fabOpen ? '收起菜单' : '智能速记'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF712AE2),
-                        foregroundColor: Colors.white,
-                        elevation: 8,
-                        shadowColor: const Color(0x55712AE2),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 28,
-                          vertical: 16,
+                    DecoratedBox(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF8634F4), Color(0xFF174AD8)],
                         ),
-                        shape: const StadiumBorder(),
+                        borderRadius: BorderRadius.all(Radius.circular(28)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0x33712AE2),
+                            blurRadius: 12,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: FilledButton.icon(
+                        onPressed: () => setState(() => _fabOpen = !_fabOpen),
+                        icon: Icon(
+                          _fabOpen ? Icons.close : Icons.auto_awesome,
+                          size: 19,
+                        ),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _fabOpen ? '收起菜单' : '智能速记',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (!_fabOpen) ...[
+                              const SizedBox(width: 8),
+                              const Icon(Icons.add, size: 18),
+                            ],
+                          ],
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 13,
+                          ),
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -813,14 +857,14 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF7F8FD),
+                      color: const Color(0xFFF7F9FF),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xFFE9ECF5)),
                     ),
@@ -828,15 +872,15 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          width: 84,
-                          height: 84,
+                          width: 64,
+                          height: 64,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
                               SizedBox.expand(
                                 child: CircularProgressIndicator(
                                   value: (percent / 100).clamp(0.0, 1.0),
-                                  strokeWidth: 7,
+                                  strokeWidth: 6,
                                   strokeCap: StrokeCap.round,
                                   backgroundColor: const Color(0xFFDCE9FF),
                                 ),
@@ -900,7 +944,13 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           const Expanded(
-                            child: Text('进度负载', style: TextStyle(fontSize: 13)),
+                            child: Text(
+                              '进度负载',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF737686),
+                              ),
+                            ),
                           ),
                           Text(
                             percent >= 80
@@ -909,7 +959,7 @@ class _HomePageState extends State<HomePage> {
                                 ? '良好 · 稳步推进'
                                 : '有待追赶 · 需聚焦',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                               color: percent < 60
                                   ? const Color(0xFFBA1A1A)
@@ -923,7 +973,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(8),
                         child: LinearProgressIndicator(
                           value: (percent / 100).clamp(0.0, 1.0),
-                          minHeight: 10,
+                          minHeight: 7,
                           backgroundColor: const Color(0xFFDCE9FF),
                         ),
                       ),
@@ -945,58 +995,102 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _copilotCard() => Container(
-    padding: const EdgeInsets.all(15),
+    padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
       gradient: const LinearGradient(
-        colors: [Color(0xFF712AE2), Color(0xFF5A1EC4), Color(0xFF2563EB)],
+        colors: [Color(0xFF7925E8), Color(0xFF5420C9), Color(0xFF326AF3)],
       ),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Icons.auto_awesome, color: Color(0xFFFFDDB8)),
+            const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
             const SizedBox(width: 6),
             const Expanded(
               child: Text(
                 '智序 Copilot 协同决策',
                 style: TextStyle(
                   color: Colors.white,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
-            _Tag(_scheduled ? '已选本地排程' : '2 条新感知'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .22),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _scheduled ? '已选本地排程' : '2 条新感知',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 10),
         _Insight(
-          text: '检测到企业微信有 2 条群待办，建议自动排入 15:30 空档期。',
+          icon: Icons.forum_outlined,
+          text: '检测到企业微信有 2 条新待办，建议自动排入 15:30 空档期。',
           onTap: () => _showDetail('企业微信待办', '建议将检测到的两项任务自动放入 15:30 空档期。'),
         ),
         const SizedBox(height: 6),
         _Insight(
+          icon: Icons.notifications_active_outlined,
           text: '学习通作业「微积分复习」明晚 23:59 截止，已提前留出晚自习预警。',
           onTap: () => _showDetail('学习通作业', '学习通作业「微积分复习」明晚 23:59 截止。'),
         ),
-        TextButton(
-          onPressed: _autoSchedule,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _scheduled ? '查看本地排程建议' : '一键智能自动排程',
-                style: const TextStyle(color: Color(0xFFFFDDB8)),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Flexible(
+              child: TextButton(
+                onPressed: _autoSchedule,
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _scheduled ? '查看本地排程建议' : '一键智能自动排程',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      _scheduled ? Icons.done_all : Icons.arrow_forward,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 7),
-              Icon(
-                _scheduled ? Icons.done_all : Icons.arrow_forward,
-                color: const Color(0xFFFFDDB8),
+            ),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                '算法就绪 · 习惯模型 v4.2',
+                textAlign: TextAlign.right,
+                style: TextStyle(color: Color(0xFFCFD5FF), fontSize: 9),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     ),
@@ -1028,7 +1122,7 @@ class _HomePageState extends State<HomePage> {
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFF0C8C8)),
           boxShadow: const [
             BoxShadow(
@@ -1039,7 +1133,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(17),
+          borderRadius: BorderRadius.circular(13),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1083,11 +1177,11 @@ class _HomePageState extends State<HomePage> {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE6EDFF),
+                                color: const Color(0xFFF0F1F5),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
-                                '学术通',
+                                '学习通',
                                 style: TextStyle(
                                   color: Color(0xFF455A83),
                                   fontSize: 12,
@@ -1108,7 +1202,7 @@ class _HomePageState extends State<HomePage> {
                                 onPressed: _toggleP0,
                                 icon: const Icon(
                                   Icons.flag_outlined,
-                                  size: 31,
+                                  size: 20,
                                   color: Color(0xFFBA1A1A),
                                 ),
                               ),
@@ -1164,9 +1258,9 @@ class _HomePageState extends State<HomePage> {
                                 size: 20,
                               ),
                               label: const Text(
-                                '开始做题',
+                                '开始微聚焦',
                                 style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -1174,13 +1268,15 @@ class _HomePageState extends State<HomePage> {
                                 backgroundColor: const Color(0xFFBF1717),
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
+                                  horizontal: 9,
+                                  vertical: 7,
                                 ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(13),
+                                  borderRadius: BorderRadius.circular(7),
                                 ),
-                                elevation: 2,
+                                elevation: 0,
                               ),
                             ),
                           ],
@@ -1223,7 +1319,7 @@ class _HomePageState extends State<HomePage> {
       ),
       const SizedBox(height: 4),
       SizedBox(
-        height: 164,
+        height: 136,
         child: ListView(
           padding: EdgeInsets.zero,
           scrollDirection: Axis.horizontal,
@@ -1280,7 +1376,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const Text(
             '按时间顺序流转',
-            style: TextStyle(fontSize: 11, color: Color(0xFF858A98)),
+            style: TextStyle(fontSize: 10, color: Color(0xFF858A98)),
           ),
         ],
       ),
@@ -1316,7 +1412,7 @@ class _HomePageState extends State<HomePage> {
               time: '下午 16:30',
               status: '待处理',
               title: '钉钉群内资料核对与归档',
-              description: '协同财务部门核对报销单据发票',
+              description: '协同财务部门核对报销单据及票据',
               isLast: true,
             ),
           ],
@@ -1338,8 +1434,8 @@ class _Card extends StatelessWidget {
     padding: padding,
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: borderColor.withValues(alpha: .45)),
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: borderColor.withValues(alpha: .3)),
       boxShadow: const [
         BoxShadow(
           color: Color(0x0A0B1C30),
@@ -1534,24 +1630,38 @@ class _FabAction extends StatelessWidget {
 }
 
 class _Insight extends StatelessWidget {
-  const _Insight({required this.text, required this.onTap});
+  const _Insight({required this.text, required this.icon, required this.onTap});
+  final IconData icon;
   final String text;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => InkWell(
     onTap: onTap,
-    borderRadius: BorderRadius.circular(10),
+    borderRadius: BorderRadius.circular(6),
     child: Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: .14),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: .1)),
+        color: const Color(0xFF17245C).withValues(alpha: .24),
+        borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 12, height: 1.4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFFE7DCFF), size: 15),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                height: 1.4,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     ),
   );
@@ -1575,7 +1685,7 @@ class _DeadlineCard extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      width: 310,
+      width: (MediaQuery.sizeOf(context).width * .62).clamp(190.0, 250.0),
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1602,18 +1712,40 @@ class _DeadlineCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 12, 10),
+                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _Tag(tag)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: tag == '企微待办'
+                                ? const Color(0xFFFFE9C5)
+                                : const Color(0xFFE0E7FF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            tag == '企微待办' ? '企微待办' : tag,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: tag == '企微待办'
+                                  ? const Color(0xFF825500)
+                                  : AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
                         const SizedBox(width: 6),
                         Text(
                           time,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: Color(0xFF8A6A2C),
                             fontWeight: FontWeight.w500,
                           ),
@@ -1635,7 +1767,7 @@ class _DeadlineCard extends StatelessWidget {
                     Text(
                       description,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 11,
                         color: Color(0xFF737686),
                       ),
                       maxLines: 1,
@@ -1736,12 +1868,11 @@ class _TimelineItem extends StatelessWidget {
             child: Stack(
               alignment: Alignment.topCenter,
               children: [
-                if (!isFirst)
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    child: Container(width: 2, color: const Color(0xFFE1E5EF)),
-                  ),
+                Positioned(
+                  top: isFirst ? 8 : 0,
+                  bottom: isLast ? 24 : 0,
+                  child: Container(width: 1, color: const Color(0xFFE1E8F7)),
+                ),
                 Positioned(
                   top: active ? 16 : 5,
                   child: Container(
@@ -1762,7 +1893,7 @@ class _TimelineItem extends StatelessWidget {
                         width: 9,
                         height: 9,
                         decoration: BoxDecoration(
-                          color: color,
+                          color: done ? color : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -1803,7 +1934,27 @@ class _TimelineItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _Tag(status),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: active
+                              ? AppColors.primary
+                              : const Color(0xFFF0F2F7),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          status,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: active
+                                ? Colors.white
+                                : const Color(0xFF818696),
+                          ),
+                        ),
+                      ),
                       if (active) const Spacer(),
                       if (active)
                         const Text(
