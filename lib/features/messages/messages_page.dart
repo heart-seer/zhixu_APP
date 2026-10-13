@@ -213,8 +213,8 @@ class _MessagesPageState extends State<MessagesPage> {
                   Row(
                     children: [
                       Container(
-                        width: 32,
-                        height: 32,
+                        width: 28,
+                        height: 28,
                         decoration: BoxDecoration(
                           color: const Color(0xFF7B2FF7),
                           borderRadius: BorderRadius.circular(8),
@@ -225,11 +225,11 @@ class _MessagesPageState extends State<MessagesPage> {
                           size: 17,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 9),
                       const Text(
                         '智能排程雷达',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF6425D0),
                         ),
@@ -237,8 +237,8 @@ class _MessagesPageState extends State<MessagesPage> {
                       const SizedBox(width: 7),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 3,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF0E8FF),
@@ -247,7 +247,7 @@ class _MessagesPageState extends State<MessagesPage> {
                         child: const Text(
                           '自动分析中',
                           style: TextStyle(
-                            fontSize: 9,
+                            fontSize: 11,
                             color: Color(0xFF712AE2),
                             fontWeight: FontWeight.w700,
                           ),
@@ -256,7 +256,7 @@ class _MessagesPageState extends State<MessagesPage> {
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 44, top: 3),
+                    padding: const EdgeInsets.only(top: 8),
                     child: Text.rich(
                       TextSpan(
                         children: [
