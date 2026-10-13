@@ -77,6 +77,8 @@ class _MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     final messages = _visibleMessages;
+    final pendingCount = _messages.where((item) => item.pending).length;
+    final syncedCount = _messages.length - pendingCount;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
@@ -171,8 +173,8 @@ class _MessagesPageState extends State<MessagesPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
                 _filterChip('全部消息'),
-                _filterChip('AI 待提取', count: 2),
-                _filterChip('已同步', count: 12),
+                _filterChip('AI 待提取', count: pendingCount),
+                _filterChip('已同步', count: syncedCount),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ActionChip(
@@ -244,8 +246,8 @@ class _MessagesPageState extends State<MessagesPage> {
                           color: const Color(0xFFF0E8FF),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Text(
-                          '自动分析中',
+                        child: Text(
+                          pendingCount == 0 ? '已全部提取' : '自动分析中',
                           style: TextStyle(
                             fontSize: 11,
                             color: Color(0xFF712AE2),
@@ -267,8 +269,7 @@ class _MessagesPageState extends State<MessagesPage> {
                           ),
                           const TextSpan(text: ' 抓取 '),
                           TextSpan(
-                            text:
-                                '${_messages.where((item) => item.pending).length} 条',
+                            text: '$pendingCount 条',
                             style: const TextStyle(
                               color: Color(0xFF7B2FF7),
                               fontWeight: FontWeight.w800,
@@ -319,7 +320,7 @@ class _MessagesPageState extends State<MessagesPage> {
                       ),
                       const Spacer(),
                       TextButton.icon(
-                        onPressed: _extractAll,
+                        onPressed: pendingCount == 0 ? null : _extractAll,
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xFF712AE2),
                           padding: EdgeInsets.zero,
@@ -327,8 +328,8 @@ class _MessagesPageState extends State<MessagesPage> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         iconAlignment: IconAlignment.end,
-                        label: const Text(
-                          '一键快速确认转待办',
+                        label: Text(
+                          pendingCount == 0 ? '暂无待提取消息' : '一键快速确认转待办',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
