@@ -855,7 +855,10 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                             if (action != null) ...[
                               InkWell(
-                                onTap: () => _message('会议接入中，请稍候'),
+                                onTap: () => _showContentPanel(
+                                  title,
+                                  '$time - $endTime\n$subtitle\n\n会议服务尚未接入，请在对应会议应用中使用会议号加入。',
+                                ),
                                 borderRadius: BorderRadius.circular(4),
                                 child: _tag(
                                   action,
@@ -872,7 +875,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                   setState(
                                     () => _focusRunning = !_focusRunning,
                                   );
-                                  _message(_focusRunning ? '专注已开始' : '专注已暂停');
                                 },
                                 child: Container(
                                   width: 26 * scale,
@@ -1005,23 +1007,30 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
               onSubmitted: (value) {
                 if (value.trim().isNotEmpty) {
-                  _message('已收到日程：$value');
-                  _quickInputController.clear();
+                  _showContentPanel(
+                    '日程输入',
+                    '待添加内容：${value.trim()}\n\n日程解析与添加尚未接入，内容未写入日历。',
+                  );
                 }
               },
             ),
           ),
-          Container(
-            width: 28 * scale,
-            height: 28 * scale,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE6EEFF),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.mic_none_rounded,
-              size: 16 * scale,
-              color: AppColors.primary,
+          InkWell(
+            onTap: () =>
+                _showContentPanel('语音添加日程', '语音识别与日程添加尚未接入，当前无法录音或写入日程。'),
+            borderRadius: BorderRadius.circular(14 * scale),
+            child: Container(
+              width: 28 * scale,
+              height: 28 * scale,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE6EEFF),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.mic_none_rounded,
+                size: 16 * scale,
+                color: AppColors.primary,
+              ),
             ),
           ),
         ],
@@ -1166,7 +1175,10 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
-  void _showAiSuggestion() => _message('已为你整理本周空闲时段与排程建议');
+  void _showAiSuggestion() => _showContentPanel(
+    'AI 智能日程',
+    '当前本地安排：\n14:00 - 15:30 编写智能助手交互原型\n15:30 - 16:30 深入复习与作业提交\n19:30 - 20:30 Q4 需求评审\n\nAI 排程服务尚未接入，以上为页面已有安排，未生成建议或调整日程。',
+  );
 
   void _showFilters() => showModalBottomSheet<void>(
     context: context,
@@ -1198,8 +1210,32 @@ class _CalendarPageState extends State<CalendarPage> {
     ),
   );
 
-  void _message(String text) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  void _showContentPanel(String title, String content) =>
+      showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.white,
+        isScrollControlled: true,
+        builder: (context) => SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(content, style: const TextStyle(height: 1.5)),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class _YearMonthWheelSheet extends StatefulWidget {

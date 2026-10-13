@@ -539,8 +539,10 @@ class _MessagesPageState extends State<MessagesPage> {
                 )
               else
                 TextButton(
-                  onPressed: () => _message('已标记为已读'),
-                  child: const Text('标记已读'),
+                  onPressed: item.read
+                      ? null
+                      : () => setState(() => item.read = true),
+                  child: Text(item.read ? '已读' : '标记已读'),
                 ),
             ],
           ),
@@ -621,7 +623,6 @@ class _MessagesPageState extends State<MessagesPage> {
   );
   void _extract(_MessageItem item) {
     setState(() => item.pending = false);
-    _message('已从消息中提取任务');
   }
 
   void _extractAll() {
@@ -630,11 +631,7 @@ class _MessagesPageState extends State<MessagesPage> {
         item.pending = false;
       }
     });
-    _message('已批量提取待处理事项');
   }
-
-  void _message(String text) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 }
 
 class _MessageItem {
@@ -653,6 +650,7 @@ class _MessageItem {
   final String title;
   final String preview;
   bool pending;
+  bool read = false;
   final Color color;
 }
 
