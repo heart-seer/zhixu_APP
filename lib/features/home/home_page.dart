@@ -1319,7 +1319,7 @@ class _HomePageState extends State<HomePage> {
       ),
       const SizedBox(height: 4),
       SizedBox(
-        height: 136,
+        height: 140,
         child: ListView(
           padding: EdgeInsets.zero,
           scrollDirection: Axis.horizontal,
@@ -1923,14 +1923,19 @@ class _TimelineItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        time,
-                        style: TextStyle(
-                          color: active || done
-                              ? const Color(0xFF245EDB)
-                              : const Color(0xFF0B1C30),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
+                      Flexible(
+                        flex: 4,
+                        child: Text(
+                          time,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: active || done
+                                ? const Color(0xFF245EDB)
+                                : const Color(0xFF0B1C30),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
