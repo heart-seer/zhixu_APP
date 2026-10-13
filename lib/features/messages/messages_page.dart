@@ -194,7 +194,7 @@ class _MessagesPageState extends State<MessagesPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
               decoration: BoxDecoration(
                 color: const Color(0xFFFCFAFF),
                 borderRadius: BorderRadius.circular(14),
@@ -213,8 +213,8 @@ class _MessagesPageState extends State<MessagesPage> {
                   Row(
                     children: [
                       Container(
-                        width: 28,
-                        height: 28,
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
                           color: const Color(0xFF7B2FF7),
                           borderRadius: BorderRadius.circular(8),
@@ -225,17 +225,16 @@ class _MessagesPageState extends State<MessagesPage> {
                           size: 17,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          '智能排程雷达',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF6425D0),
-                          ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        '智能排程雷达',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF6425D0),
                         ),
                       ),
+                      const SizedBox(width: 7),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 7,
@@ -256,25 +255,68 @@ class _MessagesPageState extends State<MessagesPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '已为您自动从 5 个平台抓取 ${_messages.where((item) => item.pending).length} 条包含明确截止时间与行动指令的消息。',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      height: 1.45,
-                      color: AppColors.textPrimary,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 44, top: 3),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: '已为您自动从 '),
+                          const TextSpan(
+                            text: '5 个平台',
+                            style: TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          const TextSpan(text: ' 抓取 '),
+                          TextSpan(
+                            text:
+                                '${_messages.where((item) => item.pending).length} 条',
+                            style: const TextStyle(
+                              color: Color(0xFF7B2FF7),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const TextSpan(text: ' 包含明确截止时间与行动指令的消息。'),
+                        ],
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        height: 1.65,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 11),
+                  const SizedBox(height: 14),
                   const Divider(height: 1, color: Color(0xFFE8DFFF)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      _sourceIcon('学', const Color(0xFFFF7043)),
-                      _sourceIcon('企', const Color(0xFF2589FF)),
-                      _sourceIcon('腾', const Color(0xFF22A6D5)),
-                      _sourceIcon('钉', const Color(0xFF1677FF)),
-                      _sourceIcon('飞', const Color(0xFF18A0FB)),
+                      SizedBox(
+                        width: 104,
+                        height: 26,
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              left: 0,
+                              child: _sourceIcon('学', const Color(0xFFFF7043)),
+                            ),
+                            Positioned(
+                              left: 19,
+                              child: _sourceIcon('企', const Color(0xFF2589FF)),
+                            ),
+                            Positioned(
+                              left: 38,
+                              child: _sourceIcon('腾', const Color(0xFF22A6D5)),
+                            ),
+                            Positioned(
+                              left: 57,
+                              child: _sourceIcon('钉', const Color(0xFF1677FF)),
+                            ),
+                            Positioned(
+                              left: 76,
+                              child: _sourceIcon('飞', const Color(0xFF18A0FB)),
+                            ),
+                          ],
+                        ),
+                      ),
                       const Spacer(),
                       TextButton.icon(
                         onPressed: _extractAll,
@@ -334,9 +376,8 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   Widget _sourceIcon(String label, Color color) => Container(
-    width: 22,
-    height: 22,
-    margin: const EdgeInsets.only(right: 3),
+    width: 26,
+    height: 26,
     alignment: Alignment.center,
     decoration: BoxDecoration(
       color: Colors.white,
@@ -360,21 +401,27 @@ class _MessagesPageState extends State<MessagesPage> {
         backgroundColor: const Color(0xFFE5EEFF),
         selectedColor: AppColors.primary,
         side: BorderSide.none,
-        label: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (selected && label == 'AI 待提取') ...[
-              const Icon(Icons.auto_awesome, size: 12, color: Colors.white),
-              const SizedBox(width: 3),
-            ],
-            Text(label),
-            if (count != null) ...[const SizedBox(width: 4), Text('($count)')],
-          ],
-        ),
         labelStyle: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           color: selected ? Colors.white : AppColors.textPrimary,
+        ),
+        label: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (selected && label == 'AI 待提取') ...[
+                const Icon(Icons.auto_awesome, size: 12, color: Colors.white),
+                const SizedBox(width: 3),
+              ],
+              Text(label),
+              if (count != null) ...[
+                const SizedBox(width: 4),
+                Text('($count)'),
+              ],
+            ],
+          ),
         ),
       ),
     );
