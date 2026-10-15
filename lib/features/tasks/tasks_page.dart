@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../core/widgets/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class _TaskItem {
@@ -27,6 +28,9 @@ class _TaskItem {
   bool completed;
   final bool aiCandidate;
   bool scheduled = false;
+  DateTime? scheduledDate;
+  int scheduledSlot = 0;
+  bool reminder = true;
 }
 
 class TasksPage extends StatefulWidget {
@@ -147,75 +151,15 @@ class _TasksPageState extends State<TasksPage> {
             task.platform.toLowerCase().contains(q));
   }).toList();
 
-  void _toast(String text) => ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(text),
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
-    ),
+  void _toast(String text) => showAppDialog<void>(
+    context: context,
+    title: '提示',
+    builder: (_) => Text(text),
   );
 
-  void _sheet(String title, Widget child) => showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) => SafeArea(
-      top: false,
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * .88,
-        ),
-        padding: EdgeInsets.fromLTRB(
-          20,
-          10,
-          20,
-          20 + MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 44,
-              height: 5,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const Divider(height: 1),
-            Flexible(
-              child: Material(
-                color: Colors.white,
-                child: SingleChildScrollView(child: child),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
+  void _sheet(String title, Widget child) {
+    pushAppPage<void>(context: context, title: title, builder: (_) => child);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -831,8 +775,7 @@ class _TasksPageState extends State<TasksPage> {
     final doneSteps = _doneSteps[task] ?? const <String>{};
     final stepDone = task.steps.where(doneSteps.contains).length;
     return InkWell(
-      onTap: () =>
-          task.steps.isNotEmpty ? _showSteps(task) : _showSchedule(task),
+      onTap: () => _showTask(task),
       borderRadius: BorderRadius.circular(18),
       child: Container(
         margin: const EdgeInsets.only(bottom: 1),
@@ -1308,7 +1251,7 @@ class _TasksPageState extends State<TasksPage> {
         const SizedBox(width: 12),
         Expanded(
           child: InkWell(
-            onTap: () => _showSchedule(task),
+            onTap: () => _showTask(task),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1389,8 +1332,7 @@ class _TasksPageState extends State<TasksPage> {
   Widget _gridTaskCard(_TaskItem task) => SizedBox(
     width: (MediaQuery.sizeOf(context).width - 42) / 2,
     child: InkWell(
-      onTap: () =>
-          task.steps.isNotEmpty ? _showSteps(task) : _showSchedule(task),
+      onTap: () => _showTask(task),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         constraints: const BoxConstraints(minHeight: 160),
@@ -1503,9 +1445,10 @@ class _TasksPageState extends State<TasksPage> {
 
   void _showBatchSchedule() {
     final pending = _pendingSchedule;
-    _sheet(
-      'AI 一键智能排入日历',
-      Column(
+    showAppDialog<void>(
+      context: context,
+      title: 'AI 一键智能排入日历',
+      builder: (context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
@@ -1531,13 +1474,56 @@ class _TasksPageState extends State<TasksPage> {
     );
   }
 
-  void _showSchedule(_TaskItem task) {
-    var date = 0;
-    var slot = 0;
-    var reminder = true;
-    _sheet(
-      '设置任务日程与提醒',
-      StatefulBuilder(
+  void _showTask(_TaskItem task) {
+    pushAppPage<void>(
+      context: context,
+      title: '任务详情',
+      builder: (routeContext) => StatefulBuilder(
+        builder: (context, update) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              task.title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${task.platform} · ${task.priority}\n${task.due}\n${task.description}',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              task.scheduledDate == null
+                  ? (task.scheduled ? '本地已编排，尚未指定日期' : '尚未排入日程')
+                  : '编排日期：${task.scheduledDate!.year}-${task.scheduledDate!.month}-${task.scheduledDate!.day}\n时段：${task.scheduledSlot == 0 ? '19:30 - 21:00' : '15:30 - 17:00'}\n提前15分钟提醒：${task.reminder ? '开启（仅本地偏好）' : '关闭'}',
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () async {
+                await _showSchedule(task);
+                if (context.mounted) update(() {});
+              },
+              child: const Text('编辑日程与提醒'),
+            ),
+            if (task.steps.isNotEmpty)
+              TextButton(
+                onPressed: () => _showSteps(task),
+                child: const Text('查看执行步骤'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSchedule(_TaskItem task) async {
+    var date = task.scheduledDate == null ? 0 : 2;
+    var selectedDate = task.scheduledDate ?? DateUtils.dateOnly(DateTime.now());
+    var slot = task.scheduledSlot;
+    var reminder = task.reminder;
+    await pushAppPage<void>(
+      context: context,
+      title: '设置任务日程与提醒',
+      builder: (_) => StatefulBuilder(
         builder: (context, setSheetState) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1557,7 +1543,11 @@ class _TasksPageState extends State<TasksPage> {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: ChoiceChip(
-                        label: Text(['今天', '明天', '自定义日期'][i]),
+                        label: Text(
+                          i == 2 && date == 2
+                              ? '${selectedDate.month}/${selectedDate.day}'
+                              : ['今天', '明天', '自定义日期'][i],
+                        ),
                         selected: date == i,
                         onSelected: (_) async {
                           if (i == 2) {
@@ -1569,7 +1559,11 @@ class _TasksPageState extends State<TasksPage> {
                               ),
                               initialDate: DateTime.now(),
                             );
-                            if (picked == null) return;
+                            if (!context.mounted || picked == null) return;
+                            selectedDate = picked;
+                          } else {
+                            selectedDate = DateUtils.dateOnly(DateTime.now())
+                                .add(Duration(days: i));
                           }
                           setSheetState(() => date = i);
                         },
@@ -1607,12 +1601,17 @@ class _TasksPageState extends State<TasksPage> {
               value: reminder,
               onChanged: (value) => setSheetState(() => reminder = value),
               title: const Text('日程强提醒'),
-              subtitle: const Text('提前 15 分钟发送系统推送'),
+              subtitle: const Text('提前 15 分钟提醒偏好（未接入系统通知）'),
             ),
             const SizedBox(height: 8),
             _actionButton('确认排入', () {
               Navigator.pop(context);
-              setState(() => task.scheduled = true);
+              setState(() {
+                task.scheduled = true;
+                task.scheduledDate = selectedDate;
+                task.scheduledSlot = slot;
+                task.reminder = reminder;
+              });
             }),
           ],
         ),
@@ -1832,7 +1831,7 @@ class _TasksPageState extends State<TasksPage> {
       icon: const Icon(Icons.check),
       label: Text(label),
       style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xFF712AE2),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 13),
       ),

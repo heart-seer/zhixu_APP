@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/router/route_names.dart';
 import '../../app/theme/app_colors.dart';
+import '../../core/widgets/app_presentation.dart';
 import '../../core/storage/secure_storage.dart';
 import '../shared/main_bottom_nav.dart';
 
@@ -761,26 +762,51 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     ),
   );
 
-  void _showPreferences() => _showPanel('AI 自动编排偏好', [
-    const Text('选择深度专注块时长。仅更新本页偏好，未接入 AI 排程服务，不会自动编排任务。'),
-    const SizedBox(height: 12),
-    StatefulBuilder(
-      builder: (context, updatePanel) => Wrap(
-        spacing: 8,
-        children: [
-          for (final minutes in [90, 60, 30])
-            ChoiceChip(
-              label: Text('$minutes 分钟'),
-              selected: _focusMinutes == minutes,
-              onSelected: (_) {
-                setState(() => _focusMinutes = minutes);
-                updatePanel(() {});
-              },
+  Future<void> _showPreferences() async {
+    var draft = _focusMinutes;
+    final result = await showAppDialog<int>(
+      context: context,
+      title: 'AI 自动编排偏好',
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, updatePanel) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('选择深度专注块时长。仅更新本页偏好，未接入 AI 排程服务，不会自动编排任务。'),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final minutes in [90, 60, 30])
+                  ChoiceChip(
+                    label: Text('$minutes 分钟'),
+                    selected: draft == minutes,
+                    onSelected: (_) => updatePanel(() => draft = minutes),
+                  ),
+              ],
             ),
-        ],
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('取消'),
+                  ),
+                ),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(dialogContext, draft),
+                    child: const Text('应用'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  ]);
+    );
+    if (!mounted || result == null) return;
+    setState(() => _focusMinutes = result);
+  }
 
   Future<void> _pickFocusWindow() async {
     final start = await showTimePicker(
@@ -799,83 +825,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _start = start;
       _end = end;
     });
-    _showPanel('作息与勿扰时段', [
-      _detail('本页作息偏好', _focusWindow),
-      const Text(
-        '“已生效”仅表示本页偏好已选定。尚未接入系统勿扰或通知权限，不会实际屏蔽通知。结束时间早于开始时间时作为跨午夜时段预览。',
-      ),
-    ]);
   }
 
-  Future<void> _confirmCache() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('离线缓存清理说明'),
-        content: const Text(
-          '142.8 MB 是参考设计中的示例值，未接入缓存统计或清理接口，不能确认实际缓存占用。本次操作不会删除任何缓存或登录凭据。是否查看详情？',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('查看说明'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    _showPanel('存储与离线缓存', [
-      _detail('设计示例', '离线日历与知识库 · 142.8 MB'),
-      const Text('暂无实际缓存统计或清理服务。本次未执行删除，未释放空间，也未修改安全存储。'),
-    ]);
-  }
+  void _confirmCache() => _showPanel('存储与离线缓存', [
+    _detail('设计示例', '离线日历与知识库 · 142.8 MB'),
+    const Text('142.8 MB 为设计示例，暂无实际缓存统计或清理服务。本次未执行删除，未释放空间，也未修改安全存储。'),
+  ]);
 
-  void _showPanel(String title, List<Widget> children) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * .8,
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: '关闭',
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ...children,
-              ],
-            ),
-          ),
-        ),
-      ),
+  void _showPanel(String title, List<Widget> children, {bool page = false}) {
+    Widget content(BuildContext context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: children,
     );
+    if (page) {
+      pushAppPage<void>(context: context, title: title, builder: content);
+    } else {
+      showAppDialog<void>(context: context, title: title, builder: content);
+    }
   }
 
   Widget _detail(String title, String value) => ListTile(
@@ -889,19 +856,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _detail('职业', '高级产品设计专家'),
     _detail('当前目标', '考研备考中'),
     const Text('以上为示例档案，未接入账号档案或个人二维码服务。头像与勾选徽章仅为设计展示，不代表身份认证。'),
-  ]);
+  ], page: true);
 
   void _showPro() => _showPanel('Pro 权益信息 · 示例', [
     _detail('当前展示方案', '智序 AI Pro · 智能协同版'),
     const Text('会员标识为设计示例，未接入订阅或权益验证服务，无可核实的有效期、额度或订单信息。此处不能购买、续费或管理真实订阅。'),
-  ]);
+  ], page: true);
 
   void _showWeeklyReport() => _showPanel('效能周报 · 第43周 · 示例', [
     _detail('本周交付任务', '38 项 · +12.5%'),
     _detail('专注时长', '42.5 h · 超越达标'),
     _detail('AI 协同采纳', '94% · 高音效'),
     const Text('以上与看板一致，为参考设计中的本地示例指标，未接入真实统计或历史周报服务。'),
-  ]);
+  ], page: true);
 
   void _showPlatforms(String platform) => _showPanel('$platform · 示例连接状态', [
     _detail('设计示例', platform == '学习通' ? '待同步' : '已连接'),
@@ -928,7 +895,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       const Text(
         '“高安全”“端侧密文计算”“知识沙箱隔离已开启”为参考设计示例，不代表项目已实现这些能力。安全存储不等于日历、知识库或所有业务数据均已加密。账号资料及隐私管理服务尚未接入。',
       ),
-    ]);
+    ], page: true);
   }
 
   void _showSync() => _showPanel('数据同步说明 · 未接入', [
@@ -949,7 +916,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _detail('本地偏好', '调校可选择90/60/30分钟；作息可选择起止时间；提醒开关及外观选中状态仅作用于本页。'),
     _detail('退出与切换', '确认后清除本地安全存储中的登录凭据并返回登录页，不执行云端会话注销。'),
     _detail('反馈渠道', '未配置反馈提交服务或官方联系方式，当前无法在应用内提交反馈。'),
-  ]);
+  ], page: true);
 
   void _showAbout() => _showPanel('关于智序 (SmartOrder)', [
     _detail('应用', '智序 AI 工作台'),
@@ -958,17 +925,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     const Text(
       '个人档案、周报、Pro、平台状态及缓存占用为设计示例。AI、云端同步、平台授权、会员验证与反馈服务尚未接入；此页不展示未经核实的备案号。',
     ),
-  ]);
+  ], page: true);
 
   Future<void> _confirmLogout() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('退出登录 / 切换账号'),
-        content: const Text(
-          '确定要退出当前账号吗？将清除本地登录凭据并返回登录页，可在那里登录其他账号。当前未接入云端会话注销服务。',
-        ),
-        actions: [
+      title: '退出登录 / 切换账号',
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('确定要退出当前账号吗？将清除本地登录凭据并返回登录页，可在那里登录其他账号。当前未接入云端会话注销服务。'),
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('取消'),

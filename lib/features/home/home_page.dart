@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../core/widgets/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,75 +38,21 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _toast(String text) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(text), behavior: SnackBarBehavior.floating),
-      );
+  void _toast(String text) => _dialog('提示', Text(text));
+
+  Future<void> _sheet(String title, Widget content) async {
+    await pushAppPage<void>(
+      context: context,
+      title: title,
+      builder: (_) => content,
+    );
   }
 
-  void _sheet(String title, Widget content) {
-    showModalBottomSheet<void>(
+  void _dialog(String title, Widget content) {
+    showAppDialog<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => SafeArea(
-        top: false,
-        child: Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * .82,
-          ),
-          padding: EdgeInsets.fromLTRB(
-            18,
-            10,
-            18,
-            18 + MediaQuery.viewInsetsOf(context).bottom,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFC3C6D7),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                content,
-              ],
-            ),
-          ),
-        ),
-      ),
+      title: title,
+      builder: (_) => content,
     );
   }
 
@@ -131,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     child: Text(label),
   );
 
-  void _showProfile() => _sheet(
+  void _showProfile() => _dialog(
     '晨曦 (Chenxi)',
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +169,11 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.send),
               onPressed: () {
                 Navigator.pop(context);
-                _showDetail('AI 服务未接入', '当前未连接 AI 服务，输入内容未发送。可使用本地任务与日程面板。');
+                _showDetail(
+                  'AI 服务未接入',
+                  '当前未连接 AI 服务，输入内容未发送。可使用本地任务与日程面板。',
+                  dialog: true,
+                );
               },
             ),
           ),
@@ -299,6 +250,7 @@ class _HomePageState extends State<HomePage> {
                   _showDetail(
                     '语音服务未接入',
                     '当前未接入麦克风录音或语音识别服务。请在文本框输入任务，或选择下方本地示例。',
+                    dialog: true,
                   );
                 },
               ),
@@ -400,37 +352,50 @@ class _HomePageState extends State<HomePage> {
 
   void _showAllDeadlines() => _sheet(
     '全部近期动态',
-    Column(
-      children: [
-        ListTile(
-          title: const Text('项目周报初稿确认'),
-          subtitle: Text(
-            '企微待办 · ${_deadlineStatus('项目周报初稿确认', '17:00 截止')}\n包含Q3效能指标与下周排期',
+    StatefulBuilder(
+      builder: (context, refresh) => Column(
+        children: [
+          ListTile(
+            title: const Text('项目周报初稿确认'),
+            subtitle: Text(
+              '企微待办 · ${_deadlineStatus('项目周报初稿确认', '17:00 截止')}\n包含Q3效能指标与下周排期',
+            ),
+            onTap: () async {
+              await _openQuick('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期');
+              if (context.mounted) refresh(() {});
+            },
           ),
-          onTap: () =>
-              _openQuick('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期'),
-        ),
-        ListTile(
-          title: const Text('产品需求第3轮评审会'),
-          subtitle: Text(
-            '腾讯会议 · ${_deadlineStatus('产品需求第3轮评审会', '19:30 开始')}\n线上会议号：829-381-902 · 45分钟',
+          ListTile(
+            title: const Text('产品需求第3轮评审会'),
+            subtitle: Text(
+              '腾讯会议 · ${_deadlineStatus('产品需求第3轮评审会', '19:30 开始')}\n线上会议号：829-381-902 · 45分钟',
+            ),
+            onTap: () async {
+              await _openQuick(
+                '产品需求第3轮评审会',
+                '腾讯会议',
+                '19:30 开始',
+                '线上会议号：829-381-902',
+              );
+              if (context.mounted) refresh(() {});
+            },
           ),
-          onTap: () =>
-              _openQuick('产品需求第3轮评审会', '腾讯会议', '19:30 开始', '线上会议号：829-381-902'),
-        ),
-        ListTile(
-          title: const Text('实验室设备领用申报表'),
-          subtitle: Text(
-            '钉钉群 · ${_deadlineStatus('实验室设备领用申报表', '明日 09:00')}\n指导教师已签署，待上报',
+          ListTile(
+            title: const Text('实验室设备领用申报表'),
+            subtitle: Text(
+              '钉钉群 · ${_deadlineStatus('实验室设备领用申报表', '明日 09:00')}\n指导教师已签署，待上报',
+            ),
+            onTap: () async {
+              await _openQuick('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报');
+              if (context.mounted) refresh(() {});
+            },
           ),
-          onTap: () =>
-              _openQuick('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报'),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 
-  void _openQuick(
+  Future<void> _openQuick(
     String title,
     String tag,
     String time,
@@ -470,6 +435,7 @@ class _HomePageState extends State<HomePage> {
                   _showDetail(
                     '$tag 来源信息',
                     '$title\n$time\n$description\n\n当前仅展示本地内容，尚未接入 $tag，未打开外部 App，也不会同步本地状态。',
+                    dialog: true,
                   );
                 },
               ),
@@ -498,6 +464,7 @@ class _HomePageState extends State<HomePage> {
     _showDetail(
       '本地排程建议',
       '15:30 空档期：企业微信两项待办\n晚自习：微积分复习\n\n已选用本地示例排程。尚未接入 AI 或外部日历，未计算最优时段，也未同步到来源 App。',
+      dialog: true,
     );
   }
 
@@ -1009,13 +976,16 @@ class _HomePageState extends State<HomePage> {
           children: [
             const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
             const SizedBox(width: 6),
-            const Expanded(
-              child: Text(
-                '智序 Copilot 协同决策',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+            Expanded(
+              child: GestureDetector(
+                onTap: _showAi,
+                child: const Text(
+                  '智序 Copilot 协同决策',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -1096,7 +1066,13 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  void _showDetail(String title, String body) => _sheet(title, _InfoBox(body));
+  void _showDetail(String title, String body, {bool dialog = false}) {
+    if (dialog) {
+      _dialog(title, _InfoBox(body));
+    } else {
+      _sheet(title, _InfoBox(body));
+    }
+  }
 
   Widget _p0Card() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
