@@ -585,7 +585,9 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _daySummary(double scale) {
+    final inProgress = _completedTasks.contains(2) ? 0 : 1;
     return _card(
+      radius: 20 * scale,
       padding: EdgeInsets.fromLTRB(
         16 * scale,
         16 * scale,
@@ -601,7 +603,7 @@ class _CalendarPageState extends State<CalendarPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_selected.month}月${_selected.day}日 ${_weekday(_selected)}',
+                  '${_selected.month}月${_selected.day}日 星期${_weekdays[_selected.weekday % 7]}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -612,8 +614,8 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 SizedBox(height: 9 * scale),
                 Text(
-                  '全天负荷适中，AI已为您优化日程节奏',
-                  maxLines: 1,
+                  '全天负荷适中，AI已为您优化\n日程节奏',
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12 * scale,
@@ -651,13 +653,13 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       SizedBox(width: 4 * scale),
                       _tag(
-                        '进行中 ${_focusRunning ? '1' : '1'}',
+                        '进行中 $inProgress',
                         const Color(0xFFF0E7FF),
                         const Color(0xFF712AE2),
                       ),
                       SizedBox(width: 4 * scale),
                       _tag(
-                        '待办 ${5 - _completedTasks.length - 1}',
+                        '待办 ${5 - _completedTasks.length - inProgress}',
                         const Color(0xFFFFE9E9),
                         const Color(0xFFE54646),
                       ),
@@ -676,7 +678,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Stack(
       children: [
         Positioned(
-          left: 36 * scale,
+          left: 23.5 * scale,
           top: 0,
           bottom: 0,
           child: Container(width: 1 * scale, color: const Color(0xFFE1E5EF)),
@@ -707,7 +709,7 @@ class _CalendarPageState extends State<CalendarPage> {
               scale,
               '14:00',
               '15:30',
-              '编写智能助手交互原型',
+              '编写智能助手交互原型规范',
               'Figma · 智序 iOS/Android 组件定义',
               '进行中',
               AppColors.primary,
@@ -728,7 +730,7 @@ class _CalendarPageState extends State<CalendarPage> {
               scale,
               '19:30',
               '20:30',
-              'Q4 需求评审',
+              'Q4 需求对齐评审',
               '腾讯会议 · 会议号 849-204-118',
               '待办事项',
               AppColors.primary,
@@ -754,39 +756,53 @@ class _CalendarPageState extends State<CalendarPage> {
     int? taskIndex,
   }) {
     final completed = taskIndex != null && _completedTasks.contains(taskIndex);
-    final shownStatus = taskIndex != null && taskIndex != 2
-        ? (completed ? '已完成' : '待办事项')
-        : status;
+    active = active && !completed;
+    final shownStatus = completed
+        ? '已完成'
+        : active
+        ? status
+        : '待办事项';
+    final taskColor = completed ? const Color(0xFF858998) : AppColors.primary;
     return Padding(
       padding: EdgeInsets.only(bottom: 9 * scale),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 68 * scale,
+            width: 48 * scale,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 7 * scale),
                 Container(
-                  width: active ? 16 * scale : 12 * scale,
-                  height: active ? 16 * scale : 12 * scale,
-                  padding: EdgeInsets.all(3 * scale),
+                  width: 12 * scale,
+                  height: 12 * scale,
+                  padding: EdgeInsets.all(2.5 * scale),
                   decoration: BoxDecoration(
-                    color: active ? const Color(0xFFDCE8FF) : Colors.white,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: active
-                          ? AppColors.primary
-                          : const Color(0xFFB8BECE),
-                      width: active ? 2 * scale : 1.5 * scale,
+                      color: completed
+                          ? const Color(0xFFC8CBDA)
+                          : AppColors.primary,
+                      width: active ? 3 * scale : 1.7 * scale,
                     ),
+                    boxShadow: active
+                        ? [
+                            BoxShadow(
+                              color: const Color(0xFFDDE3FF),
+                              spreadRadius: 4 * scale,
+                            ),
+                          ]
+                        : null,
                   ),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: active
-                          ? AppColors.primary
-                          : const Color(0xFF8B91A2),
+                      color: completed
+                          ? const Color(0xFF858998)
+                          : active
+                          ? Colors.white
+                          : AppColors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -796,8 +812,9 @@ class _CalendarPageState extends State<CalendarPage> {
                   time,
                   style: TextStyle(
                     fontSize: 9 * scale,
-                    color: color,
-                    fontWeight: FontWeight.w700,
+                    color: active ? AppColors.primary : const Color(0xFF858998),
+                    fontFamily: 'monospace',
+                    fontWeight: active ? FontWeight.w800 : FontWeight.w500,
                   ),
                 ),
               ],
@@ -813,10 +830,12 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10 * scale),
+                borderRadius: BorderRadius.circular(16 * scale),
                 border: Border.all(
-                  color: active ? AppColors.primary : const Color(0xFFE8E9F0),
-                  width: active ? 1.6 * scale : 1 * scale,
+                  color: active
+                      ? const Color(0xFF326BFF)
+                      : const Color(0xFFEEEFF5),
+                  width: active ? 2 * scale : 1 * scale,
                 ),
                 boxShadow: active
                     ? const [
@@ -829,12 +848,15 @@ class _CalendarPageState extends State<CalendarPage> {
                     : null,
               ),
               foregroundDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10 * scale),
-                border: Border(
-                  left: BorderSide(
-                    color: active ? AppColors.primary : const Color(0xFF7A8091),
-                    width: 4 * scale,
-                  ),
+                borderRadius: BorderRadius.circular(16 * scale),
+                gradient: LinearGradient(
+                  colors: [
+                    taskColor,
+                    taskColor,
+                    taskColor.withValues(alpha: 0),
+                    taskColor.withValues(alpha: 0),
+                  ],
+                  stops: const [0, 0.012, 0.012, 1],
                 ),
               ),
               child: Row(
@@ -847,13 +869,17 @@ class _CalendarPageState extends State<CalendarPage> {
                         Row(
                           children: [
                             _tag(
-                              shownStatus,
-                              active || shownStatus == '待办事项'
+                              active ? '● $shownStatus' : shownStatus,
+                              active
+                                  ? const Color(0xFFE0E2FF)
+                                  : completed
+                                  ? const Color(0xFFE4EEFF)
+                                  : const Color(0xFF2865F3),
+                              active
                                   ? AppColors.primary
-                                  : const Color(0xFFE4EEFF),
-                              active || shownStatus == '待办事项'
-                                  ? Colors.white
-                                  : AppColors.textSecondary,
+                                  : completed
+                                  ? const Color(0xFF606677)
+                                  : Colors.white,
                               scale: scale,
                             ),
                             SizedBox(width: 7 * scale),
@@ -862,6 +888,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 '$time - $endTime',
                                 style: TextStyle(
                                   fontSize: 9 * scale,
+                                  fontFamily: 'monospace',
                                   color: AppColors.textSecondary,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -883,7 +910,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               ),
                               SizedBox(width: 5 * scale),
                             ],
-                            if (active)
+                            if (active) ...[
                               InkWell(
                                 onTap: () {
                                   setState(
@@ -905,42 +932,48 @@ class _CalendarPageState extends State<CalendarPage> {
                                     color: Colors.white,
                                   ),
                                 ),
-                              )
-                            else
-                              AnimatedScale(
-                                scale: completed ? 1.06 : 1,
-                                duration: const Duration(milliseconds: 140),
-                                curve: Curves.easeOutBack,
-                                child: InkWell(
-                                  onTap: taskIndex == null
-                                      ? null
-                                      : () => setState(() {
-                                          if (_completedTasks.contains(
-                                            taskIndex,
-                                          )) {
-                                            _completedTasks.remove(taskIndex);
-                                          } else {
-                                            _completedTasks.add(taskIndex);
+                              ),
+                              SizedBox(width: 5 * scale),
+                            ],
+                            AnimatedScale(
+                              scale: completed ? 1.06 : 1,
+                              duration: const Duration(milliseconds: 140),
+                              curve: Curves.easeOutBack,
+                              child: InkWell(
+                                onTap: taskIndex == null
+                                    ? null
+                                    : () => setState(() {
+                                        if (_completedTasks.contains(
+                                          taskIndex,
+                                        )) {
+                                          _completedTasks.remove(taskIndex);
+                                        } else {
+                                          _completedTasks.add(taskIndex);
+                                          if (taskIndex == 2) {
+                                            _focusRunning = false;
                                           }
-                                        }),
-                                  child: Container(
-                                    width: 24 * scale,
-                                    height: 24 * scale,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE5EEFF),
-                                      borderRadius: BorderRadius.circular(
-                                        6 * scale,
-                                      ),
+                                        }
+                                      }),
+                                child: Container(
+                                  width: 24 * scale,
+                                  height: 24 * scale,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE5EEFF),
+                                    borderRadius: BorderRadius.circular(
+                                      6 * scale,
                                     ),
-                                    child: Icon(
-                                      Icons.check_rounded,
-                                      size: 15 * scale,
-                                      color: AppColors.primary,
-                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.check_rounded,
+                                    size: 15 * scale,
+                                    color: completed
+                                        ? AppColors.primary
+                                        : const Color(0xFF858998),
                                   ),
                                 ),
                               ),
+                            ),
                           ],
                         ),
                         SizedBox(height: 5 * scale),
@@ -994,6 +1027,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Widget _quickInput(double scale) {
     return _card(
+      radius: 14 * scale,
       padding: EdgeInsets.symmetric(
         horizontal: 12 * scale,
         vertical: 9 * scale,
@@ -1055,24 +1089,52 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget _aiButton(double scale) {
     return Align(
       alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: _showAiSuggestion,
-        icon: const Icon(Icons.auto_awesome, size: 14),
-        label: Text(
-          'AI 智能日程',
-          style: TextStyle(fontSize: 13 * scale, fontWeight: FontWeight.w700),
-        ),
-        style: ElevatedButton.styleFrom(
-          elevation: 4,
-          shadowColor: const Color(0x665B5FEF),
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(
-            horizontal: 16 * scale,
-            vertical: 10 * scale,
+      child: Container(
+        margin: EdgeInsets.only(top: 22 * scale),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7825E9), Color(0xFF2463EF)],
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22 * scale),
+          borderRadius: BorderRadius.circular(24 * scale),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x335B5FEF),
+              blurRadius: 8 * scale,
+              offset: Offset(0, 4 * scale),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(24 * scale),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _showAiSuggestion,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16 * scale,
+                vertical: 11 * scale,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    size: 19 * scale,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Text(
+                    'AI 编排日程',
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -1109,10 +1171,10 @@ class _CalendarPageState extends State<CalendarPage> {
     double scale = 1,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 7 * scale, vertical: 2 * scale),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(12 * scale),
       ),
       child: Text(
         text,
@@ -1145,9 +1207,6 @@ class _CalendarPageState extends State<CalendarPage> {
     if (day.day % 6 == 0) return [const Color(0xFF7429D9)];
     return const [];
   }
-
-  String _weekday(DateTime date) =>
-      ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.weekday % 7];
 
   void _toggleCalendarView() => setState(() => _monthOpen = !_monthOpen);
 
