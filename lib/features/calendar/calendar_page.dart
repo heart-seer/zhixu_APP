@@ -107,23 +107,25 @@ class _CalendarPageState extends State<CalendarPage> {
           SizedBox(width: 12 * scale),
         ],
       ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          2,
-          16,
-          24 + MediaQuery.paddingOf(context).bottom,
-        ),
+      body: Stack(
         children: [
-          _calendarCard(monthDays, weekDays, scale),
-          const SizedBox(height: 12),
-          _daySummary(scale),
-          const SizedBox(height: 10),
-          _timeline(scale),
-          const SizedBox(height: 14),
-          _quickInput(scale),
-          const SizedBox(height: 10),
-          _aiButton(scale),
+          ListView(
+            padding: EdgeInsets.fromLTRB(16, 2, 16, 175 * width / 440),
+            children: [
+              _calendarCard(monthDays, weekDays, scale),
+              const SizedBox(height: 12),
+              _daySummary(scale),
+              const SizedBox(height: 10),
+              _timeline(scale),
+              SizedBox(height: 24 * width / 440),
+              _quickInput(scale),
+            ],
+          ),
+          Positioned(
+            right: 16,
+            bottom: 24 * width / 440,
+            child: _aiButton(scale),
+          ),
         ],
       ),
       bottomNavigationBar: const MainBottomNav(selectedIndex: 2),
@@ -764,7 +766,7 @@ class _CalendarPageState extends State<CalendarPage> {
         : '待办事项';
     final taskColor = completed ? const Color(0xFF858998) : AppColors.primary;
     return Padding(
-      padding: EdgeInsets.only(bottom: 9 * scale),
+      padding: EdgeInsets.only(bottom: taskIndex == 4 ? 0 : 9 * scale),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -847,18 +849,20 @@ class _CalendarPageState extends State<CalendarPage> {
                       ]
                     : null,
               ),
-              foregroundDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16 * scale),
-                gradient: LinearGradient(
-                  colors: [
-                    taskColor,
-                    taskColor,
-                    taskColor.withValues(alpha: 0),
-                    taskColor.withValues(alpha: 0),
-                  ],
-                  stops: const [0, 0.012, 0.012, 1],
-                ),
-              ),
+              foregroundDecoration: active
+                  ? null
+                  : BoxDecoration(
+                      borderRadius: BorderRadius.circular(16 * scale),
+                      gradient: LinearGradient(
+                        colors: [
+                          taskColor,
+                          taskColor,
+                          taskColor.withValues(alpha: 0),
+                          taskColor.withValues(alpha: 0),
+                        ],
+                        stops: const [0, 0.012, 0.012, 1],
+                      ),
+                    ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -979,6 +983,8 @@ class _CalendarPageState extends State<CalendarPage> {
                         SizedBox(height: 5 * scale),
                         Text(
                           title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 13 * scale,
                             fontWeight: FontWeight.w700,
@@ -1043,6 +1049,7 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             child: TextField(
               controller: _quickInputController,
+              style: TextStyle(fontSize: 13 * scale),
               decoration: InputDecoration(
                 hintText: '输入“明晚8点和导师讨论论文”…',
                 border: InputBorder.none,
@@ -1087,10 +1094,12 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _aiButton(double scale) {
+    scale *= 375 / 440;
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
-        margin: EdgeInsets.only(top: 22 * scale),
+        width: 137 * scale,
+        height: 45 * scale,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFF7825E9), Color(0xFF2463EF)],
@@ -1112,7 +1121,7 @@ class _CalendarPageState extends State<CalendarPage> {
             onTap: _showAiSuggestion,
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 16 * scale,
+                horizontal: 12 * scale,
                 vertical: 11 * scale,
               ),
               child: Row(
