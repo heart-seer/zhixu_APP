@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
-import '../../core/widgets/app_presentation.dart';
+import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -24,7 +24,6 @@ class _CalendarPageState extends State<CalendarPage> {
   int _pickerYear = DateTime.now().year;
   int _pickerMonth = DateTime.now().month;
   final Set<int> _completedTasks = {0, 1};
-  Set<String> _sources = {'钉钉日程', '学习通任务', '个人安排', '腾讯会议'};
   final TextEditingController _quickInputController = TextEditingController();
 
   @override
@@ -759,13 +758,6 @@ class _CalendarPageState extends State<CalendarPage> {
     String? action,
     int? taskIndex,
   }) {
-    final source = switch (taskIndex) {
-      0 => '钉钉日程',
-      1 || 3 => '学习通任务',
-      4 => '腾讯会议',
-      _ => '个人安排',
-    };
-    if (!_sources.contains(source)) return const SizedBox.shrink();
     final completed = taskIndex != null && _completedTasks.contains(taskIndex);
     active = active && !completed;
     final shownStatus = completed
@@ -912,7 +904,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                 onTap: () => _showContentPanel(
                                   title,
                                   '$time - $endTime\n$subtitle\n\n会议服务尚未接入，请在对应会议应用中使用会议号加入。',
-                                  page: true,
                                 ),
                                 borderRadius: BorderRadius.circular(4),
                                 child: _tag(
@@ -1271,63 +1262,32 @@ class _CalendarPageState extends State<CalendarPage> {
   void _showAiSuggestion() => _showContentPanel(
     'AI 智能日程',
     '当前本地安排：\n14:00 - 15:30 编写智能助手交互原型\n15:30 - 16:30 深入复习与作业提交\n19:30 - 20:30 Q4 需求评审\n\nAI 排程服务尚未接入，以上为页面已有安排，未生成建议或调整日程。',
-    page: true,
   );
 
-  Future<void> _showFilters() async {
-    final sources = ['学习通任务', '腾讯会议', '钉钉日程', '个人安排'];
-    final draft = <String>{..._sources};
-    final result = await showAppDialog<Set<String>>(
-      context: context,
-      title: '日历筛选',
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, update) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final source in sources)
-              CheckboxListTile(
-                value: draft.contains(source),
-                onChanged: (value) => update(
-                  () =>
-                      value == true ? draft.add(source) : draft.remove(source),
-                ),
-                title: Text(source),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-              ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('取消'),
-                  ),
-                ),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(dialogContext, draft),
-                    child: const Text('应用'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-    if (!mounted || result == null) return;
-    setState(() => _sources = result);
-  }
+  void _showFilters() => showAppDialog<void>(
+    context: context,
+    title: '日历筛选',
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final source in ['全部日历源', '学习通任务', '企业微信', '钉钉日程', '个人安排'])
+          CheckboxListTile(
+            value: true,
+            onChanged: (_) {},
+            title: Text(source, style: const TextStyle(fontSize: 14)),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            activeColor: AppColors.primary,
+          ),
+      ],
+    ),
+  );
 
-  void _showContentPanel(String title, String content, {bool page = false}) {
-    Widget body(BuildContext context) =>
-        Text(content, style: const TextStyle(height: 1.5));
-    if (page) {
-      pushAppPage<void>(context: context, title: title, builder: body);
-    } else {
-      showAppDialog<void>(context: context, title: title, builder: body);
-    }
-  }
+  void _showContentPanel(String title, String content) => showAppDialog<void>(
+    context: context,
+    title: title,
+    child: Text(content, style: const TextStyle(height: 1.5)),
+  );
 }
 
 class _YearMonthWheelSheet extends StatefulWidget {
@@ -1377,12 +1337,69 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialog(
-      title: '选择年月',
-      child: SizedBox(
-        height: 220,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      constraints: const BoxConstraints(maxWidth: 480),
+      child: Container(
+        height: 350,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.border),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x260B2C5F),
+              blurRadius: 28,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
+            Container(
+              height: 64,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFE8EDF5))),
+              ),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: widget.onCancel,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('取消'),
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        '选择年月',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: widget.onConfirm,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    child: const Text('完成'),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
             SizedBox(
               height: 128,
               child: Stack(
@@ -1449,22 +1466,6 @@ class _YearMonthWheelSheetState extends State<_YearMonthWheelSheet> {
               ),
             ),
             const Spacer(),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: widget.onCancel,
-                    child: const Text('取消'),
-                  ),
-                ),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: widget.onConfirm,
-                    child: const Text('完成'),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),

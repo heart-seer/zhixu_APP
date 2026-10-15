@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/router/route_names.dart';
 import '../../app/theme/app_colors.dart';
-import '../../core/widgets/app_presentation.dart';
+import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class MessagesPage extends StatefulWidget {
@@ -834,47 +834,28 @@ class _MessagesPageState extends State<MessagesPage> {
     ),
   );
 
-  Future<void> _showSourceFilter() async {
-    var draft = _source;
-    final result = await showAppDialog<String>(
-      context: context,
-      title: '消息来源',
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, update) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final source in ['全部来源', '企业微信', '学习通', '腾讯会议', '钉钉', '本地导入'])
-              ListTile(
-                title: Text(source),
-                trailing: draft == source
-                    ? const Icon(Icons.check, color: AppColors.primary)
-                    : null,
-                onTap: () => update(() => draft = source),
-              ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('取消'),
-                  ),
-                ),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(dialogContext, draft),
-                    child: const Text('应用'),
-                  ),
-                ),
-              ],
+  void _showSourceFilter() => showAppDialog<void>(
+    context: context,
+    title: '消息来源',
+    child: StatefulBuilder(
+      builder: (dialogContext, setDialogState) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final source in ['全部来源', '企业微信', '学习通', '腾讯会议', '钉钉'])
+            ListTile(
+              title: Text(source),
+              trailing: _source == source
+                  ? const Icon(Icons.check, color: AppColors.primary)
+                  : null,
+              onTap: () {
+                setState(() => _source = source);
+                setDialogState(() {});
+              },
             ),
-          ],
-        ),
+        ],
       ),
-    );
-    if (!mounted || result == null) return;
-    setState(() => _source = result);
-  }
-
+    ),
+  );
   Widget _privacyNotice() => Padding(
     padding: const EdgeInsets.only(top: 12, bottom: 8),
     child: Row(
@@ -893,7 +874,7 @@ class _MessagesPageState extends State<MessagesPage> {
   void _showRadarStatus() => showAppDialog<void>(
     context: context,
     title: '智能排程雷达',
-    builder: (_) => Text(
+    child: Text(
       '待确认 ${_messages.where((item) => item.pending).length} 条 · 已同步 ${_messages.where((item) => !item.pending).length} 条\n\n当前为本地示例状态。消息内容仅在端侧展示，尚未接入实时抓取、AI解析或云端同步。',
       style: const TextStyle(height: 1.6),
     ),
@@ -902,37 +883,87 @@ class _MessagesPageState extends State<MessagesPage> {
   void _showAttachment(_MessageItem item) => showAppDialog<void>(
     context: context,
     title: '本地附件信息',
-    builder: (_) => Text(
+    child: Text(
       '${item.title}\n\n当前没有接入真实附件服务，未生成下载链接或伪造下载操作。',
       style: const TextStyle(height: 1.6),
     ),
   );
 
   Future<void> _showImportPanel() async {
-    final text = await pushAppPage<String>(
+    final controller = TextEditingController();
+    String? importError;
+    Future<dynamic>? dialogCompleted;
+    await showAppDialog<void>(
       context: context,
       title: '对话导入',
-      builder: (_) => const _ImportEditor(),
+      child: StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          dialogCompleted ??= ModalRoute.of(dialogContext)!.completed;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '输入对话文本后加入本地待确认消息列表，不进行真实AI解析。',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                minLines: 4,
+                maxLines: 7,
+                decoration: InputDecoration(
+                  hintText: '粘贴或输入对话内容',
+                  errorText: importError,
+                  filled: true,
+                  fillColor: const Color(0xFFF5F7FB),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onChanged: (_) => setDialogState(() => importError = null),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    final text = controller.text.trim();
+                    if (text.isEmpty) {
+                      setDialogState(() => importError = '请输入非空对话内容');
+                      return;
+                    }
+                    setState(() {
+                      _filter = '全部消息';
+                      _source = '全部来源';
+                      _searchController.clear();
+                      _messages.insert(
+                        0,
+                        _MessageItem(
+                          source: '本地导入',
+                          sender: '对话文本',
+                          time: '刚刚',
+                          title: '待确认对话',
+                          preview: text,
+                          footer: '本地导入 · 未进行AI解析',
+                          pending: true,
+                          color: const Color(0xFF7624E8),
+                        ),
+                      );
+                    });
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('加入待确认消息'),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
-    if (!mounted || text == null) return;
-    setState(() {
-      _filter = '全部消息';
-      _source = '全部来源';
-      _searchController.clear();
-      _messages.insert(
-        0,
-        _MessageItem(
-          source: '本地导入',
-          sender: '对话文本',
-          time: '刚刚',
-          title: '待确认对话',
-          preview: text,
-          footer: '本地导入 · 未进行AI解析',
-          pending: true,
-          color: const Color(0xFF7624E8),
-        ),
-      );
-    });
+    await dialogCompleted;
+    controller.dispose();
   }
 
   void _showMessage(_MessageItem item) {
@@ -940,48 +971,42 @@ class _MessagesPageState extends State<MessagesPage> {
     pushAppPage<void>(
       context: context,
       title: '消息详情',
-      builder: (sheetContext) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _sourcePill(item),
-              const SizedBox(height: 8),
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(item.preview, style: const TextStyle(height: 1.5)),
-              if (item.detail != null) ...[
-                const SizedBox(height: 14),
-                _infoBlock(item),
-              ],
-              const SizedBox(height: 18),
-              if (item.pending)
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.pop(sheetContext);
-                      _extract(item);
-                    },
-                    icon: const Icon(Icons.auto_awesome),
-                    label: const Text('确认并标记已同步（本地）'),
-                  ),
-                )
-              else
-                _StatusTag(
-                  label: item.status ?? '已同步 · 已读',
-                  color: const Color(0xFF059669),
-                ),
+      child: Builder(
+        builder: (pageContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _sourcePill(item),
+            const SizedBox(height: 8),
+            Text(
+              item.title,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 10),
+            Text(item.preview, style: const TextStyle(height: 1.5)),
+            if (item.detail != null) ...[
+              const SizedBox(height: 14),
+              _infoBlock(item),
             ],
-          ),
+            const SizedBox(height: 18),
+            if (item.pending)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    _extract(item);
+                    Navigator.pop(pageContext);
+                  },
+                  icon: const Icon(Icons.auto_awesome),
+                  label: const Text('确认并标记已同步（本地）'),
+                ),
+              )
+            else
+              _StatusTag(
+                label: item.status ?? '已同步 · 已读',
+                color: const Color(0xFF059669),
+              ),
+          ],
         ),
       ),
     );
@@ -999,54 +1024,6 @@ class _MessagesPageState extends State<MessagesPage> {
       }
     });
   }
-}
-
-class _ImportEditor extends StatefulWidget {
-  const _ImportEditor();
-  @override
-  State<_ImportEditor> createState() => _ImportEditorState();
-}
-
-class _ImportEditorState extends State<_ImportEditor> {
-  final _controller = TextEditingController();
-  String? _error;
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      const Text('输入对话文本后加入本地待确认消息列表，不进行真实 AI 解析。'),
-      const SizedBox(height: 16),
-      TextField(
-        controller: _controller,
-        minLines: 4,
-        maxLines: 7,
-        decoration: InputDecoration(
-          labelText: '对话内容',
-          hintText: '粘贴或输入对话内容',
-          errorText: _error,
-        ),
-        onChanged: (_) => setState(() => _error = null),
-      ),
-      const SizedBox(height: 16),
-      FilledButton(
-        onPressed: () {
-          final text = _controller.text.trim();
-          if (text.isEmpty) {
-            setState(() => _error = '请输入非空对话内容');
-            return;
-          }
-          Navigator.pop(context, text);
-        },
-        child: const Text('加入待确认消息'),
-      ),
-    ],
-  );
 }
 
 enum _MessageKind { task, calendar, attachment }

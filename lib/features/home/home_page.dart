@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
-import '../../core/widgets/app_presentation.dart';
+import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class HomePage extends StatefulWidget {
@@ -38,22 +38,17 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _toast(String text) => _dialog('提示', Text(text));
-
-  Future<void> _sheet(String title, Widget content) async {
-    await pushAppPage<void>(
-      context: context,
-      title: title,
-      builder: (_) => content,
-    );
-  }
-
-  void _dialog(String title, Widget content) {
-    showAppDialog<void>(
-      context: context,
-      title: title,
-      builder: (_) => content,
-    );
+  Future<void> _sheet(
+    String title,
+    Widget content, {
+    bool asPage = false,
+  }) async {
+    if (!mounted) return;
+    if (asPage) {
+      await pushAppPage<void>(context: context, title: title, child: content);
+    } else {
+      await showAppDialog<void>(context: context, title: title, child: content);
+    }
   }
 
   void _closeQuickMenu() {
@@ -78,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     child: Text(label),
   );
 
-  void _showProfile() => _dialog(
+  void _showProfile() => _sheet(
     '晨曦 (Chenxi)',
     Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,32 +101,38 @@ class _HomePageState extends State<HomePage> {
 
   void _showNotifications() => _sheet(
     '通知中心',
-    Column(
-      children: [
-        const ListTile(
-          leading: Icon(Icons.auto_awesome, color: AppColors.primary),
-          title: Text('Copilot 智能调度建议'),
-          subtitle: Text('已避让 15:00 冲突会议并生成最优番茄钟'),
-          trailing: Text('10分钟前'),
-        ),
-        const ListTile(
-          leading: Icon(Icons.alarm, color: AppColors.primary),
-          title: Text('急件提醒：期中复习测验'),
-          subtitle: Text('距离计算机网络测验提交仅剩约 2 小时'),
-          trailing: Text('35分钟前'),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {
-              setState(() => _notificationsRead = true);
-              Navigator.pop(context);
-            },
-            child: const Text('全部已读'),
+    StatefulBuilder(
+      builder: (context, refresh) => Column(
+        children: [
+          const ListTile(
+            leading: Icon(Icons.auto_awesome, color: AppColors.primary),
+            title: Text('Copilot 智能调度建议'),
+            subtitle: Text('已避让 15:00 冲突会议并生成最优番茄钟'),
+            trailing: Text('10分钟前'),
           ),
-        ),
-      ],
+          const ListTile(
+            leading: Icon(Icons.alarm, color: AppColors.primary),
+            title: Text('急件提醒：期中复习测验'),
+            subtitle: Text('距离计算机网络测验提交仅剩约 2 小时'),
+            trailing: Text('35分钟前'),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _notificationsRead
+                  ? null
+                  : () {
+                      if (!mounted) return;
+                      setState(() => _notificationsRead = true);
+                      refresh(() {});
+                    },
+              child: Text(_notificationsRead ? '已全部读完' : '全部已读'),
+            ),
+          ),
+        ],
+      ),
     ),
+    asPage: true,
   );
 
   void _showAi() => _sheet(
@@ -169,11 +170,7 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.send),
               onPressed: () {
                 Navigator.pop(context);
-                _showDetail(
-                  'AI 服务未接入',
-                  '当前未连接 AI 服务，输入内容未发送。可使用本地任务与日程面板。',
-                  dialog: true,
-                );
+                _showDetail('AI 服务未接入', '当前未连接 AI 服务，输入内容未发送。可使用本地任务与日程面板。');
               },
             ),
           ),
@@ -219,7 +216,11 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: _button('确定加入待办', () {
                   if (!_cameraParsed) {
-                    _toast('请先拍照或选择图片');
+                    showAppDialog<void>(
+                      context: context,
+                      title: '尚未识别图片',
+                      child: const Text('请先拍照或选择图片。当前仅提供本地示例，不会调用相机或 OCR 服务。'),
+                    );
                     return;
                   }
                   setState(() => _total++);
@@ -250,7 +251,6 @@ class _HomePageState extends State<HomePage> {
                   _showDetail(
                     '语音服务未接入',
                     '当前未接入麦克风录音或语音识别服务。请在文本框输入任务，或选择下方本地示例。',
-                    dialog: true,
                   );
                 },
               ),
@@ -318,11 +318,14 @@ class _HomePageState extends State<HomePage> {
           ),
           CheckboxListTile(
             value: _subtaskDone,
-            onChanged: (value) => refresh(() => _subtaskDone = value ?? false),
+            onChanged: (value) {
+              if (!mounted) return;
+              setState(() => _subtaskDone = value ?? false);
+              refresh(() {});
+            },
             title: const Text('OSPF 与 BGP 路由选择算法对比分析'),
           ),
           _button('进入答题', () {
-            Navigator.pop(context);
             _showDetail(
               '计算机网络复习内容',
               'TCP三次握手与四次挥手状态转移图\nCIDR 子网掩码切分与超网计算题\nOSPF 与 BGP 路由选择算法对比分析\n\n当前仅有本地复习清单，尚未接入学术通题库或答题、自动交卷服务。',
@@ -335,9 +338,11 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
+    asPage: true,
   );
 
   void _toggleP0() {
+    if (!mounted) return;
     setState(() {
       _p0Completed = !_p0Completed;
       _completed += _p0Completed ? 1 : -1;
@@ -353,46 +358,48 @@ class _HomePageState extends State<HomePage> {
   void _showAllDeadlines() => _sheet(
     '全部近期动态',
     StatefulBuilder(
-      builder: (context, refresh) => Column(
-        children: [
-          ListTile(
-            title: const Text('项目周报初稿确认'),
-            subtitle: Text(
-              '企微待办 · ${_deadlineStatus('项目周报初稿确认', '17:00 截止')}\n包含Q3效能指标与下周排期',
+      builder: (context, refresh) {
+        Future<void> open(
+          String title,
+          String tag,
+          String time,
+          String description,
+        ) async {
+          await _openQuick(title, tag, time, description);
+          if (!mounted || !context.mounted) return;
+          refresh(() {});
+        }
+
+        return Column(
+          children: [
+            ListTile(
+              title: const Text('项目周报初稿确认'),
+              subtitle: Text(
+                '企微待办 · ${_deadlineStatus('项目周报初稿确认', '17:00 截止')}\n包含Q3效能指标与下周排期',
+              ),
+              onTap: () =>
+                  open('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期'),
             ),
-            onTap: () async {
-              await _openQuick('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期');
-              if (context.mounted) refresh(() {});
-            },
-          ),
-          ListTile(
-            title: const Text('产品需求第3轮评审会'),
-            subtitle: Text(
-              '腾讯会议 · ${_deadlineStatus('产品需求第3轮评审会', '19:30 开始')}\n线上会议号：829-381-902 · 45分钟',
+            ListTile(
+              title: const Text('产品需求第3轮评审会'),
+              subtitle: Text(
+                '腾讯会议 · ${_deadlineStatus('产品需求第3轮评审会', '19:30 开始')}\n线上会议号：829-381-902 · 45分钟',
+              ),
+              onTap: () =>
+                  open('产品需求第3轮评审会', '腾讯会议', '19:30 开始', '线上会议号：829-381-902'),
             ),
-            onTap: () async {
-              await _openQuick(
-                '产品需求第3轮评审会',
-                '腾讯会议',
-                '19:30 开始',
-                '线上会议号：829-381-902',
-              );
-              if (context.mounted) refresh(() {});
-            },
-          ),
-          ListTile(
-            title: const Text('实验室设备领用申报表'),
-            subtitle: Text(
-              '钉钉群 · ${_deadlineStatus('实验室设备领用申报表', '明日 09:00')}\n指导教师已签署，待上报',
+            ListTile(
+              title: const Text('实验室设备领用申报表'),
+              subtitle: Text(
+                '钉钉群 · ${_deadlineStatus('实验室设备领用申报表', '明日 09:00')}\n指导教师已签署，待上报',
+              ),
+              onTap: () => open('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报'),
             ),
-            onTap: () async {
-              await _openQuick('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报');
-              if (context.mounted) refresh(() {});
-            },
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     ),
+    asPage: true,
   );
 
   Future<void> _openQuick(
@@ -422,6 +429,7 @@ class _HomePageState extends State<HomePage> {
               ActionChip(
                 label: const Text('推迟 1 小时'),
                 onPressed: () {
+                  if (!mounted) return;
                   setState(
                     () => _deadlineDelays[title] =
                         (_deadlineDelays[title] ?? 0) + 1,
@@ -435,7 +443,6 @@ class _HomePageState extends State<HomePage> {
                   _showDetail(
                     '$tag 来源信息',
                     '$title\n$time\n$description\n\n当前仅展示本地内容，尚未接入 $tag，未打开外部 App，也不会同步本地状态。',
-                    dialog: true,
                   );
                 },
               ),
@@ -444,7 +451,7 @@ class _HomePageState extends State<HomePage> {
                   _completedDeadlines.contains(title) ? '已完成' : '标记已完成',
                 ),
                 onPressed: () {
-                  if (_completedDeadlines.contains(title)) return;
+                  if (!mounted || _completedDeadlines.contains(title)) return;
                   setState(() {
                     _completedDeadlines.add(title);
                     _completed++;
@@ -457,6 +464,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     ),
+    asPage: true,
   );
 
   void _autoSchedule() {
@@ -464,7 +472,6 @@ class _HomePageState extends State<HomePage> {
     _showDetail(
       '本地排程建议',
       '15:30 空档期：企业微信两项待办\n晚自习：微积分复习\n\n已选用本地示例排程。尚未接入 AI 或外部日历，未计算最优时段，也未同步到来源 App。',
-      dialog: true,
     );
   }
 
@@ -602,11 +609,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () => setState(
-                                    () => _workStatus = _workStatus == '深度专注中'
-                                        ? '会议讨论中'
-                                        : '深度专注中',
-                                  ),
+                                  onTap: _showProfile,
                                   borderRadius: BorderRadius.circular(22),
                                   child: Container(
                                     constraints: const BoxConstraints(
@@ -976,16 +979,13 @@ class _HomePageState extends State<HomePage> {
           children: [
             const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
             const SizedBox(width: 6),
-            Expanded(
-              child: GestureDetector(
-                onTap: _showAi,
-                child: const Text(
-                  '智序 Copilot 协同决策',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
+            const Expanded(
+              child: Text(
+                '智序 Copilot 协同决策',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -1066,13 +1066,7 @@ class _HomePageState extends State<HomePage> {
     ),
   );
 
-  void _showDetail(String title, String body, {bool dialog = false}) {
-    if (dialog) {
-      _dialog(title, _InfoBox(body));
-    } else {
-      _sheet(title, _InfoBox(body));
-    }
-  }
+  void _showDetail(String title, String body) => _sheet(title, _InfoBox(body));
 
   Widget _p0Card() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
