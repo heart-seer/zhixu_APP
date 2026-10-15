@@ -135,24 +135,24 @@ class _CalendarPageState extends State<CalendarPage> {
     List<DateTime> weekDays,
     double scale,
   ) {
-    if (_monthOpen) scale *= 375 / 440;
+    scale *= _monthOpen ? 375 / 440 : 375 / 445;
     return _card(
       radius: _monthOpen ? 18 : 16,
       padding: EdgeInsets.fromLTRB(
         16 * scale,
-        10 * scale,
+        (_monthOpen ? 10 : 16) * scale,
         16 * scale,
-        _monthOpen ? 14 * scale : 10 * scale,
+        (_monthOpen ? 14 : 16) * scale,
       ),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: _toggleCalendarView,
-                  child: Align(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -163,7 +163,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           child: Text(
                             '${_month.year}年${_month.month}月',
                             style: TextStyle(
-                              fontSize: (_monthOpen ? 24 : 20) * scale,
+                              fontSize: 24 * scale,
                               fontWeight: FontWeight.w800,
                               color: _monthPickerOpen
                                   ? AppColors.primary
@@ -172,22 +172,31 @@ class _CalendarPageState extends State<CalendarPage> {
                           ),
                         ),
                         SizedBox(width: 7 * scale),
-                        Icon(
-                          _monthOpen
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          size: 17 * scale,
-                          color: AppColors.primary,
-                        ),
-                        SizedBox(width: 4 * scale),
-                        Text(
-                          _monthOpen ? '关闭日历' : '打开日历',
-                          style: TextStyle(
-                            fontSize: (_monthOpen ? 14 : 12) * scale,
-                            fontWeight: _monthOpen
-                                ? FontWeight.w400
-                                : FontWeight.w600,
-                            color: AppColors.primary,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8 * scale),
+                          onTap: _toggleCalendarView,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _monthOpen
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                size: 17 * scale,
+                                color: AppColors.primary,
+                              ),
+                              SizedBox(width: 4 * scale),
+                              Text(
+                                _monthOpen ? '关闭日历' : '打开日历',
+                                style: TextStyle(
+                                  fontSize: 14 * scale,
+                                  fontWeight: _monthOpen
+                                      ? FontWeight.w400
+                                      : FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -280,7 +289,7 @@ class _CalendarPageState extends State<CalendarPage> {
             _calendarLegend(scale),
           ] else ...[
             _weekStrip(weekDays, scale),
-            SizedBox(height: 12 * scale),
+            SizedBox(height: 10 * scale),
             const Divider(height: 1, thickness: 1, color: Color(0xFFF0F1F5)),
             SizedBox(height: 9 * scale),
             _calendarLegend(scale),
@@ -339,7 +348,7 @@ class _CalendarPageState extends State<CalendarPage> {
               borderRadius: BorderRadius.circular(20),
               onTap: () => setState(() => _selected = day),
               child: SizedBox(
-                height: 114 * scale,
+                height: 100 * scale,
                 child: Stack(
                   alignment: Alignment.topCenter,
                   clipBehavior: Clip.none,
@@ -348,11 +357,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       Positioned(
                         top: 0,
                         child: Container(
-                          width: 50 * scale,
+                          width: 51 * scale,
                           height: 100 * scale,
                           decoration: BoxDecoration(
                             color: const Color(0xFFEAF1FF),
-                            borderRadius: BorderRadius.circular(18 * scale),
+                            borderRadius: BorderRadius.circular(19 * scale),
                             border: Border.all(
                               color: const Color(0xFFC1D5FF),
                               width: 1.2 * scale,
@@ -361,7 +370,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                       ),
                     Positioned(
-                      top: 16 * scale,
+                      top: 13 * scale,
                       child: Text(
                         _weekdays[index],
                         style: TextStyle(
@@ -376,11 +385,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     Positioned(
-                      top: 39 * scale,
+                      top: 35 * scale,
                       child: selected || today
                           ? Container(
-                              width: 41 * scale,
-                              height: 41 * scale,
+                              width: 42 * scale,
+                              height: 42 * scale,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: selected
@@ -389,8 +398,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                 shape: BoxShape.circle,
                               ),
                               child: Container(
-                                width: 35 * scale,
-                                height: 35 * scale,
+                                width: 36 * scale,
+                                height: 36 * scale,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: selected
@@ -411,15 +420,15 @@ class _CalendarPageState extends State<CalendarPage> {
                               ),
                             )
                           : SizedBox(
-                              width: 46 * scale,
-                              height: 46 * scale,
+                              width: 42 * scale,
+                              height: 42 * scale,
                               child: Align(
                                 alignment: Alignment.center,
                                 child: Text(
                                   '${day.day}',
                                   style: TextStyle(
                                     fontSize: 14 * scale,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w700,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),
@@ -427,7 +436,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ),
                     ),
                     Positioned(
-                      top: 82 * scale,
+                      top: 80 * scale,
                       child: _dayDots(index, selected, scale),
                     ),
                   ],
