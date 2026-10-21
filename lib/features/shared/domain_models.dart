@@ -113,7 +113,7 @@ class Message {
   final String? footer;
   MessageStatus status;
   String? linkedTaskId;
-  final String? linkedEventId;
+  String? linkedEventId;
   final DateTime? taskDueAt;
   bool read = false;
 

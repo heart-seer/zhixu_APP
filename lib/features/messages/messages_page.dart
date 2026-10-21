@@ -384,11 +384,22 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 84),
-                    itemCount: messages.length + 1,
+                    itemCount: messages.length + (_repository.hasMoreMessages ? 2 : 1),
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) => index == messages.length
-                        ? _privacyNotice()
-                        : _messageCard(messages[index]),
+                    itemBuilder: (context, index) {
+                      if (index == messages.length) {
+                        if (_repository.hasMoreMessages) {
+                          return Center(
+                            child: TextButton(
+                              onPressed: _repository.loadMoreMessages,
+                              child: const Text('加载更多消息'),
+                            ),
+                          );
+                        }
+                        return _privacyNotice();
+                      }
+                      return _messageCard(messages[index]);
+                    },
                   ),
           ),
         ],

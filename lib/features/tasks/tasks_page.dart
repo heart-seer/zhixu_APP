@@ -371,6 +371,13 @@ class _TasksPageState extends ConsumerState<TasksPage> {
                             ),
                           );
                         }),
+                        if (_repository.hasMoreTasks)
+                          Center(
+                            child: TextButton(
+                              onPressed: _repository.loadMoreTasks,
+                              child: const Text('加载更多任务'),
+                            ),
+                          ),
                       ],
                     ),
             ),

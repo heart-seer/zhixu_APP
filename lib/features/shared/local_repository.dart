@@ -30,6 +30,11 @@ abstract class AppRepository extends ChangeNotifier {
   void confirmAllMessages();
   void markMessageRead(String messageId);
   void addMessage(Message message);
+
+  bool get hasMoreTasks => false;
+  Future<void> loadMoreTasks() async {}
+  bool get hasMoreMessages => false;
+  Future<void> loadMoreMessages() async {}
 }
 
 class LocalRepository extends AppRepository {

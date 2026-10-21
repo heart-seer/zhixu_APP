@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 
+import '../../core/network/api_exception.dart';
 import '../../core/network/api_endpoints.dart';
 import '../../core/storage/secure_storage.dart';
 import 'domain_models.dart';
@@ -23,6 +24,18 @@ class RemoteRepository extends AppRepository {
   bool _ready = false;
   String _timezone = 'Asia/Shanghai';
   int _nextId = 0;
+
+  static const int _pageSize = 30;
+
+  DateTime? _taskCursor;
+  DateTime? _messageCursor;
+  bool _hasMoreTasks = false;
+  bool _hasMoreMessages = false;
+  bool _loadingMoreTasks = false;
+  bool _loadingMoreMessages = false;
+
+  String? lastError;
+  int errorVersion = 0;
 
   bool get ready => _ready;
 
@@ -69,6 +82,11 @@ class RemoteRepository extends AppRepository {
       _messages.where((message) => message.pending).length;
 
   @override
+  bool get hasMoreTasks => _hasMoreTasks;
+  @override
+  bool get hasMoreMessages => _hasMoreMessages;
+
+  @override
   List<CalendarEvent> eventsOn(DateTime day) {
     final start = DateTime(day.year, day.month, day.day);
     final end = DateTime(day.year, day.month, day.day + 1);
@@ -94,8 +112,69 @@ class RemoteRepository extends AppRepository {
       await _loadPreferences();
       await Future.wait([_loadTasks(), _loadEvents()]);
       await _loadMessages();
+    } catch (error) {
+      _fail(error);
     } finally {
       _ready = true;
+      notifyListeners();
+    }
+  }
+
+  @override
+  Future<void> loadMoreTasks() async {
+    final cursor = _taskCursor;
+    if (cursor == null || _loadingMoreTasks || !_hasMoreTasks) return;
+    _loadingMoreTasks = true;
+    notifyListeners();
+    try {
+      final rows = _objects(await _dio.get(
+        ApiEndpoints.tasks,
+        queryParameters: {
+          'before': cursor.toUtc().toIso8601String(),
+          'limit': _pageSize,
+        },
+      ));
+      final known = _tasks.map((task) => task.id).toSet();
+      for (final row in rows) {
+        final task = _mapTask(row);
+        if (known.add(task.id)) _tasks.add(task);
+      }
+      _taskCursor = rows.isEmpty ? null : _time(rows.last['createdAt']);
+      _hasMoreTasks = rows.length == _pageSize;
+      _linkEvents();
+    } catch (error) {
+      _fail(error);
+    } finally {
+      _loadingMoreTasks = false;
+      notifyListeners();
+    }
+  }
+
+  @override
+  Future<void> loadMoreMessages() async {
+    final cursor = _messageCursor;
+    if (cursor == null || _loadingMoreMessages || !_hasMoreMessages) return;
+    _loadingMoreMessages = true;
+    notifyListeners();
+    try {
+      final rows = _objects(await _dio.get(
+        ApiEndpoints.messages,
+        queryParameters: {
+          'before': cursor.toUtc().toIso8601String(),
+          'limit': _pageSize,
+        },
+      ));
+      final known = _messages.map((message) => message.id).toSet();
+      for (final row in rows) {
+        final message = _mapMessage(row);
+        if (known.add(message.id)) _messages.add(message);
+      }
+      _messageCursor = rows.isEmpty ? null : _time(rows.last['receivedAt']);
+      _hasMoreMessages = rows.length == _pageSize;
+    } catch (error) {
+      _fail(error);
+    } finally {
+      _loadingMoreMessages = false;
       notifyListeners();
     }
   }
@@ -423,11 +502,13 @@ class RemoteRepository extends AppRepository {
   Future<void> _loadTasks() async {
     final rows = _objects(await _dio.get(
       ApiEndpoints.tasks,
-      queryParameters: {'limit': 100},
+      queryParameters: {'limit': _pageSize},
     ));
     _tasks
       ..clear()
       ..addAll(rows.map(_mapTask));
+    _taskCursor = rows.isEmpty ? null : _time(rows.last['createdAt']);
+    _hasMoreTasks = rows.length == _pageSize;
     _linkEvents();
   }
 
@@ -450,11 +531,13 @@ class RemoteRepository extends AppRepository {
   Future<void> _loadMessages() async {
     final rows = _objects(await _dio.get(
       ApiEndpoints.messages,
-      queryParameters: {'limit': 100},
+      queryParameters: {'limit': _pageSize},
     ));
     _messages
       ..clear()
       ..addAll(rows.map(_mapMessage));
+    _messageCursor = rows.isEmpty ? null : _time(rows.last['receivedAt']);
+    _hasMoreMessages = rows.length == _pageSize;
   }
 
   void _linkEvents() {
@@ -486,7 +569,8 @@ class RemoteRepository extends AppRepository {
     unawaited(() async {
       try {
         await action();
-      } catch (_) {
+      } catch (error) {
+        _fail(error);
         try {
           await refresh();
         } catch (_) {
@@ -494,6 +578,12 @@ class RemoteRepository extends AppRepository {
         }
       }
     }());
+  }
+
+  void _fail(Object error) {
+    lastError = error is ApiException ? error.message : '网络异常，请稍后重试';
+    errorVersion++;
+    notifyListeners();
   }
 
   // ---------- 映射 ----------
@@ -579,6 +669,8 @@ class RemoteRepository extends AppRepository {
           : MessageStatus.processed,
     );
     message.read = json['readAt'] != null;
+    message.linkedTaskId = json['linkedTaskId']?.toString();
+    message.linkedEventId = json['linkedEventId']?.toString();
     return message;
   }
 
