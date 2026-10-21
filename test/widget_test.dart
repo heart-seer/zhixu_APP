@@ -156,7 +156,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final repository = LocalRepository.seeded();
     final container = ProviderContainer(
-      overrides: [localRepositoryProvider.overrideWith((ref) => repository)],
+      overrides: [repositoryProvider.overrideWith((ref) => repository)],
     );
     addTearDown(container.dispose);
     Future<void> show(Widget page) async {
@@ -261,7 +261,7 @@ void main() {
     addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [localRepositoryProvider.overrideWith((ref) => repository)],
+        overrides: [repositoryProvider.overrideWith((ref) => repository)],
         child: MaterialApp.router(routerConfig: router),
       ),
     );

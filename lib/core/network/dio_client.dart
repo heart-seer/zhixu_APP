@@ -16,7 +16,10 @@ class DioClient {
           receiveTimeout: AppConfig.receiveTimeout,
           headers: {'Accept': 'application/json'},
         )) {
-    dio.interceptors.addAll([AuthInterceptor(storage), ErrorInterceptor()]);
+    dio.interceptors.addAll([
+      AuthInterceptor(storage, AppConfig.apiBaseUrl),
+      ErrorInterceptor(),
+    ]);
   }
 
   final Dio dio;

@@ -17,6 +17,7 @@ import '../../core/storage/secure_storage.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_text_field.dart';
+import '../shared/data_providers.dart';
 
 final loginControllerProvider = ChangeNotifierProvider.autoDispose<LoginController>((ref) => LoginController(ref));
 
@@ -26,7 +27,7 @@ class LoginController extends ChangeNotifier {
   LoginController(this.ref);
 
   final Ref ref;
-  LoginMode mode = LoginMode.phone;
+  LoginMode mode = LoginMode.password;
   bool isLoading = false;
   int countdown = 0;
   Timer? _timer;
@@ -61,9 +62,15 @@ class LoginController extends ChangeNotifier {
           ? {'phone': phone, 'code': code}
           : {'phone': phone, 'password': password});
       final data = response.data as Map<String, dynamic>;
-      final token = data['data'] is Map<String, dynamic> ? data['data']['token']?.toString() : data['token']?.toString();
-      if (token == null || token.isEmpty) throw const FormatException('登录响应缺少 token');
+      final payload = data['data'] is Map<String, dynamic> ? data['data'] as Map<String, dynamic> : data;
+      final token = payload['accessToken']?.toString();
+      if (token == null || token.isEmpty) throw const FormatException('登录响应缺少访问令牌');
       await ref.read(secureStorageProvider).saveToken(token);
+      final refreshToken = payload['refreshToken']?.toString();
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await ref.read(secureStorageProvider).saveRefreshToken(refreshToken);
+      }
+      ref.invalidate(repositoryProvider);
       return true;
     } finally {
       isLoading = false;

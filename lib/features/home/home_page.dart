@@ -18,7 +18,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  AppRepository get _repository => ref.read(localRepositoryProvider);
+  AppRepository get _repository => ref.read(repositoryProvider);
   int get _completed => _repository.completedTaskCount;
   int get _total => _repository.tasks.length;
   Task? get _focusTask {
@@ -486,7 +486,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(localRepositoryProvider);
+    ref.watch(repositoryProvider);
     final percent = _percent;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),

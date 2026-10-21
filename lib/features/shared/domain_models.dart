@@ -26,6 +26,7 @@ class Task {
     List<String> steps = const [],
     this.dueAt,
     this.sourceMessageId,
+    this.version = 0,
   }) : steps = steps
            .asMap()
            .entries
@@ -51,6 +52,7 @@ class Task {
   DateTime? dueAt;
   bool completed;
   String? scheduledEventId;
+  int version;
 
   bool get scheduled => scheduledEventId != null;
 }
@@ -65,6 +67,7 @@ class CalendarEvent {
     this.taskId,
     this.reminder = false,
     this.completed = false,
+    this.version = 0,
   });
 
   final String id;
@@ -75,6 +78,7 @@ class CalendarEvent {
   final String? taskId;
   final bool reminder;
   bool completed;
+  int version;
 }
 
 class Message {

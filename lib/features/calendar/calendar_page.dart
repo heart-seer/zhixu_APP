@@ -30,7 +30,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   bool _monthPickerOpen = false;
   int _pickerYear = DateTime.now().year;
   int _pickerMonth = DateTime.now().month;
-  AppRepository get _repository => ref.read(localRepositoryProvider);
+  AppRepository get _repository => ref.read(repositoryProvider);
   List<CalendarEvent> get _dayEvents => _repository.eventsOn(_selected);
   List<CalendarEvent> get _completedTasks =>
       _dayEvents.where((event) => event.completed).toList();
@@ -51,7 +51,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(localRepositoryProvider);
+    ref.watch(repositoryProvider);
     final width = MediaQuery.sizeOf(context).width;
     final scale = width / 375;
     final monthDays = _monthDays();

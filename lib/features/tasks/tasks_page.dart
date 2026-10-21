@@ -44,7 +44,7 @@ class TasksPage extends ConsumerStatefulWidget {
 
 class _TasksPageState extends ConsumerState<TasksPage> {
   final _searchController = TextEditingController();
-  AppRepository get _repository => ref.read(localRepositoryProvider);
+  AppRepository get _repository => ref.read(repositoryProvider);
   List<_TaskItem> get _tasks => _repository.tasks.map(_TaskItem.new).toList();
   Set<String> _completedSteps(_TaskItem task) => task.data.steps
       .where((step) => step.completed)
@@ -101,7 +101,7 @@ class _TasksPageState extends ConsumerState<TasksPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(localRepositoryProvider);
+    ref.watch(repositoryProvider);
     final visible = _filtered;
     final groups = ['即将截止 / P0 紧急', '今日进行中', '本周待办列表'];
     return Scaffold(

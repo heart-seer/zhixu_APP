@@ -25,7 +25,7 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
   String _filter = '全部消息';
   String _source = '全部来源';
   bool _searching = false;
-  AppRepository get _repository => ref.read(localRepositoryProvider);
+  AppRepository get _repository => ref.read(repositoryProvider);
   List<_MessageItem> get _messages =>
       _repository.messages.map(_MessageItem.new).toList();
 
@@ -51,7 +51,7 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(localRepositoryProvider);
+    ref.watch(repositoryProvider);
     final messages = _visibleMessages;
     final pendingCount = _messages.where((item) => item.pending).length;
     final syncedCount = _messages.length - pendingCount;

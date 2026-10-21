@@ -9,7 +9,9 @@ class ApiException implements Exception {
 
   factory ApiException.fromDio(DioException error) {
     final data = error.response?.data;
-    final message = data is Map<String, dynamic> ? data['message']?.toString() : null;
+    final message = data is Map<String, dynamic>
+        ? (data['msg'] ?? data['message'])?.toString()
+        : null;
     return ApiException(
       message ?? error.message ?? '网络请求失败',
       statusCode: error.response?.statusCode,
