@@ -20,11 +20,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: RouteNames.splash, builder: (_, _) => const SplashPage()),
       GoRoute(path: RouteNames.auth, builder: (_, _) => const LoginPage()),
-      GoRoute(path: RouteNames.register, builder: (_, _) => const RegisterPage()),
+      GoRoute(
+        path: RouteNames.register,
+        builder: (_, _) => const RegisterPage(),
+      ),
       GoRoute(path: RouteNames.home, builder: (_, _) => const HomePage()),
       GoRoute(path: RouteNames.tasks, builder: (_, _) => const TasksPage()),
-      GoRoute(path: RouteNames.calendar, builder: (_, _) => const CalendarPage()),
-      GoRoute(path: RouteNames.messages, builder: (_, _) => const MessagesPage()),
+      GoRoute(
+        path: RouteNames.calendar,
+        builder: (_, state) => CalendarPage(
+          initialDate: DateTime.tryParse(
+            state.uri.queryParameters['date'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.messages,
+        builder: (_, _) => const MessagesPage(),
+      ),
       GoRoute(path: RouteNames.profile, builder: (_, _) => const ProfilePage()),
     ],
   );

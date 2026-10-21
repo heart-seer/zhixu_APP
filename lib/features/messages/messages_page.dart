@@ -1,77 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../shared/domain_models.dart';
+import '../shared/local_repository.dart';
+import '../shared/data_providers.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../app/router/route_names.dart';
 import '../../app/theme/app_colors.dart';
+import '../shared/app_card.dart';
 import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
-class MessagesPage extends StatefulWidget {
+class MessagesPage extends ConsumerStatefulWidget {
   const MessagesPage({super.key});
 
   @override
-  State<MessagesPage> createState() => _MessagesPageState();
+  ConsumerState<MessagesPage> createState() => _MessagesPageState();
 }
 
-class _MessagesPageState extends State<MessagesPage> {
+class _MessagesPageState extends ConsumerState<MessagesPage> {
   final _searchController = TextEditingController();
   String _filter = '全部消息';
   String _source = '全部来源';
   bool _searching = false;
-  final _messages = <_MessageItem>[
-    _MessageItem(
-      source: '学习通',
-      sender: '高数课代表通知',
-      time: '10分钟前',
-      title: '第五章课后习题',
-      preview: '各位同学，第五章课后习题请于 本周五晚22:00前 提交到系统，逾期无法补交！',
-      highlight: '本周五晚22:00前',
-      detail: '截止时间: 周五22:00  ·  优先级: P1紧急',
-      category: '分类: 学业作业',
-      footer: '提取置信度98%',
-      pending: true,
-      color: const Color(0xFFD71920),
-    ),
-    _MessageItem(
-      source: '企业微信',
-      sender: '李总监 (产品规划组)',
-      time: '35分钟前',
-      title: 'Q4智能硬件需求文档初稿',
-      preview: '@全员 请在 今天下午16:00前 将Q4智能硬件需求文档初稿同步给测试组。',
-      highlight: '今天下午16:00前',
-      detail: '截止时间: 今日16:00  ·  指派人: 李总监',
-      category: '涉及交付物: Q4需求文档初稿',
-      footer: '来源群聊：硬件战略协同中心',
-      pending: true,
-      color: const Color(0xFFA87500),
-    ),
-    _MessageItem(
-      source: '腾讯会议',
-      sender: '系统通知',
-      time: '',
-      title: '产品迭代对齐会',
-      preview: '您已成功预约并受邀参会：“10月24日19:30 产品迭代对齐会”，会议号: 839-204-112。',
-      highlight: '10月24日19:30 产品迭代对齐会',
-      detail: '日历项: 10月24日19:30–20:30 (会议前15分钟提醒)',
-      status: '已排入日历并设提醒',
-      secondaryAction: '查看日程',
-      kind: _MessageKind.calendar,
-      pending: false,
-      color: const Color(0xFF0754D6),
-    ),
-    _MessageItem(
-      source: '钉钉',
-      sender: '架构研发项目组',
-      time: '2小时前',
-      title: 'Q4-Service-Mesh-Refactor.pdf',
-      preview: '关于下周二技术架构评审会的议程与参考材料已共享至云盘《Q4-Service-Mesh-Refactor.pdf》，请参会导师及核心开发人员提前查阅。',
-      footer: '含1个云盘附件',
-      secondaryAction: '查看文件',
-      kind: _MessageKind.attachment,
-      pending: false,
-      color: const Color(0xFFCBD0DF),
-    ),
-  ];
+  AppRepository get _repository => ref.read(localRepositoryProvider);
+  List<_MessageItem> get _messages =>
+      _repository.messages.map(_MessageItem.new).toList();
 
   List<_MessageItem> get _visibleMessages => _messages.where((message) {
     final tabMatch =
@@ -95,6 +51,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localRepositoryProvider);
     final messages = _visibleMessages;
     final pendingCount = _messages.where((item) => item.pending).length;
     final syncedCount = _messages.length - pendingCount;
@@ -548,167 +505,156 @@ class _MessagesPageState extends State<MessagesPage> {
   Widget _messageCard(_MessageItem item) => InkWell(
     onTap: () => _showMessage(item),
     borderRadius: BorderRadius.circular(14),
-    child: Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE3E8F2)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x090B2C5F),
-            blurRadius: 9,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(width: 4, color: item.color),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(13, 13, 13, 11),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _sourcePill(item),
-                        const SizedBox(width: 7),
-                        Expanded(
-                          child: Text(
-                            item.sender,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        if (item.status != null)
-                          _StatusTag(
-                            label: item.status!,
-                            color: const Color(0xFF059669),
-                          )
-                        else
-                          Text(
-                            item.time,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    _highlightPreview(item),
-                    if (item.detail != null) ...[
-                      const SizedBox(height: 10),
-                      _infoBlock(item),
-                    ],
-                    if (item.kind != _MessageKind.calendar) ...[
-                      const SizedBox(height: 14),
-                      const Divider(height: 1, color: Color(0xFFF1F3F8)),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          if (item.source == '学习通' ||
-                              item.kind == _MessageKind.attachment) ...[
-                            Icon(
-                              item.kind == _MessageKind.attachment
-                                  ? Icons.attach_file
-                                  : Icons.insights,
-                              size: 13,
-                              color: item.kind == _MessageKind.attachment
-                                  ? AppColors.textSecondary
-                                  : const Color(0xFF7624E8),
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                          Expanded(
-                            child: Text(
-                              item.footer ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          if (item.pending)
-                            FilledButton.icon(
-                              onPressed: () => _extract(item),
-                              icon: const Icon(Icons.auto_awesome, size: 13),
-                              label: Text(
-                                item.source == '本地导入'
-                                    ? '确认同步'
-                                    : item.source == '企业微信'
-                                    ? 'AI 提取任务'
-                                    : 'AI 转为任务',
-                              ),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFF7624E8),
-                                foregroundColor: Colors.white,
-                                textStyle: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 7,
-                                ),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                              ),
-                            )
-                          else if (item.kind == _MessageKind.calendar)
-                            _StatusTag(
-                              label: item.read ? '已读 · 已同步' : '已同步',
-                              color: const Color(0xFF059669),
-                            )
-                          else if (item.secondaryAction != null)
-                            TextButton(
-                              onPressed: () => _showAttachment(item),
-                              style: TextButton.styleFrom(
-                                foregroundColor: const Color(0xFF4D84C4),
-                                backgroundColor: const Color(0xFFEAF4FF),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 7,
-                                ),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                textStyle: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              child: Text(item.secondaryAction!),
-                            )
-                          else
-                            _StatusTag(
-                              label: '已同步',
-                              color: const Color(0xFF059669),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
+    child: AppAccentCard(
+      accentColor: item.color,
+      borderColor: const Color(0xFFE3E8F2),
+      padding: const EdgeInsets.fromLTRB(13, 13, 13, 11),
+      intrinsicHeight: true,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x090B2C5F),
+          blurRadius: 9,
+          offset: Offset(0, 3),
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _sourcePill(item),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  item.sender,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
+              if (item.status != null)
+                _StatusTag(label: item.status!, color: const Color(0xFF059669))
+              else
+                Text(
+                  item.time,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _highlightPreview(item),
+          if (item.detail != null) ...[
+            const SizedBox(height: 10),
+            _infoBlock(item),
+          ],
+          if (item.kind != _MessageKind.calendar) ...[
+            const SizedBox(height: 14),
+            const Divider(height: 1, color: Color(0xFFF1F3F8)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (item.source == '学习通' ||
+                    item.kind == _MessageKind.attachment) ...[
+                  Icon(
+                    item.kind == _MessageKind.attachment
+                        ? Icons.attach_file
+                        : Icons.insights,
+                    size: 13,
+                    color: item.kind == _MessageKind.attachment
+                        ? AppColors.textSecondary
+                        : const Color(0xFF7624E8),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Expanded(
+                  child: Text(
+                    item.footer ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+                if (item.pending)
+                  FilledButton.icon(
+                    onPressed: () => _extract(item),
+                    icon: const Icon(Icons.auto_awesome, size: 13),
+                    label: Text(
+                      item.source == '本地导入'
+                          ? '确认同步'
+                          : item.source == '企业微信'
+                          ? 'AI 提取任务'
+                          : 'AI 转为任务',
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF7624E8),
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                    ),
+                  )
+                else if (item.secondaryAction != null)
+                  TextButton(
+                    onPressed: () {
+                      if (item.kind == MessageKind.calendar) {
+                        final id = item.data.linkedEventId;
+                        final event = id == null
+                            ? null
+                            : _repository.eventById(id);
+                        context.go(
+                          event == null
+                              ? RouteNames.calendar
+                              : '${RouteNames.calendar}?date=${Uri.encodeComponent(event.start.toIso8601String())}',
+                        );
+                      } else {
+                        _showAttachment(item);
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF4D84C4),
+                      backgroundColor: const Color(0xFFEAF4FF),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    child: Text(item.secondaryAction!),
+                  )
+                else
+                  _StatusTag(label: '已同步', color: const Color(0xFF059669)),
+              ],
             ),
           ],
-        ),
+        ],
       ),
     ),
   );
@@ -819,7 +765,15 @@ class _MessagesPageState extends State<MessagesPage> {
         if (item.kind == _MessageKind.calendar) ...[
           const SizedBox(width: 4),
           TextButton(
-            onPressed: () => context.go(RouteNames.calendar),
+            onPressed: () {
+              final id = item.data.linkedEventId;
+              final event = id == null ? null : _repository.eventById(id);
+              context.go(
+                event == null
+                    ? RouteNames.calendar
+                    : '${RouteNames.calendar}?date=${Uri.encodeComponent(event.start.toIso8601String())}',
+              );
+            },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF557ED3),
               minimumSize: Size.zero,
@@ -938,17 +892,16 @@ class _MessagesPageState extends State<MessagesPage> {
                       _filter = '全部消息';
                       _source = '全部来源';
                       _searchController.clear();
-                      _messages.insert(
-                        0,
-                        _MessageItem(
+                      _repository.addMessage(
+                        Message(
+                          id: _repository.newId('message'),
                           source: '本地导入',
                           sender: '对话文本',
-                          time: '刚刚',
+                          receivedAt: DateTime.now(),
                           title: '待确认对话',
                           preview: text,
+                          kind: MessageKind.task,
                           footer: '本地导入 · 未进行AI解析',
-                          pending: true,
-                          color: const Color(0xFF7624E8),
                         ),
                       );
                     });
@@ -967,7 +920,7 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   void _showMessage(_MessageItem item) {
-    setState(() => item.read = true);
+    _repository.markMessageRead(item.data.id);
     pushAppPage<void>(
       context: context,
       title: '消息详情',
@@ -1013,53 +966,45 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   void _extract(_MessageItem item) {
-    if (!item.pending) return;
-    setState(() => item.pending = false);
+    if (!item.pending || item.kind != MessageKind.task) return;
+    _repository.confirmMessageExtraction(item.data.id);
   }
 
   void _extractAll() {
-    setState(() {
-      for (final item in _messages) {
-        item.pending = false;
-      }
-    });
+    _repository.confirmAllMessages();
   }
 }
 
-enum _MessageKind { task, calendar, attachment }
+typedef _MessageKind = MessageKind;
 
 class _MessageItem {
-  _MessageItem({
-    required this.source,
-    required this.sender,
-    required this.time,
-    required this.title,
-    required this.preview,
-    required this.pending,
-    required this.color,
-    this.kind = _MessageKind.task,
-    this.highlight,
-    this.detail,
-    this.category,
-    this.footer,
-    this.status,
-    this.secondaryAction,
-  });
-  final _MessageKind kind;
-  final String? highlight;
-  final String? detail;
-  final String? category;
-  final String? footer;
-  final String? status;
-  final String? secondaryAction;
-  final String source;
-  final String sender;
-  final String time;
-  final String title;
-  final String preview;
-  bool pending;
-  bool read = false;
-  final Color color;
+  _MessageItem(this.data);
+  final Message data;
+  MessageKind get kind => data.kind;
+  String? get highlight => data.highlight;
+  String? get detail => data.detail;
+  String? get category => data.category;
+  String? get footer => data.footer;
+  String? get status => data.pending ? null : '已确认（本地）';
+  String? get secondaryAction => kind == MessageKind.calendar
+      ? '查看日程'
+      : kind == MessageKind.attachment
+      ? '查看文件'
+      : null;
+  String get source => data.source;
+  String get sender => data.sender;
+  String get time =>
+      '${data.receivedAt.hour.toString().padLeft(2, '0')}:${data.receivedAt.minute.toString().padLeft(2, '0')}';
+  String get title => data.title;
+  String get preview => data.preview;
+  bool get pending => data.pending;
+  bool get read => data.read;
+  Color get color => switch (source) {
+    '学习通' => const Color(0xFFD71920),
+    '企业微信' => const Color(0xFFA87500),
+    '腾讯会议' => const Color(0xFF0754D6),
+    _ => const Color(0xFF7624E8),
+  };
 }
 
 class _StatusTag extends StatelessWidget {

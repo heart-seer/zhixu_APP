@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../shared/domain_models.dart';
+import '../shared/local_repository.dart';
+import '../shared/data_providers.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../shared/app_card.dart';
 import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _completed = 6;
-  int _total = 9;
+class _HomePageState extends ConsumerState<HomePage> {
+  AppRepository get _repository => ref.read(localRepositoryProvider);
+  int get _completed => _repository.completedTaskCount;
+  int get _total => _repository.tasks.length;
+  Task? get _focusTask {
+    final tasks = _repository.tasks.where(
+      (task) => task.priority == TaskPriority.p0,
+    );
+    for (final task in tasks) {
+      if (!task.completed) return task;
+    }
+    return tasks.isEmpty ? null : tasks.first;
+  }
+
   bool _fabOpen = false;
-  bool _p0Completed = false;
-  bool _scheduled = false;
+  bool get _p0Completed => _focusTask?.completed ?? false;
+  bool get _scheduled => _repository.tasks.any((task) => task.scheduled);
   bool _notificationsRead = false;
   bool _cameraParsed = false;
-  bool _subtaskDone = false;
-  final Set<String> _completedDeadlines = {};
-  final Map<String, int> _deadlineDelays = {};
   String _workStatus = '深度专注中';
   final _voiceController = TextEditingController(text: '明早9点和王老师讨论毕业论文初稿');
   final _pasteController = TextEditingController(
@@ -223,7 +237,7 @@ class _HomePageState extends State<HomePage> {
                     );
                     return;
                   }
-                  setState(() => _total++);
+                  _addTask('《操作系统》第五章进程调度算法习题');
                   Navigator.pop(context);
                 }, primary: true),
               ),
@@ -272,7 +286,15 @@ class _HomePageState extends State<HomePage> {
           ),
           _InfoBox('待办：$_parsedTitle\n时间：明日 09:00 - 10:00 · 地点：导师办公室'),
           _button('确认加入日程', () {
-            setState(() => _total++);
+            final title = _voiceController.text.trim();
+            if (title.isEmpty) return;
+            final task = _addTask(title);
+            final now = DateTime.now();
+            _repository.scheduleTask(
+              taskId: task.id,
+              start: DateTime(now.year, now.month, now.day + 1, 9),
+              duration: const Duration(hours: 1),
+            );
             Navigator.pop(context);
           }, primary: true),
         ],
@@ -292,136 +314,119 @@ class _HomePageState extends State<HomePage> {
         ),
         const _InfoBox('已提取待办：Q3季度OKR自评填报（周四17:00前）；线上总结复盘会（周五10:00）'),
         _button('导入全部待办', () {
-          setState(() => _total += 2);
+          final text = _pasteController.text.trim();
+          if (text.isEmpty) return;
+          _addTask(text);
           Navigator.pop(context);
         }, primary: true),
       ],
     ),
   );
 
-  void _showP0() => _sheet(
-    'P0 期中测验专注工作台',
-    StatefulBuilder(
-      builder: (context, refresh) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const _InfoBox('距离模拟交卷截止还有\n01 : 48 : 22'),
-          const CheckboxListTile(
-            value: true,
-            onChanged: null,
-            title: Text('TCP三次握手与四次挥手状态转移图'),
-          ),
-          const CheckboxListTile(
-            value: true,
-            onChanged: null,
-            title: Text('CIDR 子网掩码切分与超网计算题'),
-          ),
-          CheckboxListTile(
-            value: _subtaskDone,
-            onChanged: (value) {
-              if (!mounted) return;
-              setState(() => _subtaskDone = value ?? false);
+  void _showP0() {
+    final task = _focusTask;
+    if (task == null) return;
+    _sheet(
+      task.title,
+      StatefulBuilder(
+        builder: (context, refresh) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _InfoBox(_deadlineStatus(task.id, '待安排')),
+            Text(task.description),
+            for (final step in task.steps)
+              CheckboxListTile(
+                value: step.completed,
+                onChanged: (value) {
+                  _repository.setStepCompleted(
+                    task.id,
+                    step.id,
+                    value ?? false,
+                  );
+                  refresh(() {});
+                },
+                title: Text(step.title),
+              ),
+            _button(task.completed ? '恢复待办' : '标记完成', () {
+              _repository.toggleTask(task.id);
               refresh(() {});
-            },
-            title: const Text('OSPF 与 BGP 路由选择算法对比分析'),
-          ),
-          _button('进入答题', () {
-            _showDetail(
-              '计算机网络复习内容',
-              'TCP三次握手与四次挥手状态转移图\nCIDR 子网掩码切分与超网计算题\nOSPF 与 BGP 路由选择算法对比分析\n\n当前仅有本地复习清单，尚未接入学术通题库或答题、自动交卷服务。',
-            );
-          }, primary: true),
-          _button('直接标记完成', () {
-            _toggleP0();
-            Navigator.pop(context);
-          }),
-        ],
+            }),
+          ],
+        ),
       ),
-    ),
-    asPage: true,
-  );
+      asPage: true,
+    );
+  }
 
   void _toggleP0() {
     if (!mounted) return;
-    setState(() {
-      _p0Completed = !_p0Completed;
-      _completed += _p0Completed ? 1 : -1;
-    });
+    final task = _focusTask;
+    if (task != null) _repository.toggleTask(task.id);
   }
 
-  String _deadlineStatus(String title, String time) {
-    if (_completedDeadlines.contains(title)) return '已完成';
-    final delay = _deadlineDelays[title] ?? 0;
-    return delay == 0 ? time : '$time · 本地顺延 $delay 小时';
+  Task _addTask(String title) {
+    final task = Task(
+      id: _repository.newId('task'),
+      title: title,
+      platform: '个人自主',
+      group: '本周待办列表',
+      priority: TaskPriority.normal,
+      estimate: const Duration(hours: 1),
+    );
+    _repository.addTask(task);
+    return task;
+  }
+
+  String _deadlineStatus(String id, String fallback) {
+    final task = _repository.taskById(id);
+    if (task == null) return fallback;
+    if (task.completed) return '已完成';
+    final due = task.dueAt;
+    return due == null
+        ? '待安排'
+        : '${due.month}月${due.day}日 ${due.hour.toString().padLeft(2, '0')}:${due.minute.toString().padLeft(2, '0')} 截止';
   }
 
   void _showAllDeadlines() => _sheet(
     '全部近期动态',
     StatefulBuilder(
       builder: (context, refresh) {
-        Future<void> open(
-          String title,
-          String tag,
-          String time,
-          String description,
-        ) async {
-          await _openQuick(title, tag, time, description);
-          if (!mounted || !context.mounted) return;
-          refresh(() {});
-        }
-
         return Column(
-          children: [
-            ListTile(
-              title: const Text('项目周报初稿确认'),
-              subtitle: Text(
-                '企微待办 · ${_deadlineStatus('项目周报初稿确认', '17:00 截止')}\n包含Q3效能指标与下周排期',
-              ),
-              onTap: () =>
-                  open('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期'),
-            ),
-            ListTile(
-              title: const Text('产品需求第3轮评审会'),
-              subtitle: Text(
-                '腾讯会议 · ${_deadlineStatus('产品需求第3轮评审会', '19:30 开始')}\n线上会议号：829-381-902 · 45分钟',
-              ),
-              onTap: () =>
-                  open('产品需求第3轮评审会', '腾讯会议', '19:30 开始', '线上会议号：829-381-902'),
-            ),
-            ListTile(
-              title: const Text('实验室设备领用申报表'),
-              subtitle: Text(
-                '钉钉群 · ${_deadlineStatus('实验室设备领用申报表', '明日 09:00')}\n指导教师已签署，待上报',
-              ),
-              onTap: () => open('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报'),
-            ),
-          ],
+          children: _repository.tasks
+              .map(
+                (task) => ListTile(
+                  title: Text(task.title),
+                  subtitle: Text(
+                    '${task.platform} · ${_deadlineStatus(task.id, '待安排')}',
+                  ),
+                  onTap: () async {
+                    await _openQuick(task);
+                    if (context.mounted) refresh(() {});
+                  },
+                ),
+              )
+              .toList(),
         );
       },
     ),
     asPage: true,
   );
 
-  Future<void> _openQuick(
-    String title,
-    String tag,
-    String time,
-    String description,
-  ) => _sheet(
-    title,
+  Future<void> _openQuick(Task task) => _sheet(
+    task.title,
     StatefulBuilder(
       builder: (context, refresh) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '$tag · ${_deadlineStatus(title, time)}',
+            '${task.platform} · ${_deadlineStatus(task.id, '待安排')}',
             style: const TextStyle(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
-          Text(description),
+          Text(task.description),
           const SizedBox(height: 12),
           Wrap(
             spacing: 6,
@@ -430,10 +435,7 @@ class _HomePageState extends State<HomePage> {
                 label: const Text('推迟 1 小时'),
                 onPressed: () {
                   if (!mounted) return;
-                  setState(
-                    () => _deadlineDelays[title] =
-                        (_deadlineDelays[title] ?? 0) + 1,
-                  );
+                  _repository.delayTask(task.id, const Duration(hours: 1));
                   refresh(() {});
                 },
               ),
@@ -441,21 +443,16 @@ class _HomePageState extends State<HomePage> {
                 label: const Text('查看来源 App'),
                 onPressed: () {
                   _showDetail(
-                    '$tag 来源信息',
-                    '$title\n$time\n$description\n\n当前仅展示本地内容，尚未接入 $tag，未打开外部 App，也不会同步本地状态。',
+                    '${task.platform} 来源信息',
+                    '${task.title}\n${task.description}\n\n当前仅展示本地内容，未连接来源 App。',
                   );
                 },
               ),
               ActionChip(
-                label: Text(
-                  _completedDeadlines.contains(title) ? '已完成' : '标记已完成',
-                ),
+                label: Text(task.completed ? '已完成' : '标记已完成'),
                 onPressed: () {
-                  if (!mounted || _completedDeadlines.contains(title)) return;
-                  setState(() {
-                    _completedDeadlines.add(title);
-                    _completed++;
-                  });
+                  if (!mounted || task.completed) return;
+                  _repository.toggleTask(task.id);
                   refresh(() {});
                 },
               ),
@@ -468,15 +465,28 @@ class _HomePageState extends State<HomePage> {
   );
 
   void _autoSchedule() {
-    setState(() => _scheduled = true);
+    final now = DateTime.now();
+    var start = DateTime(now.year, now.month, now.day + 1, 9);
+    for (final task in _repository.tasks.where(
+      (task) => !task.completed && !task.scheduled,
+    )) {
+      final duration = task.estimate ?? const Duration(hours: 1);
+      _repository.scheduleTask(
+        taskId: task.id,
+        start: start,
+        duration: duration,
+      );
+      start = start.add(duration);
+    }
     _showDetail(
       '本地排程建议',
-      '15:30 空档期：企业微信两项待办\n晚自习：微积分复习\n\n已选用本地示例排程。尚未接入 AI 或外部日历，未计算最优时段，也未同步到来源 App。',
+      '未完成且未排程的任务已按预估时长依次安排到明日 09:00 起，可在日历查看。\n\n这是本地顺序排程，未计算冲突或最优时段，未接入 AI 或外部日历。',
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localRepositoryProvider);
     final percent = _percent;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
@@ -895,7 +905,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 7),
                         const Text(
-                          '专注时长 3.8h',
+                          '专注时长暂无记录',
                           style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFF434655),
@@ -996,7 +1006,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                _scheduled ? '已选本地排程' : '2 条新感知',
+                '${_repository.pendingMessageCount} 条待确认消息',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
@@ -1009,14 +1019,19 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 10),
         _Insight(
           icon: Icons.forum_outlined,
-          text: '检测到企业微信有 2 条新待办，建议自动排入 15:30 空档期。',
-          onTap: () => _showDetail('企业微信待办', '建议将检测到的两项任务自动放入 15:30 空档期。'),
+          text: '共享待办中还有 ${_total - _completed} 项未完成，可按预估时长进行本地排程。',
+          onTap: _showAllDeadlines,
         ),
         const SizedBox(height: 6),
         _Insight(
           icon: Icons.notifications_active_outlined,
-          text: '学习通作业「微积分复习」明晚 23:59 截止，已提前留出晚自习预警。',
-          onTap: () => _showDetail('学习通作业', '学习通作业「微积分复习」明晚 23:59 截止。'),
+          text: '今日共有 ${_todayEvents.length} 项本地日程，任务排程后会同步出现在日历。',
+          onTap: () => _showDetail(
+            '今日日程',
+            _todayEvents
+                .map((event) => '${_time(event.start)} ${event.title}')
+                .join('\n'),
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -1055,7 +1070,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
-                '算法就绪 · 习惯模型 v4.2',
+                '本地顺序排程 · 非 AI',
                 textAlign: TextAlign.right,
                 style: TextStyle(color: Color(0xFFCFD5FF), fontSize: 9),
               ),
@@ -1068,200 +1083,206 @@ class _HomePageState extends State<HomePage> {
 
   void _showDetail(String title, String body) => _sheet(title, _InfoBox(body));
 
-  Widget _p0Card() => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          const _AlarmDot(),
-          const SizedBox(width: 7),
-          const Expanded(
-            child: Text(
-              '紧急聚焦 · P0 任务',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const Text(
-            '剩余约 2 小时',
-            style: TextStyle(color: Color(0xFFBA1A1A), fontSize: 11),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFF0C8C8)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0A0B1C30),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(13),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _p0Card() => _focusTask == null
+      ? const _InfoBox('暂无 P0 任务')
+      : Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Container(
-                  width: 4,
-                  color: _p0Completed
-                      ? const Color(0xFFC3C6D7)
-                      : const Color(0xFFBA1A1A),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 10, 7),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFDE1DF),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'P0 紧急',
-                                style: TextStyle(
-                                  color: Color(0xFFB42323),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF0F1F5),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                '学习通',
-                                style: TextStyle(
-                                  color: Color(0xFF455A83),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              width: 34,
-                              height: 34,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFBE9E9),
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: _toggleP0,
-                                icon: const Icon(
-                                  Icons.flag_outlined,
-                                  size: 20,
-                                  color: Color(0xFFBA1A1A),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '计算机网络期中复习测验',
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.2,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF101B2C),
-                            decoration: _p0Completed
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          '重点回顾 TCP/IP 握手机制、子网掩码划分与路由选择算法。需在 11:30 前完成模拟提交。',
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.35,
-                            color: Color(0xFF747985),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Divider(height: 1, color: Color(0xFFE9EAEE)),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.alarm_outlined,
-                              color: Color(0xFFCF3434),
-                              size: 21,
-                            ),
-                            const SizedBox(width: 7),
-                            const Expanded(
-                              child: Text(
-                                '11:30 截止 · 自动交卷机制',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF777B86),
-                                ),
-                              ),
-                            ),
-                            FilledButton.icon(
-                              onPressed: _showP0,
-                              icon: const Icon(
-                                Icons.play_arrow_rounded,
-                                size: 20,
-                              ),
-                              label: const Text(
-                                '开始微聚焦',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFFBF1717),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 9,
-                                  vertical: 7,
-                                ),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                elevation: 0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                const _AlarmDot(),
+                const SizedBox(width: 7),
+                const Expanded(
+                  child: Text(
+                    '紧急聚焦 · P0 任务',
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
+                ),
+                Text(
+                  _deadlineStatus(_focusTask!.id, '待安排'),
+                  style: TextStyle(color: Color(0xFFBA1A1A), fontSize: 11),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    ],
-  );
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFF0C8C8)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0A0B1C30),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(13),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 4,
+                        color: _p0Completed
+                            ? const Color(0xFFC3C6D7)
+                            : const Color(0xFFBA1A1A),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 10, 7),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFDE1DF),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      'P0 紧急',
+                                      style: TextStyle(
+                                        color: Color(0xFFB42323),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF0F1F5),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      _focusTask!.platform,
+                                      style: TextStyle(
+                                        color: Color(0xFF455A83),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Container(
+                                    width: 34,
+                                    height: 34,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFBE9E9),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      onPressed: _toggleP0,
+                                      icon: const Icon(
+                                        Icons.flag_outlined,
+                                        size: 20,
+                                        color: Color(0xFFBA1A1A),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _focusTask!.title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF101B2C),
+                                  decoration: _p0Completed
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _focusTask!.description,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.35,
+                                  color: Color(0xFF747985),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Divider(
+                                height: 1,
+                                color: Color(0xFFE9EAEE),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.alarm_outlined,
+                                    color: Color(0xFFCF3434),
+                                    size: 21,
+                                  ),
+                                  const SizedBox(width: 7),
+                                  Expanded(
+                                    child: Text(
+                                      _deadlineStatus(_focusTask!.id, '待安排'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF777B86),
+                                      ),
+                                    ),
+                                  ),
+                                  FilledButton.icon(
+                                    onPressed: _showP0,
+                                    icon: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      size: 20,
+                                    ),
+                                    label: const Text(
+                                      '开始微聚焦',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: const Color(0xFFBF1717),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 9,
+                                        vertical: 7,
+                                      ),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(7),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
 
   Widget _deadlines() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1294,44 +1315,31 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           scrollDirection: Axis.horizontal,
           children: [
-            _DeadlineCard(
-              title: '项目周报初稿确认',
-              tag: '企微待办',
-              time: '17:00 截止',
-              description: '包含Q3效能指标与下周排期',
-              onTap: () =>
-                  _openQuick('项目周报初稿确认', '企微待办', '17:00 截止', '包含Q3效能指标与下周排期'),
-            ),
-            _DeadlineCard(
-              title: '产品需求第3轮评审会',
-              tag: '腾讯会议',
-              time: '19:30 开始',
-              description: '线上会议号：829-381-902',
-              onTap: () => _openQuick(
-                '产品需求第3轮评审会',
-                '腾讯会议',
-                '19:30 开始',
-                '线上会议号：829-381-902',
+            for (final task in _upcomingTasks.take(3))
+              _DeadlineCard(
+                title: task.title,
+                tag: task.platform,
+                time: _deadlineStatus(task.id, '待安排'),
+                description: task.description,
+                onTap: () => _openQuick(task),
               ),
-              secondary: '入会',
-              onSecondary: () => _showDetail(
-                '腾讯会议入会信息',
-                '产品需求第3轮评审会\n19:30 开始 · 45分钟\n会议号：829-381-902\n\n尚未接入腾讯会议 App，未发起入会。请自行在腾讯会议中输入会议号。',
-              ),
-            ),
-            _DeadlineCard(
-              title: '实验室设备领用申报表',
-              tag: '钉钉群',
-              time: '明日 09:00',
-              description: '指导教师已签署，待上报',
-              onTap: () =>
-                  _openQuick('实验室设备领用申报表', '钉钉群', '明日 09:00', '指导教师已签署，待上报'),
-            ),
+            if (_upcomingTasks.isEmpty) const Center(child: Text('暂无待办任务')),
           ],
         ),
       ),
     ],
   );
+
+  List<Task> get _upcomingTasks =>
+      _repository.tasks.where((task) => !task.completed).toList()..sort((a, b) {
+        if (a.dueAt == null) return b.dueAt == null ? 0 : 1;
+        if (b.dueAt == null) return -1;
+        return a.dueAt!.compareTo(b.dueAt!);
+      });
+
+  List<CalendarEvent> get _todayEvents => _repository.eventsOn(DateTime.now());
+  String _time(DateTime value) =>
+      '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
 
   Widget _timeline() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1355,36 +1363,17 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
         child: Column(
           children: [
-            _TimelineItem(
-              time: '上午 10:00',
-              status: '已完成',
-              title: '敏捷研发团队每日站会',
-              description: '已同步今日卡点与测试包分发',
-              done: true,
-              isFirst: true,
-            ),
-            _TimelineItem(
-              time: '下午 14:00',
-              status: '进行中',
-              title: '撰写算法实验报告 · 机器学习模型',
-              description: '包含准确率混淆矩阵分析与超参数调优记录',
-              active: true,
-              onFocus: () => _showDetail(
-                '算法实验报告专注计划',
-                '当前任务：撰写算法实验报告 · 机器学习模型\n建议专注 25 分钟，先整理准确率混淆矩阵，再记录超参数调优结果。\n\n当前未接入专注计时器，本面板不会启动倒计时。',
+            for (final entry in _todayEvents.asMap().entries)
+              _TimelineItem(
+                time: '${_time(entry.value.start)}–${_time(entry.value.end)}',
+                status: entry.value.completed ? '已完成' : '待处理',
+                title: entry.value.title,
+                description: entry.value.subtitle,
+                done: entry.value.completed,
+                isFirst: entry.key == 0,
+                isLast: entry.key == _todayEvents.length - 1,
               ),
-              onMaterials: () => _showDetail(
-                '算法实验报告资料',
-                '本地任务说明：包含准确率混淆矩阵分析与超参数调优记录。\n\n当前没有关联文档或代码 Notebook 文件，尚未接入外部资料服务。',
-              ),
-            ),
-            _TimelineItem(
-              time: '下午 16:30',
-              status: '待处理',
-              title: '钉钉群内资料核对与归档',
-              description: '协同财务部门核对报销单据及票据',
-              isLast: true,
-            ),
+            if (_todayEvents.isEmpty) const Text('今日暂无日程'),
           ],
         ),
       ),
@@ -1454,7 +1443,7 @@ class _EfficiencyTip extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const TextSpan(text: '，建议优先处理「微积分作业」。'),
+          const TextSpan(text: '，建议优先处理高优先级任务。'),
         ],
       ),
       maxLines: 3,
@@ -1657,10 +1646,12 @@ class _DeadlineCard extends StatelessWidget {
     child: Container(
       width: (MediaQuery.sizeOf(context).width * .62).clamp(190.0, 250.0),
       margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE3E7F0)),
+      child: AppAccentCard(
+        accentColor: tag == '企微待办'
+            ? const Color(0xFFA66B00)
+            : AppColors.primary,
+        padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+        borderColor: const Color(0xFFE3E7F0),
         boxShadow: const [
           BoxShadow(
             color: Color(0x080B1C30),
@@ -1668,137 +1659,113 @@ class _DeadlineCard extends StatelessWidget {
             offset: Offset(0, 2),
           ),
         ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 4,
-              color: tag == '企微待办'
-                  ? const Color(0xFFA66B00)
-                  : AppColors.primary,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: tag == '企微待办'
-                                ? const Color(0xFFFFE9C5)
-                                : const Color(0xFFE0E7FF),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            tag == '企微待办' ? '企微待办' : tag,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: tag == '企微待办'
-                                  ? const Color(0xFF825500)
-                                  : AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        const SizedBox(width: 6),
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF8A6A2C),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: tag == '企微待办'
+                        ? const Color(0xFFFFE9C5)
+                        : const Color(0xFFE0E7FF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    tag == '企微待办' ? '企微待办' : tag,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: tag == '企微待办'
+                          ? const Color(0xFF825500)
+                          : AppColors.primary,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B293B),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF737686),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: secondary == null
-                              ? const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.person_outline,
-                                      size: 16,
-                                      color: Color(0xFF8A8D99),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      '协同: 王工',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF8A8D99),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Icon(
-                                      Icons.videocam_outlined,
-                                      size: 15,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '45分钟',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF8A8D99),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                        if (secondary == null)
-                          const Icon(
-                            Icons.radio_button_unchecked,
-                            size: 18,
-                            color: AppColors.primary,
-                          )
-                        else
-                          TextButton(
-                            onPressed: onSecondary,
-                            child: Text(secondary!),
-                          ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
+                const Spacer(),
+                const SizedBox(width: 6),
+                Text(
+                  time,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF8A6A2C),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1B293B),
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              description,
+              style: const TextStyle(fontSize: 11, color: Color(0xFF737686)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: secondary == null
+                      ? const Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline,
+                              size: 16,
+                              color: Color(0xFF8A8D99),
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              '协同: 王工',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF8A8D99),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Icon(
+                              Icons.videocam_outlined,
+                              size: 15,
+                              color: Colors.grey.shade500,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '45分钟',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF8A8D99),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                if (secondary == null)
+                  const Icon(
+                    Icons.radio_button_unchecked,
+                    size: 18,
+                    color: AppColors.primary,
+                  )
+                else
+                  TextButton(onPressed: onSecondary, child: Text(secondary!)),
+              ],
             ),
           ],
         ),

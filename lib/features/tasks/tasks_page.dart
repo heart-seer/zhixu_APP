@@ -1,112 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../shared/domain_models.dart';
+import '../shared/local_repository.dart';
+import '../shared/data_providers.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../shared/app_card.dart';
 import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
 class _TaskItem {
-  _TaskItem({
-    required this.title,
-    required this.platform,
-    required this.group,
-    required this.due,
-    required this.priority,
-    this.estimate,
-    this.description = '',
-    this.completed = false,
-    this.aiCandidate = false,
-    this.steps = const [],
-  });
-  final String title;
-  final String platform;
-  final String group;
-  final String due;
-  final String priority;
-  final String? estimate;
-  final String description;
-  final List<String> steps;
-  bool completed;
-  final bool aiCandidate;
-  bool scheduled = false;
+  _TaskItem(this.data);
+
+  final Task data;
+  String get title => data.title;
+  String get platform => data.platform;
+  String get group => data.group;
+  String get due => data.dueAt == null
+      ? (scheduled ? '已排入本地日历' : '待安排')
+      : '${data.dueAt!.month}月${data.dueAt!.day}日 ${data.dueAt!.hour.toString().padLeft(2, '0')}:${data.dueAt!.minute.toString().padLeft(2, '0')} 截止';
+  String get priority => switch (data.priority) {
+    TaskPriority.p0 => '高优先级 P0',
+    TaskPriority.p1 => 'P1 紧急',
+    TaskPriority.p2 => 'P2',
+    TaskPriority.normal => '普通',
+  };
+  String? get estimate =>
+      data.estimate == null ? null : '预估 ${data.estimate!.inMinutes} 分钟';
+  String get description => data.description;
+  List<String> get steps => data.steps.map((step) => step.title).toList();
+  bool get completed => data.completed;
+  bool get aiCandidate => data.aiCandidate;
+  bool get scheduled => data.scheduled;
 }
 
-class TasksPage extends StatefulWidget {
+class TasksPage extends ConsumerStatefulWidget {
   const TasksPage({super.key});
 
   @override
-  State<TasksPage> createState() => _TasksPageState();
+  ConsumerState<TasksPage> createState() => _TasksPageState();
 }
 
-class _TasksPageState extends State<TasksPage> {
+class _TasksPageState extends ConsumerState<TasksPage> {
   final _searchController = TextEditingController();
-  final _tasks = <_TaskItem>[
-    _TaskItem(
-      title: '完成数据结构实验报告',
-      platform: '学习通',
-      group: '即将截止 / P0 紧急',
-      due: '周五 22:00 截止 · 剩余 2天',
-      priority: '高优先级 P0',
-      estimate: '预估 3小时',
-      steps: [
-        '红黑树插入与平衡旋转算法实现代码整理',
-        '绘制算法性能对比折线图 (Gnuplot / Excel)',
-        '撰写实验结论与空间复杂度差异分析',
-        '导出 PDF 格式并提交至学习通系统',
-      ],
-    ),
-    _TaskItem(
-      title: '提交敏捷研发组 Q3 阶段总结周报',
-      platform: '企业微信',
-      group: '即将截止 / P0 紧急',
-      due: '明天 18:00 截止 · 剩余 20小时',
-      priority: 'P0 紧急',
-      estimate: '预估 45分',
-    ),
-    _TaskItem(
-      title: '分布式高并发系统架构拓扑图绘制',
-      platform: '个人自主',
-      group: '今日进行中',
-      due: '今日日程已占用：15:00 - 16:30',
-      priority: '进行中 · 耗时 1.5h',
-      description: '已完成网关与鉴权模块，待补全 Redis 缓存集群同步流向。',
-    ),
-    _TaskItem(
-      title: '计算机体系结构期中重点知识点复习',
-      platform: '学习通',
-      group: '今日进行中',
-      due: '进度 2/5 核心卡片',
-      priority: '第 4 章节流水线冲突',
-      aiCandidate: true,
-    ),
-    _TaskItem(
-      title: '研究生组会文献 PPT 预讲',
-      platform: '钉钉',
-      group: '本周待办列表',
-      due: '周日 19:00 · 预计 2.0h',
-      priority: '普通',
-    ),
-    _TaskItem(
-      title: '发送导师周报抄送知悉',
-      platform: '企业微信',
-      group: '本周待办列表',
-      due: '已于今日 11:20 提早完成',
-      priority: '已完成',
-      completed: true,
-    ),
-  ];
-  final Map<_TaskItem, Set<String>> _doneSteps = {};
+  AppRepository get _repository => ref.read(localRepositoryProvider);
+  List<_TaskItem> get _tasks => _repository.tasks.map(_TaskItem.new).toList();
+  Set<String> _completedSteps(_TaskItem task) => task.data.steps
+      .where((step) => step.completed)
+      .map((step) => step.id)
+      .toSet();
 
-  String _previewTitle(_TaskItem task) => task.steps.isNotEmpty
-      ? '数据结构实验报告 · 预留周四 19:30–22:30'
-      : task.platform == '企业微信'
-      ? '企微 Q3 复盘周报初稿 · 明早 09:00'
-      : '${task.title} · 明早 09:00';
+  String _previewTitle(_TaskItem task) => task.title;
 
-  String _previewDuration(_TaskItem task) => task.steps.isNotEmpty
-      ? '3.0h'
-      : task.platform == '企业微信'
-      ? '1.5h'
-      : task.estimate ?? '1.5h';
+  String _previewDuration(_TaskItem task) => task.estimate ?? '预估 60 分钟';
   String _filter = '全部';
   bool _searchOpen = false;
   bool _gridView = false;
@@ -121,12 +68,7 @@ class _TasksPageState extends State<TasksPage> {
       )
       .toList();
 
-  void _toggleCompleted(_TaskItem task) => setState(() {
-    task.completed = !task.completed;
-    if (task.steps.isNotEmpty) {
-      _doneSteps[task] = task.completed ? task.steps.toSet() : <String>{};
-    }
-  });
+  void _toggleCompleted(_TaskItem task) => _repository.toggleTask(task.data.id);
   String _createPlatform = '学习通';
   int _createPriority = 0;
   int _createEstimate = 1;
@@ -159,6 +101,7 @@ class _TasksPageState extends State<TasksPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localRepositoryProvider);
     final visible = _filtered;
     final groups = ['即将截止 / P0 紧急', '今日进行中', '本周待办列表'];
     return Scaffold(
@@ -768,18 +711,23 @@ class _TasksPageState extends State<TasksPage> {
         : task.group == '今日进行中'
         ? AppColors.primary
         : AppColors.textSecondary;
-    final doneSteps = _doneSteps[task] ?? const <String>{};
-    final stepDone = task.steps.where(doneSteps.contains).length;
     return InkWell(
       onTap: () =>
           task.steps.isNotEmpty ? _showSteps(task) : _showSchedule(task),
       borderRadius: BorderRadius.circular(18),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 1),
-        decoration: BoxDecoration(
-          color: task.completed ? const Color(0xFFF9FAFD) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 1),
+        child: AppAccentCard(
+          accentColor: color,
+          accentWidth: 6,
+          backgroundColor: task.completed
+              ? const Color(0xFFF9FAFD)
+              : Colors.white,
+          borderColor: AppColors.border,
+          borderRadius: 18,
+          clipRadius: 17,
+          intrinsicHeight: true,
+          padding: const EdgeInsets.fromLTRB(18, 16, 16, 8),
           boxShadow: const [
             BoxShadow(
               color: Color(0x08000000),
@@ -787,428 +735,349 @@ class _TasksPageState extends State<TasksPage> {
               offset: Offset(0, 2),
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(17),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Container(width: 6, color: color),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 16, 16, 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  _taskTag(
-                                    task.platform == '个人自主'
-                                        ? '个人设计'
-                                        : task.platform,
-                                    _platformColor(task.platform),
-                                    icon: task.platform == '学习通'
-                                        ? Icons.school_outlined
-                                        : task.platform == '企业微信'
-                                        ? Icons.chat_outlined
-                                        : null,
-                                    textColor: task.platform == '企业微信'
-                                        ? const Color(0xFF4B168C)
-                                        : null,
-                                  ),
-                                  _taskTag(
-                                    task.priority,
-                                    task.priority.contains('P0')
-                                        ? const Color(0xFFFFDAD6)
-                                        : const Color(0xFFE5EEFF),
-                                    textColor: task.priority.contains('P0')
-                                        ? const Color(0xFFB42318)
-                                        : null,
-                                  ),
-                                  if (task.estimate != null)
-                                    _taskTag(
-                                      task.estimate!,
-                                      task.steps.isNotEmpty
-                                          ? const Color(0xFFFFDBAF)
-                                          : const Color(0xFFE5EEFF),
-                                      textColor: task.steps.isNotEmpty
-                                          ? const Color(0xFF713D0C)
-                                          : const Color(0xFF344B70),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Semantics(
-                              label: '${task.title}完成状态',
-                              checked: task.completed,
-                              child: InkWell(
-                                onTap: () => _toggleCompleted(task),
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: task.completed
-                                        ? const Color(0xFF712AE2)
-                                        : Colors.white,
-                                    border: Border.all(
-                                      color: task.completed
-                                          ? const Color(0xFF712AE2)
-                                          : const Color(0xFFDDE1EB),
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(7),
-                                  ),
-                                  child: task.completed
-                                      ? const Icon(
-                                          Icons.check,
-                                          size: 15,
-                                          color: Colors.white,
-                                        )
-                                      : null,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          task.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            decoration: task.completed
-                                ? TextDecoration.lineThrough
-                                : null,
-                            color: task.completed
-                                ? AppColors.textSecondary
-                                : AppColors.textPrimary,
-                          ),
-                        ),
-                        if (task.description.isNotEmpty) ...[
-                          const SizedBox(height: 5),
-                          Text(
-                            task.description,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 6),
-                        if (task.group.startsWith('即将') &&
-                            task.steps.isNotEmpty)
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 15,
-                                color: color,
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  task.steps.isNotEmpty
-                                      ? task.due.split(' · ').first
-                                      : task.due,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: color,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              if (task.due.contains('截止') &&
-                                  task.steps.isNotEmpty)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFE3E1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    '剩余 ${task.due.contains('2天') ? '2天' : '20小时'}',
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Color(0xFFD9292F),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        if (task.steps.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          InkWell(
-                            onTap: () => _showSteps(task),
-                            borderRadius: BorderRadius.circular(11),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF7F0FF),
-                                borderRadius: BorderRadius.circular(11),
-                                border: Border.all(
-                                  color: const Color(0xFFEADDFF),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.auto_awesome,
-                                        size: 16,
-                                        color: Color(0xFF712AE2),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: Text(
-                                          '已由 AI 拆解为 ${task.steps.length} 项执行步骤',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Color(0xFF712AE2),
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        '进度 $stepDone/${task.steps.length}',
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 7),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: LinearProgressIndicator(
-                                      value: stepDone / task.steps.length,
-                                      minHeight: 5,
-                                      color: const Color(0xFF712AE2),
-                                      backgroundColor: const Color(0xFFDCE9FF),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 7),
-                                  ...task.steps
-                                      .take(2)
-                                      .toList()
-                                      .asMap()
-                                      .entries
-                                      .map(
-                                        (entry) => Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 3,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                width: 15,
-                                                height: 15,
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: const Color(
-                                                      0xFFDCD6EE,
-                                                    ),
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  doneSteps.contains(
-                                                        entry.value,
-                                                      )
-                                                      ? '✓'
-                                                      : '${entry.key + 1}',
-                                                  style: const TextStyle(
-                                                    fontSize: 10,
-                                                    color:
-                                                        AppColors.textSecondary,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Expanded(
-                                                child: Text(
-                                                  entry.value,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                        if (task.steps.isEmpty) ...[
-                          const SizedBox(height: 8),
-                          if (task.group == '今日进行中')
-                            const Divider(height: 1, color: Color(0xFFF0F1F5)),
-                          Row(
-                            children: [
-                              if (task.group == '今日进行中') ...[
-                                Icon(
-                                  task.description.isNotEmpty
-                                      ? Icons.schedule
-                                      : Icons.checklist,
-                                  size: 14,
-                                  color: task.description.isNotEmpty
-                                      ? AppColors.primary
-                                      : AppColors.textSecondary,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    task.due,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ),
-                              ] else ...[
-                                Icon(
-                                  Icons.timer_outlined,
-                                  size: 15,
-                                  color: color,
-                                ),
-                                const SizedBox(width: 5),
-                                Expanded(
-                                  child: Text(
-                                    task.due,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: color,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              TextButton.icon(
-                                onPressed: task.completed
-                                    ? null
-                                    : () => _showSchedule(task),
-                                icon: task.description.isNotEmpty
-                                    ? const SizedBox.shrink()
-                                    : const Icon(
-                                        Icons.event_note_outlined,
-                                        size: 15,
-                                      ),
-                                label: Text(
-                                  task.description.isNotEmpty
-                                      ? '详情'
-                                      : task.scheduled
-                                      ? '已编排'
-                                      : '排入',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(48, 32),
-                                ),
-                              ),
-                              const Icon(
-                                Icons.chevron_right,
-                                size: 17,
-                                color: AppColors.textSecondary,
-                              ),
-                            ],
-                          ),
-                        ] else ...[
-                          const SizedBox(height: 8),
-                          const Divider(height: 1, color: Color(0xFFF0F1F5)),
-                          Row(
-                            children: [
-                              TextButton.icon(
-                                onPressed: task.scheduled
-                                    ? null
-                                    : () => _showSchedule(task),
-                                icon: task.scheduled
-                                    ? const Icon(
-                                        Icons.event_available,
-                                        size: 17,
-                                        color: Color(0xFF0757D5),
-                                      )
-                                    : const Icon(
-                                        Icons.calendar_month,
-                                        size: 18,
-                                        color: Color(0xFF0757D5),
-                                      ),
-                                label: Text(
-                                  task.scheduled ? '已排入日历' : '排入日历',
-                                  style: const TextStyle(
-                                    color: Color(0xFF0757D5),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  alignment: Alignment.centerLeft,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                              const Spacer(),
-                              if (task.steps.isNotEmpty)
-                                TextButton(
-                                  onPressed: () => _showSteps(task),
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        '查看详情与步骤',
-                                        style: TextStyle(
-                                          color: Color(0xFF343A46),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      SizedBox(width: 4),
-                                      Icon(
-                                        Icons.chevron_right,
-                                        size: 18,
-                                        color: Color(0xFF343A46),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ..._taskCardHeader(task, color),
+              if (task.steps.isNotEmpty) ..._taskCardSteps(task),
+              ..._taskCardFooter(task, color),
+            ],
           ),
         ),
       ),
     );
   }
+
+  List<Widget> _taskCardHeader(_TaskItem task, Color color) => [
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _taskTag(
+                task.platform == '个人自主' ? '个人设计' : task.platform,
+                _platformColor(task.platform),
+                icon: task.platform == '学习通'
+                    ? Icons.school_outlined
+                    : task.platform == '企业微信'
+                    ? Icons.chat_outlined
+                    : null,
+                textColor: task.platform == '企业微信'
+                    ? const Color(0xFF4B168C)
+                    : null,
+              ),
+              _taskTag(
+                task.priority,
+                task.priority.contains('P0')
+                    ? const Color(0xFFFFDAD6)
+                    : const Color(0xFFE5EEFF),
+                textColor: task.priority.contains('P0')
+                    ? const Color(0xFFB42318)
+                    : null,
+              ),
+              if (task.estimate != null)
+                _taskTag(
+                  task.estimate!,
+                  task.steps.isNotEmpty
+                      ? const Color(0xFFFFDBAF)
+                      : const Color(0xFFE5EEFF),
+                  textColor: task.steps.isNotEmpty
+                      ? const Color(0xFF713D0C)
+                      : const Color(0xFF344B70),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Semantics(
+          label: '${task.title}完成状态',
+          checked: task.completed,
+          child: InkWell(
+            onTap: () => _toggleCompleted(task),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: task.completed ? const Color(0xFF712AE2) : Colors.white,
+                border: Border.all(
+                  color: task.completed
+                      ? const Color(0xFF712AE2)
+                      : const Color(0xFFDDE1EB),
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: task.completed
+                  ? const Icon(Icons.check, size: 15, color: Colors.white)
+                  : null,
+            ),
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(height: 10),
+    Text(
+      task.title,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        decoration: task.completed ? TextDecoration.lineThrough : null,
+        color: task.completed ? AppColors.textSecondary : AppColors.textPrimary,
+      ),
+    ),
+    if (task.description.isNotEmpty) ...[
+      const SizedBox(height: 5),
+      Text(
+        task.description,
+        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+      ),
+    ],
+    const SizedBox(height: 6),
+    if (task.group.startsWith('即将') && task.steps.isNotEmpty)
+      AppCardTimeRow(
+        leading: Icon(Icons.timer_outlined, size: 15, color: color),
+        spacing: 6,
+        text: task.steps.isNotEmpty ? task.due.split(' · ').first : task.due,
+        style: TextStyle(
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+        trailing: [
+          if (task.due.contains('截止') && task.steps.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFE3E1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '剩余 ${task.due.contains('2天') ? '2天' : '20小时'}',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFFD9292F),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+        ],
+      ),
+  ];
+
+  List<Widget> _taskCardSteps(_TaskItem task) {
+    final doneSteps = _completedSteps(task);
+    final stepDone = doneSteps.length;
+    return [
+      const SizedBox(height: 12),
+      InkWell(
+        onTap: () => _showSteps(task),
+        borderRadius: BorderRadius.circular(11),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF7F0FF),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(color: const Color(0xFFEADDFF)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.auto_awesome,
+                    size: 16,
+                    color: Color(0xFF712AE2),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      '已由 AI 拆解为 ${task.steps.length} 项执行步骤',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF712AE2),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '进度 $stepDone/${task.steps.length}',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 7),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: LinearProgressIndicator(
+                  value: stepDone / task.steps.length,
+                  minHeight: 5,
+                  color: const Color(0xFF712AE2),
+                  backgroundColor: const Color(0xFFDCE9FF),
+                ),
+              ),
+              const SizedBox(height: 7),
+              ...task.steps
+                  .take(2)
+                  .toList()
+                  .asMap()
+                  .entries
+                  .map(
+                    (entry) => Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 15,
+                            height: 15,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFDCD6EE),
+                              ),
+                            ),
+                            child: Text(
+                              doneSteps.contains(task.data.steps[entry.key].id)
+                                  ? '✓'
+                                  : '${entry.key + 1}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              entry.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _taskCardFooter(_TaskItem task, Color color) => [
+    if (task.steps.isEmpty) ...[
+      const SizedBox(height: 8),
+      if (task.group == '今日进行中')
+        const Divider(height: 1, color: Color(0xFFF0F1F5)),
+      AppCardTimeRow(
+        leading: task.group == '今日进行中'
+            ? Icon(
+                task.description.isNotEmpty ? Icons.schedule : Icons.checklist,
+                size: 14,
+                color: task.description.isNotEmpty
+                    ? AppColors.primary
+                    : AppColors.textSecondary,
+              )
+            : Icon(Icons.timer_outlined, size: 15, color: color),
+        spacing: task.group == '今日进行中' ? 4 : 5,
+        text: task.due,
+        style: task.group == '今日进行中'
+            ? const TextStyle(fontSize: 11, color: AppColors.textSecondary)
+            : TextStyle(fontSize: 12, color: color),
+        trailing: [
+          TextButton.icon(
+            onPressed: task.completed ? null : () => _showSchedule(task),
+            icon: task.description.isNotEmpty
+                ? const SizedBox.shrink()
+                : const Icon(Icons.event_note_outlined, size: 15),
+            label: Text(
+              task.description.isNotEmpty
+                  ? '详情'
+                  : task.scheduled
+                  ? '已编排'
+                  : '排入',
+              style: const TextStyle(fontSize: 12),
+            ),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(48, 32),
+            ),
+          ),
+          const Icon(
+            Icons.chevron_right,
+            size: 17,
+            color: AppColors.textSecondary,
+          ),
+        ],
+      ),
+    ] else ...[
+      const SizedBox(height: 8),
+      const Divider(height: 1, color: Color(0xFFF0F1F5)),
+      Row(
+        children: [
+          TextButton.icon(
+            onPressed: task.scheduled ? null : () => _showSchedule(task),
+            icon: task.scheduled
+                ? const Icon(
+                    Icons.event_available,
+                    size: 17,
+                    color: Color(0xFF0757D5),
+                  )
+                : const Icon(
+                    Icons.calendar_month,
+                    size: 18,
+                    color: Color(0xFF0757D5),
+                  ),
+            label: Text(
+              task.scheduled ? '已排入日历' : '排入日历',
+              style: const TextStyle(
+                color: Color(0xFF0757D5),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              alignment: Alignment.centerLeft,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+          const Spacer(),
+          if (task.steps.isNotEmpty)
+            TextButton(
+              onPressed: () => _showSteps(task),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '查看详情与步骤',
+                    style: TextStyle(
+                      color: Color(0xFF343A46),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 18, color: Color(0xFF343A46)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ],
+  ];
 
   Widget _compactTaskCard(_TaskItem task) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -1462,11 +1331,17 @@ class _TasksPageState extends State<TasksPage> {
             const SizedBox(height: 14),
             _actionButton('确认一键编排到日程', () {
               Navigator.pop(context);
-              setState(() {
-                for (final task in pending.where((task) => !task.completed)) {
-                  task.scheduled = true;
-                }
-              });
+              final now = DateTime.now();
+              var start = DateTime(now.year, now.month, now.day + 1, 9);
+              for (final task in pending.where((task) => !task.completed)) {
+                final duration = task.data.estimate ?? const Duration(hours: 1);
+                _repository.scheduleTask(
+                  taskId: task.data.id,
+                  start: start,
+                  duration: duration,
+                );
+                start = start.add(duration);
+              }
             }),
           ],
         ),
@@ -1476,6 +1351,7 @@ class _TasksPageState extends State<TasksPage> {
 
   void _showSchedule(_TaskItem task) {
     var date = 0;
+    DateTime? customDate;
     var slot = 0;
     var reminder = true;
     _sheet(
@@ -1517,6 +1393,7 @@ class _TasksPageState extends State<TasksPage> {
                                 !context.mounted) {
                               return;
                             }
+                            customDate = picked;
                           }
                           setSheetState(() => date = i);
                         },
@@ -1559,7 +1436,22 @@ class _TasksPageState extends State<TasksPage> {
             const SizedBox(height: 8),
             _actionButton('确认排入', () {
               Navigator.pop(context);
-              setState(() => task.scheduled = true);
+              final now = DateTime.now();
+              final day = date == 2
+                  ? customDate!
+                  : DateTime(now.year, now.month, now.day + date);
+              _repository.scheduleTask(
+                taskId: task.data.id,
+                start: DateTime(
+                  day.year,
+                  day.month,
+                  day.day,
+                  slot == 0 ? 19 : 15,
+                  30,
+                ),
+                duration: const Duration(minutes: 90),
+                reminder: reminder,
+              );
             }),
           ],
         ),
@@ -1571,8 +1463,8 @@ class _TasksPageState extends State<TasksPage> {
     'AI 任务执行流拆解',
     StatefulBuilder(
       builder: (context, setSheetState) {
-        final doneSteps = _doneSteps.putIfAbsent(task, () => <String>{});
-        final checked = task.steps.where(doneSteps.contains).length;
+        final doneSteps = _completedSteps(task);
+        final checked = doneSteps.length;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1610,24 +1502,22 @@ class _TasksPageState extends State<TasksPage> {
               (entry) => Card(
                 color: Colors.white,
                 child: CheckboxListTile(
-                  value: doneSteps.contains(entry.value),
+                  value: doneSteps.contains(task.data.steps[entry.key].id),
                   onChanged: (value) {
                     if (!mounted) return;
-                    setState(() {
-                      if (value == true) {
-                        doneSteps.add(entry.value);
-                      } else {
-                        doneSteps.remove(entry.value);
-                      }
-                      task.completed = task.steps.every(doneSteps.contains);
-                    });
+                    _repository.setStepCompleted(
+                      task.data.id,
+                      task.data.steps[entry.key].id,
+                      value == true,
+                    );
                     setSheetState(() {});
                   },
                   title: Text(
                     '${entry.key + 1}. ${entry.value}',
                     style: TextStyle(
                       fontSize: 13,
-                      decoration: doneSteps.contains(entry.value)
+                      decoration:
+                          doneSteps.contains(task.data.steps[entry.key].id)
                           ? TextDecoration.lineThrough
                           : null,
                     ),
@@ -1648,10 +1538,7 @@ class _TasksPageState extends State<TasksPage> {
               onPressed: () {
                 if (!mounted) return;
                 final newStep = '自定义新增补充验证项 ${task.steps.length + 1}';
-                setState(() {
-                  task.steps.add(newStep);
-                  task.completed = false;
-                });
+                _repository.addStep(task.data.id, newStep);
                 setSheetState(() {});
               },
               icon: const Icon(Icons.add),
@@ -1764,17 +1651,19 @@ class _TasksPageState extends State<TasksPage> {
               setSheetState(() => _createTitleMissing = true);
               return;
             }
-            setState(
-              () => _tasks.insert(
-                0,
-                _TaskItem(
-                  title: title,
-                  platform: _createPlatform,
-                  group: '本周待办列表',
-                  due: '新创建 · 待安排',
-                  priority: ['高优先级 P0', '中优先级 P1', '低优先级 P2'][_createPriority],
-                  estimate: ['1 小时', '2 小时', '3 小时', '45 分钟'][_createEstimate],
-                ),
+            _repository.addTask(
+              Task(
+                id: _repository.newId('task'),
+                title: title,
+                platform: _createPlatform,
+                group: '本周待办列表',
+                priority: TaskPriority.values[_createPriority],
+                estimate: [
+                  const Duration(hours: 1),
+                  const Duration(hours: 2),
+                  const Duration(hours: 3),
+                  const Duration(minutes: 45),
+                ][_createEstimate],
               ),
             );
             _newTaskText = '';

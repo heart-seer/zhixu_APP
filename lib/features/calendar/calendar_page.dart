@@ -1,21 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../shared/domain_models.dart';
+import '../shared/local_repository.dart';
+import '../shared/data_providers.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../shared/app_card.dart';
 import '../shared/app_presentation.dart';
 import '../shared/main_bottom_nav.dart';
 
-class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+class CalendarPage extends ConsumerStatefulWidget {
+  const CalendarPage({super.key, this.initialDate});
+  final DateTime? initialDate;
 
   @override
-  State<CalendarPage> createState() => _CalendarPageState();
+  ConsumerState<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class _CalendarPageState extends ConsumerState<CalendarPage> {
   static const _weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
-  DateTime _selected = DateTime.now();
+  late DateTime _selected = widget.initialDate ?? DateTime.now();
   int _monthOffset = 0;
   bool _monthOpen = false;
   DateTime? _hoveredDay;
@@ -23,7 +30,12 @@ class _CalendarPageState extends State<CalendarPage> {
   bool _monthPickerOpen = false;
   int _pickerYear = DateTime.now().year;
   int _pickerMonth = DateTime.now().month;
-  final Set<int> _completedTasks = {0, 1};
+  AppRepository get _repository => ref.read(localRepositoryProvider);
+  List<CalendarEvent> get _dayEvents => _repository.eventsOn(_selected);
+  List<CalendarEvent> get _completedTasks =>
+      _dayEvents.where((event) => event.completed).toList();
+  String _time(DateTime value) =>
+      '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
   final TextEditingController _quickInputController = TextEditingController();
 
   @override
@@ -39,6 +51,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(localRepositoryProvider);
     final width = MediaQuery.sizeOf(context).width;
     final scale = width / 375;
     final monthDays = _monthDays();
@@ -588,7 +601,15 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Widget _daySummary(double scale) {
-    final inProgress = _completedTasks.contains(2) ? 0 : 1;
+    final now = DateTime.now();
+    final inProgress = _dayEvents
+        .where(
+          (event) =>
+              !event.completed &&
+              !event.start.isAfter(now) &&
+              event.end.isAfter(now),
+        )
+        .length;
     return _card(
       radius: 20 * scale,
       padding: EdgeInsets.fromLTRB(
@@ -637,7 +658,7 @@ class _CalendarPageState extends State<CalendarPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${_completedTasks.length} / 5',
+                  '${_completedTasks.length} / ${_dayEvents.length}',
                   style: TextStyle(
                     fontSize: 25 * scale,
                     fontWeight: FontWeight.w800,
@@ -662,7 +683,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       SizedBox(width: 4 * scale),
                       _tag(
-                        '待办 ${5 - _completedTasks.length - inProgress}',
+                        '待办 ${_dayEvents.length - _completedTasks.length - inProgress}',
                         const Color(0xFFFFE9E9),
                         const Color(0xFFE54646),
                       ),
@@ -688,57 +709,21 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
         Column(
           children: [
-            _timelineItem(
-              scale,
-              '09:00',
-              '10:00',
-              '每周站会与平台消息同步',
-              '钉钉群组会议 · 研发一部',
-              '已完成',
-              const Color(0xFFB7BBC8),
-              taskIndex: 0,
-            ),
-            _timelineItem(
-              scale,
-              '10:30',
-              '12:00',
-              '计算机系统结构线上复习',
-              '学习通平台 · 第7讲 流水线优化',
-              '已完成',
-              const Color(0xFFB7BBC8),
-              taskIndex: 1,
-            ),
-            _timelineItem(
-              scale,
-              '14:00',
-              '15:30',
-              '编写智能助手交互原型规范',
-              'Figma · 智序 iOS/Android 组件定义',
-              '进行中',
-              AppColors.primary,
-              active: true,
-              taskIndex: 2,
-            ),
-            _timelineItem(
-              scale,
-              '15:30',
-              '16:30',
-              '深入复习与作业提交',
-              '已开启免打扰模式与课件智能摘要关联',
-              '待办事项',
-              AppColors.primary,
-              taskIndex: 3,
-            ),
-            _timelineItem(
-              scale,
-              '19:30',
-              '20:30',
-              'Q4 需求对齐评审',
-              '腾讯会议 · 会议号 849-204-118',
-              '待办事项',
-              AppColors.primary,
-              action: '进入',
-              taskIndex: 4,
+            if (_dayEvents.isEmpty)
+              const Padding(padding: EdgeInsets.all(24), child: Text('当日暂无日程')),
+            ..._dayEvents.asMap().entries.map(
+              (entry) => _timelineItem(
+                scale,
+                _time(entry.value.start),
+                _time(entry.value.end),
+                entry.value.title,
+                entry.value.subtitle,
+                event: entry.value,
+                active:
+                    !entry.value.start.isAfter(DateTime.now()) &&
+                    entry.value.end.isAfter(DateTime.now()),
+                isLast: entry.key == _dayEvents.length - 1,
+              ),
             ),
           ],
         ),
@@ -751,23 +736,59 @@ class _CalendarPageState extends State<CalendarPage> {
     String time,
     String endTime,
     String title,
-    String subtitle,
-    String status,
-    Color color, {
+    String subtitle, {
     bool active = false,
     String? action,
-    int? taskIndex,
+    required CalendarEvent event,
+    bool isLast = false,
   }) {
-    final completed = taskIndex != null && _completedTasks.contains(taskIndex);
-    active = active && !completed;
-    final shownStatus = completed
+    final completed = event.completed;
+    final isActive = active && !completed;
+    final status = completed
         ? '已完成'
-        : active
-        ? status
+        : isActive
+        ? '进行中'
         : '待办事项';
+    return _calendarTimelineEntry(
+      scale: scale,
+      time: time,
+      endTime: endTime,
+      title: title,
+      subtitle: subtitle,
+      status: status,
+      completed: completed,
+      active: isActive,
+      focusRunning: _focusRunning,
+      isLast: isLast,
+      action: action,
+      onAction: () => _showContentPanel(
+        title,
+        '$time - $endTime\n$subtitle\n\n会议服务尚未接入，请在对应会议应用中使用会议号加入。',
+      ),
+      onFocus: () => setState(() => _focusRunning = !_focusRunning),
+      onToggleCompleted: () => _repository.toggleEvent(event.id),
+    );
+  }
+
+  static Widget _calendarTimelineEntry({
+    required double scale,
+    required String time,
+    required String endTime,
+    required String title,
+    required String subtitle,
+    required String status,
+    required bool completed,
+    required bool active,
+    required bool focusRunning,
+    required bool isLast,
+    required String? action,
+    required VoidCallback onAction,
+    required VoidCallback onFocus,
+    required VoidCallback? onToggleCompleted,
+  }) {
     final taskColor = completed ? const Color(0xFF858998) : AppColors.primary;
     return Padding(
-      padding: EdgeInsets.only(bottom: taskIndex == 4 ? 0 : 9 * scale),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 9 * scale),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -871,40 +892,33 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            _tag(
-                              active ? '● $shownStatus' : shownStatus,
-                              active
-                                  ? const Color(0xFFE0E2FF)
-                                  : completed
-                                  ? const Color(0xFFE4EEFF)
-                                  : const Color(0xFF2865F3),
-                              active
-                                  ? AppColors.primary
-                                  : completed
-                                  ? const Color(0xFF606677)
-                                  : Colors.white,
-                              scale: scale,
-                            ),
-                            SizedBox(width: 7 * scale),
-                            Expanded(
-                              child: Text(
-                                '$time - $endTime',
-                                style: TextStyle(
-                                  fontSize: 9 * scale,
-                                  fontFamily: 'monospace',
-                                  color: AppColors.textSecondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                        AppCardTimeRow(
+                          leading: _tag(
+                            active ? '● $status' : status,
+                            active
+                                ? const Color(0xFFE0E2FF)
+                                : completed
+                                ? const Color(0xFFE4EEFF)
+                                : const Color(0xFF2865F3),
+                            active
+                                ? AppColors.primary
+                                : completed
+                                ? const Color(0xFF606677)
+                                : Colors.white,
+                            scale: scale,
+                          ),
+                          spacing: 7 * scale,
+                          text: '$time - $endTime',
+                          style: TextStyle(
+                            fontSize: 9 * scale,
+                            fontFamily: 'monospace',
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          trailing: [
                             if (action != null) ...[
                               InkWell(
-                                onTap: () => _showContentPanel(
-                                  title,
-                                  '$time - $endTime\n$subtitle\n\n会议服务尚未接入，请在对应会议应用中使用会议号加入。',
-                                ),
+                                onTap: onAction,
                                 borderRadius: BorderRadius.circular(4),
                                 child: _tag(
                                   action,
@@ -917,11 +931,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             ],
                             if (active) ...[
                               InkWell(
-                                onTap: () {
-                                  setState(
-                                    () => _focusRunning = !_focusRunning,
-                                  );
-                                },
+                                onTap: onFocus,
                                 child: Container(
                                   width: 26 * scale,
                                   height: 26 * scale,
@@ -930,7 +940,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
-                                    _focusRunning
+                                    focusRunning
                                         ? Icons.pause_rounded
                                         : Icons.play_arrow_rounded,
                                     size: 17 * scale,
@@ -945,20 +955,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               duration: const Duration(milliseconds: 140),
                               curve: Curves.easeOutBack,
                               child: InkWell(
-                                onTap: taskIndex == null
-                                    ? null
-                                    : () => setState(() {
-                                        if (_completedTasks.contains(
-                                          taskIndex,
-                                        )) {
-                                          _completedTasks.remove(taskIndex);
-                                        } else {
-                                          _completedTasks.add(taskIndex);
-                                          if (taskIndex == 2) {
-                                            _focusRunning = false;
-                                          }
-                                        }
-                                      }),
+                                onTap: onToggleCompleted,
                                 child: Container(
                                   width: 24 * scale,
                                   height: 24 * scale,
@@ -990,10 +987,10 @@ class _CalendarPageState extends State<CalendarPage> {
                             fontSize: 13 * scale,
                             fontWeight: FontWeight.w700,
                             height: 1.3,
-                            decoration: shownStatus == '已完成'
+                            decoration: completed
                                 ? TextDecoration.lineThrough
                                 : null,
-                            color: shownStatus == '已完成'
+                            color: completed
                                 ? AppColors.textSecondary
                                 : AppColors.textPrimary,
                           ),
@@ -1174,7 +1171,7 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  Widget _tag(
+  static Widget _tag(
     String text,
     Color background,
     Color foreground, {
@@ -1212,10 +1209,15 @@ class _CalendarPageState extends State<CalendarPage> {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   List<Color> _eventColors(DateTime day) {
-    if (day.day % 9 == 0) return [const Color(0xFFC51F27)];
-    if (day.day % 4 == 0) return [const Color(0xFF2F6FED)];
-    if (day.day % 6 == 0) return [const Color(0xFF7429D9)];
-    return const [];
+    return _repository
+        .eventsOn(day)
+        .take(3)
+        .map(
+          (event) => event.completed
+              ? const Color(0xFF858998)
+              : const Color(0xFF2F6FED),
+        )
+        .toList();
   }
 
   void _toggleCalendarView() => setState(() => _monthOpen = !_monthOpen);
