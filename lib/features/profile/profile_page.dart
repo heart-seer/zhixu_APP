@@ -6,6 +6,8 @@ import '../../app/router/route_names.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/storage/secure_storage.dart';
 import '../shared/app_presentation.dart';
+import '../shared/data_providers.dart';
+import '../shared/local_repository.dart';
 import '../shared/main_bottom_nav.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -264,37 +266,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ],
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          '林知序',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        Text(
-                          'Alex Lin',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      ref.watch(repositoryProvider).displayName ?? '未登录',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    SizedBox(height: 4),
-                    Text('高级产品设计专家 · 考研备考中', style: TextStyle(fontSize: 11)),
+                    const SizedBox(height: 4),
+                    Text(
+                      _subtitle(ref.watch(repositoryProvider)),
+                      style: const TextStyle(fontSize: 11),
+                    ),
                   ],
                 ),
               ),
               IconButton(
-                tooltip: '示例个人档案',
+                tooltip: '个人档案',
                 onPressed: _showProfile,
                 constraints: const BoxConstraints(minWidth: 30, minHeight: 44),
                 padding: EdgeInsets.zero,
@@ -408,15 +400,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              _metric('38', '项', '本周交付任务', '+12.5%', _blue, _green),
+              _metric(
+                '${ref.watch(repositoryProvider).tasks.length}',
+                '项',
+                '全部任务',
+                '已完成 ${ref.watch(repositoryProvider).tasks.where((task) => task.completed).length}',
+                _blue,
+                _green,
+              ),
               const SizedBox(width: 8),
-              _metric('42.5', 'h', '专注时长', '超越达标', _purple, _purple),
+              _metric('—', '', '专注时长', '未接入', _purple, _purple),
               const SizedBox(width: 8),
               _metric(
-                '94',
-                '%',
+                '—',
+                '',
                 'AI 协同采纳',
-                '高音效',
+                '未接入',
                 const Color(0xFF172B45),
                 _blue,
               ),
@@ -426,6 +425,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
     ),
   );
+
+  String _subtitle(AppRepository repository) {
+    final parts = [repository.occupation, repository.currentGoal]
+        .whereType<String>()
+        .where((value) => value.trim().isNotEmpty)
+        .toList();
+    return parts.isEmpty ? '尚未完善个人资料' : parts.join(' · ');
+  }
 
   Widget _metric(
     String value,
@@ -891,11 +898,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     ),
   );
 
-  void _showProfile() => _showPanel('个人档案 · 示例', [
-    _detail('姓名', '林知序 Alex Lin'),
-    _detail('职业', '高级产品设计专家'),
-    _detail('当前目标', '考研备考中'),
-    const Text('以上为示例档案，未接入账号档案或个人二维码服务。头像与勾选徽章仅为设计展示，不代表身份认证。'),
+  void _showProfile() => _showPanel('个人档案', [
+    _detail('姓名', ref.read(repositoryProvider).displayName ?? '未填写'),
+    _detail('职业', ref.read(repositoryProvider).occupation ?? '未填写'),
+    _detail('当前目标', ref.read(repositoryProvider).currentGoal ?? '未填写'),
+    const Text('以上资料来自账号档案接口，可在“编辑资料”中修改。'),
   ], asPage: true);
 
   void _showPro() => _showPanel('Pro 权益信息 · 示例', [
@@ -903,11 +910,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     const Text('会员标识为设计示例，未接入订阅或权益验证服务，无可核实的有效期、额度或订单信息。此处不能购买、续费或管理真实订阅。'),
   ], asPage: true);
 
-  void _showWeeklyReport() => _showPanel('效能周报 · 第43周 · 示例', [
-    _detail('本周交付任务', '38 项 · +12.5%'),
-    _detail('专注时长', '42.5 h · 超越达标'),
-    _detail('AI 协同采纳', '94% · 高音效'),
-    const Text('以上与看板一致，为参考设计中的本地示例指标，未接入真实统计或历史周报服务。'),
+  void _showWeeklyReport() => _showPanel('效能周报', [
+    _detail('全部任务', '${ref.read(repositoryProvider).tasks.length} 项'),
+    _detail(
+      '已完成任务',
+      '${ref.read(repositoryProvider).tasks.where((task) => task.completed).length} 项',
+    ),
+    const Text('专注时长、AI 协同采纳等统计尚未接入后端，暂不展示。'),
   ], asPage: true);
 
   void _showPlatforms(String platform) => _showPanel('$platform · 示例连接状态', [
@@ -923,7 +932,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     try {
       final token = await ref.read(secureStorageProvider).readToken();
       status = token == null || token.isEmpty
-          ? '未保存本地登录凭据（开发环境允许直接预览）'
+          ? '未保存本地登录凭据'
           : '已保存本地登录凭据；未验证云端会话有效性';
     } catch (_) {
       status = '无法读取本地登录状态';

@@ -37,6 +37,17 @@ class RemoteRepository extends AppRepository {
   String? lastError;
   int errorVersion = 0;
 
+  String? _displayName;
+  String? _occupation;
+  String? _currentGoal;
+
+  @override
+  String? get displayName => _displayName;
+  @override
+  String? get occupation => _occupation;
+  @override
+  String? get currentGoal => _currentGoal;
+
   bool get ready => _ready;
 
   @override
@@ -109,8 +120,12 @@ class RemoteRepository extends AppRepository {
 
   Future<void> refresh() async {
     try {
-      await _loadPreferences();
-      await Future.wait([_loadTasks(), _loadEvents()]);
+      await Future.wait([
+        _loadProfile(),
+        _loadPreferences(),
+        _loadTasks(),
+        _loadEvents(),
+      ]);
       await _loadMessages();
     } catch (error) {
       _fail(error);
@@ -499,6 +514,13 @@ class RemoteRepository extends AppRepository {
     }
   }
 
+  Future<void> _loadProfile() async {
+    final row = _object(await _dio.get(ApiEndpoints.me));
+    _displayName = _textOrNull(row['displayName']);
+    _occupation = _textOrNull(row['occupation']);
+    _currentGoal = _textOrNull(row['currentGoal']);
+  }
+
   Future<void> _loadTasks() async {
     final rows = _objects(await _dio.get(
       ApiEndpoints.tasks,
@@ -584,6 +606,11 @@ class RemoteRepository extends AppRepository {
     lastError = error is ApiException ? error.message : '网络异常，请稍后重试';
     errorVersion++;
     notifyListeners();
+  }
+
+  String? _textOrNull(Object? value) {
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? null : text;
   }
 
   // ---------- 映射 ----------

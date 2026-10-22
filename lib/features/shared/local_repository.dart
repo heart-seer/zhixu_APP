@@ -35,6 +35,10 @@ abstract class AppRepository extends ChangeNotifier {
   Future<void> loadMoreTasks() async {}
   bool get hasMoreMessages => false;
   Future<void> loadMoreMessages() async {}
+
+  String? get displayName => null;
+  String? get occupation => null;
+  String? get currentGoal => null;
 }
 
 class LocalRepository extends AppRepository {

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/config/app_config.dart';
-import '../../app/config/environment.dart';
 import '../../app/router/route_names.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_dimensions.dart';
@@ -174,16 +172,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   AppTextField(controller: _password, label: '密码', hint: '请输入密码', obscureText: true, prefix: const Icon(Icons.lock_outline), validator: Validators.password),
                 const SizedBox(height: 24),
                 AppButton(label: '登 录', isLoading: state.isLoading, onPressed: () => _submit(controller)),
-                if (AppConfig.environment == Environment.development) ...[
-                  const SizedBox(height: 8),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => context.go(RouteNames.home),
-                      icon: const Icon(Icons.preview_outlined, size: 18),
-                      label: const Text('开发预览首页'),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 10),
                 Center(
                   child: TextButton(
